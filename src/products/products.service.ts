@@ -1,0 +1,149 @@
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Product } from './product.entity';
+import { Category } from './category.entity';
+import { ProductsDto } from './dto';
+// import { CreateProductDto } from './dto/create-product.dto';
+// import { UpdateProductDto } from './dto/update-product.dto';
+// import { CreateCategoryDto } from './dto/create-category.dto';
+// import { UpdateCategoryDto } from './dto/update-category.dto';
+
+@Injectable()
+export class ProductsService {
+  constructor(
+    @InjectRepository(Product)
+    private productsRepository: Repository<Product>,
+    @InjectRepository(Category)
+    private categoriesRepository: Repository<Category>,
+  ) {}
+
+  /**
+   * Creates a new product.
+   *
+   * @param createProductDto the data used to create the product
+   * @returns the created product
+   */
+  async createProduct(
+    createProductDto: ProductsDto.CreateProductDto,
+    CategoryId: number,
+  ): Promise<Product> {
+    const { categoryId, ...rest } = createProductDto;
+    const category = await this.categoriesRepository.findOne({
+      where: { id: CategoryId },
+    });
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+    const missingFields: string[] = [];
+    if (!CategoryId) {
+      missingFields.push('categoryId');
+    }
+    if (!rest.name) {
+      missingFields.push('name');
+    }
+
+    if (!rest.description) {
+      missingFields.push('description');
+    }
+
+    if (!rest.price) {
+      missingFields.push('price');
+    }
+
+    if (!rest.sku) {
+      missingFields.push('sku');
+    }
+    if (!rest.quantity) {
+      missingFields.push('quantity');
+    }
+
+    if (missingFields.length > 0) {
+      throw new BadRequestException(
+        `The following fields are missing: ${missingFields.join(', ')}.`,
+      );
+    }
+
+    const product = this.productsRepository.create({ ...rest, category });
+    return this.productsRepository.save(product);
+  }
+
+  async findAllProducts(): Promise<Product[]> {
+    return this.productsRepository.find({ relations: ['product'] });
+  }
+
+  async findProductById(id: number): Promise<Product> {
+    const product = await this.productsRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
+    if (!product) {
+      throw new NotFoundException('Product not found harus salah');
+    }
+    return product;
+  }
+
+  async updateProduct(
+    id: number,
+    updateProductDto: ProductsDto.UpdateProductDto,
+  ): Promise<Product> {
+    const product = await this.findProductById(id);
+    const { categoryId, ...rest } = updateProductDto;
+    if (categoryId) {
+      const category = await this.categoriesRepository.findOne({
+        where: { id: categoryId },
+      });
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+      product.category = category;
+    }
+    Object.assign(product, rest);
+    return this.productsRepository.save(product);
+  }
+
+  async removeProduct(id: number): Promise<void> {
+    const product = await this.findProductById(id);
+    await this.productsRepository.remove(product);
+  }
+
+  async createCategory(
+    createCategoryDto: ProductsDto.CreateCategoryDto,
+  ): Promise<Category> {
+    const category = this.categoriesRepository.create(createCategoryDto);
+    return this.categoriesRepository.save(category);
+  }
+
+  async findAllCategories(): Promise<Category[]> {
+    return this.categoriesRepository.find({ relations: ['id', 'name'] });
+  }
+
+  async findCategoryById(id: number): Promise<Category> {
+    const category = await this.categoriesRepository.findOne({
+      where: { id },
+      relations: ['products'],
+    });
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+    return category;
+  }
+
+  async updateCategory(
+    id: number,
+    updateCategoryDto: ProductsDto.UpdateCategoryDto,
+  ): Promise<Category> {
+    const category = await this.findCategoryById(id);
+    Object.assign(category, updateCategoryDto);
+    return this.categoriesRepository.save(category);
+  }
+
+  async removeCategory(id: number): Promise<void> {
+    const category = await this.findCategoryById(id);
+    await this.categoriesRepository.remove(category);
+  }
+}
