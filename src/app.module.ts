@@ -28,11 +28,11 @@ import { Cart, CartItem } from './cart/entity/cart.entity';
     TypeOrmModule.forRoot({
       type: 'mysql',
       // database: 'database.db',
-      host: 'localhost',
-      port: 3306, //kalau error hapus
+      host: 'autorack.proxy.rlwy.net',
+      port: 49994, //kalau error hapus
       username: 'root',
-      password: '',
-      database: 'nestjs-commerce',
+      password: 'aWkiMhxgbyeMZeUdzfQklkbFIzkZardB',
+      database: 'railway',
       entities: [Cart, CartItem, User, Product, Category, Order, OrderItem],
       synchronize: true,
     }),
