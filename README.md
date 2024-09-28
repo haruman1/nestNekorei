@@ -24,7 +24,11 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository
+
+## Development
+
+Mengembangkan web aplikasi Nest.js dengan TypeScript oleh [Haruman](https://github.com/haruman1).
 
 ## Installation
 
