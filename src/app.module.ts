@@ -26,13 +26,13 @@ import { Cart, CartItem } from './cart/entity/cart.entity';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
-      type: 'mysql',
+      type: process.env.DATABASE_TYPE as any,
       // database: 'database.db',
-      host: 'autorack.proxy.rlwy.net',
-      port: 49994, //kalau error hapus
-      username: 'root',
-      password: 'aWkiMhxgbyeMZeUdzfQklkbFIzkZardB',
-      database: 'railway',
+      host: process.env.DATABASE_HOST,
+      port: parseInt(process.env.DATABASE_PORT), //kalau error hapus
+      username: process.env.DATABASE_USERNAME,
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE_NAME,
       entities: [Cart, CartItem, User, Product, Category, Order, OrderItem],
       synchronize: true,
     }),
