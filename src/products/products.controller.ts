@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -93,5 +94,24 @@ export class ProductsController {
   @Delete('categories/:id')
   removeCategory(@Param('id') id: number) {
     return this.productsService.removeCategory(id);
+  }
+  @Get('search')
+  searchProducts(@Query('query') query: string) {
+    return this.productsService.searchProducts(query);
+  }
+
+  @Get('filter')
+  filterProducts(
+    @Query('categoryId') categoryId?: number,
+    @Query('minPrice') minPrice?: number,
+    @Query('maxPrice') maxPrice?: number,
+    @Query('minRating') minRating?: number,
+  ) {
+    return this.productsService.filterProducts(
+      categoryId,
+      minPrice,
+      maxPrice,
+      minRating,
+    );
   }
 }

@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { Product } from 'src/products/product.entity';
+
 import { Order } from 'src/orders/order.entity';
+import { Cart } from 'src/cart/entity/cart.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -8,6 +9,9 @@ export class User {
 
   @Column({ unique: true })
   email: string;
+
+  @Column()
+  name: string;
 
   @Column()
   password: string;
@@ -20,4 +24,7 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
+
+  @OneToMany(() => Cart, (cart) => cart.user)
+  carts: Cart[];
 }

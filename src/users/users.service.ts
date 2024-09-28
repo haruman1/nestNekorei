@@ -22,7 +22,7 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: UsersDto.CreateUserDto): Promise<User> {
-    const { email, password, role } = createUserDto;
+    const { email, name, password, role } = createUserDto;
 
     // Log data yang diterima untuk debugging
     console.log('Data yang diterima:', createUserDto);
@@ -53,6 +53,7 @@ export class UsersService {
       // Buat user baru
       const user = this.usersRepository.create({
         email,
+        name,
         password: hashedPassword,
         role,
       });

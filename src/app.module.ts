@@ -13,8 +13,12 @@ import { Order, OrderItem } from './orders/order.entity';
 import { json } from 'body-parser';
 import { PaymentService } from './payment/payment.service';
 import { PaymentController } from './payment/payment.controller';
-import { InvoiceController } from './invoice/invoice.controller';
 import { PaymentModule } from './payment/payment.module';
+import { InvoicesService } from './invoices/invoices.service';
+import { InvoicesController } from './invoices/invoices.controller';
+import { InvoicesModule } from './invoices/invoices.module';
+import { CartModule } from './cart/cart.module';
+import { Cart, CartItem } from './cart/entity/cart.entity';
 
 @Module({
   imports: [
@@ -22,9 +26,14 @@ import { PaymentModule } from './payment/payment.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'data-ecommercenest.db',
-      entities: [User, Product, Category, Order, OrderItem],
+      type: 'mysql',
+      // database: 'database.db',
+      host: 'localhost',
+      port: 3306, //kalau error hapus
+      username: 'root',
+      password: '',
+      database: 'nestjs-commerce',
+      entities: [Cart, CartItem, User, Product, Category, Order, OrderItem],
       synchronize: true,
     }),
     UsersModule,
@@ -32,8 +41,10 @@ import { PaymentModule } from './payment/payment.module';
     ProductsModule,
     OrdersModule,
     PaymentModule,
+    InvoicesModule,
+    CartModule,
   ],
-  providers: [PaymentService],
-  controllers: [PaymentController, InvoiceController],
+  providers: [PaymentService, InvoicesService],
+  controllers: [PaymentController, InvoicesController],
 })
 export class AppModule {}

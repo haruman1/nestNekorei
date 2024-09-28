@@ -24,12 +24,29 @@ interface JwtPayload {
 }
 
 @Controller('users')
+@UseGuards(RolesGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
   ) {}
+  @Get()
+  @Roles(Role.Admin)
+  findAll() {
+    return this.usersService.findAll();
+  }
 
+  @Get(':id')
+  @Roles(Role.Admin)
+  findOne(@Param('id') id: number) {
+    return this.usersService.findOneById(id);
+  }
+
+  @Delete(':id')
+  @Roles(Role.Admin)
+  remove(@Param('id') id: number) {
+    return this.usersService.remove(id);
+  }
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.create(createUserDto);

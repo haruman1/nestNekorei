@@ -8,20 +8,21 @@ import {
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-
+import { JwtStrategy } from './jwt/jwt.strategy';
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private jwtService: JwtService,
+    private readonly jwtStrategy: JwtStrategy,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
     // Log untuk melihat email dan password yang diterima
     console.log('Validating user:', email, pass);
-
-    const user = await this.usersService.findOneByEmail(email);
+    const payload = { email, pass };
+    const user = await this.jwtStrategy.validate(payload);
 
     if (!user) {
       console.log('User not found');
@@ -48,30 +49,19 @@ export class AuthService {
     }
 
     const user = await this.validateUser(email, password);
+    console.log('user', user);
 
-    try {
-      // Validasi user
-      if (!user) {
-        throw new BadRequestException('Invalid email or password');
-      }
-
-      // Validasi apakah user memiliki email, id, dan role
-      if (!user.email || !user.id || !user.role) {
-        throw new BadRequestException('User data is incomplete');
-      }
-
-      // Buat payload untuk JWT
-      const payload = { email: user.email, sub: user.id, role: user.role };
-
-      // Keluarkan token JWT
-      return {
-        access_token: this.jwtService.sign(payload),
-      };
-    } catch (error) {
-      // Log error untuk debugging
-      console.error('Login error:', error);
-
-      throw new UnauthorizedException('Error karena: ' + error.message);
+    // Validasi user
+    if (!user) {
+      throw new BadRequestException('Invalid email or password 1');
     }
+
+    // Buat payload untuk JWT
+    const payload = { email: user.email, sub: user.id, name: user.name };
+
+    // Keluarkan token JWT
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 }
