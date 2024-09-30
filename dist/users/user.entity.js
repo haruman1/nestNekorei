@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
+const swagger_1 = require("@nestjs/swagger");
 const order_entity_1 = require("../orders/order.entity");
 const cart_entity_1 = require("../cart/entity/cart.entity");
 let User = class User {
@@ -22,26 +23,78 @@ __decorate([
 ], User.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)({ unique: true }),
+    (0, swagger_1.ApiProperty)({
+        example: 'johndoe@example.com',
+        description: 'isi dengan email',
+        required: true,
+        type: String,
+        title: 'Email User',
+    }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
+    (0, swagger_1.ApiProperty)({
+        example: 'John Doe',
+        description: 'isi dengan nama anda',
+        required: true,
+        type: String,
+        title: 'Nama User',
+    }),
     __metadata("design:type", String)
 ], User.prototype, "name", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
+    (0, swagger_1.ApiProperty)({
+        example: '******',
+        description: 'isi dengan password',
+        required: true,
+        type: String,
+        title: 'Password User',
+    }),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
+    (0, swagger_1.ApiProperty)({
+        example: 'admin or customer',
+        description: 'isi dengan role anda',
+        required: true,
+    }),
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);
 __decorate([
     (0, typeorm_1.Column)({ default: '' }),
+    (0, swagger_1.ApiProperty)({
+        example: 'profile.jpg',
+        description: 'isi dengan profile anda',
+        required: null,
+        type: String,
+        title: 'Profile User',
+    }),
     __metadata("design:type", String)
 ], User.prototype, "profile", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => order_entity_1.Order, (order) => order.user),
+    (0, swagger_1.ApiProperty)({
+        example: [
+            {
+                id: 1,
+                status: 'pending',
+                total: 100000,
+                createdAt: new Date(),
+                items: [],
+                user: null,
+                user_id: 1,
+                description: 'isi dengan order anda',
+                required: null,
+                type: [order_entity_1.Order],
+            },
+        ],
+        description: 'isi dengan order anda',
+        required: null,
+        type: [order_entity_1.Order],
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "orders", void 0);
 __decorate([
