@@ -10,9 +10,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateOrderDto = void 0;
+const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 class OrderItemDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { productId: { required: true, type: () => Number }, quantity: { required: true, type: () => Number } };
+    }
 }
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
@@ -25,6 +29,9 @@ __decorate([
     __metadata("design:type", Number)
 ], OrderItemDto.prototype, "quantity", void 0);
 class CreateOrderDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { userId: { required: true, type: () => Number }, items: { required: true, type: () => [OrderItemDto] } };
+    }
 }
 exports.CreateOrderDto = CreateOrderDto;
 __decorate([

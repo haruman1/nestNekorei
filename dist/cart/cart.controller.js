@@ -13,6 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CartController = void 0;
+const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const cart_service_1 = require("./cart.service");
 const create_cart_item_dto_1 = require("./dto/create-cart-item.dto");
@@ -49,6 +50,7 @@ let CartController = class CartController {
 exports.CartController = CartController;
 __decorate([
     (0, common_1.Post)('add'),
+    openapi.ApiResponse({ status: 201, type: require("./entity/cart.entity").Cart }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -57,6 +59,7 @@ __decorate([
 ], CartController.prototype, "addItem", null);
 __decorate([
     (0, common_1.Patch)('update/:itemId'),
+    openapi.ApiResponse({ status: 200, type: require("./entity/cart.entity").Cart }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('itemId')),
     __param(2, (0, common_1.Body)()),
@@ -66,6 +69,7 @@ __decorate([
 ], CartController.prototype, "updateItem", null);
 __decorate([
     (0, common_1.Delete)('remove/:itemId'),
+    openapi.ApiResponse({ status: 200, type: require("./entity/cart.entity").Cart }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Param)('itemId')),
     __metadata("design:type", Function),
@@ -74,6 +78,7 @@ __decorate([
 ], CartController.prototype, "removeItem", null);
 __decorate([
     (0, common_1.Get)('summary'),
+    openapi.ApiResponse({ status: 200, type: require("./entity/cart.entity").Cart }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -81,6 +86,7 @@ __decorate([
 ], CartController.prototype, "getCartSummary", null);
 __decorate([
     (0, common_1.Post)('checkout'),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

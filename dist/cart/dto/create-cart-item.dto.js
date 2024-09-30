@@ -10,8 +10,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateCartItemDto = void 0;
+const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class CreateCartItemDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { productId: { required: true, type: () => Number }, quantity: { required: true, type: () => Number } };
+    }
 }
 exports.CreateCartItemDto = CreateCartItemDto;
 __decorate([
