@@ -5,6 +5,7 @@ import {
   NotFoundException,
   Inject,
 } from '@nestjs/common';
+import * as CryptoJS from 'crypto-js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -21,8 +22,14 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
+  generateRandomCode(): string {
+    const randomNumber = CryptoJS.lib.WordArray.random(4).toString(); // Menghasilkan angka acak (4 byte)
+    const randomCode = ` NK${randomNumber}`; // Gabungkan "NK" dengan angka acak
+    return randomCode;
+  }
+
   async create(createUserDto: UsersDto.CreateUserDto): Promise<User> {
-    const { email, name, password, role } = createUserDto;
+    const { email, userId, name, password, role } = createUserDto;
 
     // Log data yang diterima untuk debugging
     console.log('Data yang diterima:', createUserDto);
@@ -49,9 +56,10 @@ export class UsersService {
     try {
       // Hash password sebelum menyimpan ke database
       const hashedPassword = await bcrypt.hash(password, saltRounds);
-
+      const UserID = this.generateRandomCode();
       // Buat user baru
       const user = this.usersRepository.create({
+        userId: UserID,
         email,
         name,
         password: hashedPassword,
@@ -77,21 +85,21 @@ export class UsersService {
 
     if (!user) {
       console.log('User tidak ditemukan');
-      return null;
+      throw new NotFoundException('User not found');
     }
 
     return user;
   }
 
   async update(
-    id: number,
+    userId: string,
     updateUserDto: UsersDto.UpdateUserDto,
   ): Promise<void> {
     const { password, profile } = updateUserDto;
     const hashedPassword = password
       ? await bcrypt.hash(password, 10)
       : undefined;
-    await this.usersRepository.update(id, {
+    await this.usersRepository.update(userId, {
       ...(password && { password: hashedPassword }),
       ...(profile && { profile }),
     });
@@ -103,8 +111,14 @@ export class UsersService {
     }
     return user;
   }
-
-  async remove(id: number): Promise<void> {
-    await this.usersRepository.delete(id);
+  async findOneByIdUser(userId: string): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+  async remove(userId: string): Promise<void> {
+    await this.usersRepository.delete(userId);
   }
 }

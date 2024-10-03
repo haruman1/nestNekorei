@@ -26,16 +26,20 @@ let CartService = class CartService {
         this.usersService = usersService;
         this.productsService = productsService;
     }
+    async findUserById(userId) {
+        const user = await this.usersService.findOneById(userId);
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        return user;
+    }
     async findOrCreateCart(userId) {
+        const user = await this.findUserById(userId);
         let cart = await this.cartRepository.findOne({
-            where: { user: { id: userId } },
+            where: { user: { id: user.id } },
             relations: ['items', 'items.product'],
         });
         if (!cart) {
-            const user = await this.usersService.findOneById(userId);
-            if (!user) {
-                throw new common_1.NotFoundException('User not found');
-            }
             cart = this.cartRepository.create({ user, items: [] });
             cart = await this.cartRepository.save(cart);
         }

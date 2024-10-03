@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Request } from 'express';
 import { AuthService } from '../auth/auth.service';
 interface JwtPayload {
-    id: number;
+    userId: string;
     email: string;
     role: string;
 }

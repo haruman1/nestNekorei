@@ -18,7 +18,7 @@ import { Request } from 'express';
 import { AuthService } from '../auth/auth.service';
 
 interface JwtPayload {
-  id: number;
+  userId: string;
   email: string;
   role: string;
 }
@@ -43,7 +43,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getProfile(@Req() req: Request & { user: JwtPayload }) {
-    return this.usersService.findOneByEmail(req.user.email);
+    return this.usersService.findOneByIdUser(req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -52,16 +52,14 @@ export class UsersController {
     @Req() req: Request & { user: JwtPayload },
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    const user = req.user;
-    await this.usersService.update(user.id, updateUserDto);
-    return this.usersService.findOneByEmail(user.email);
+    await this.usersService.update(req.user.userId, updateUserDto);
+    return this.usersService.findOneByEmail(req.user.email);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('profile')
   async deleteProfile(@Req() req: Request & { user: JwtPayload }) {
-    const user = req.user;
-    await this.usersService.remove(user.id);
+    await this.usersService.remove(req.user.userId);
     return { message: 'User profile successfully deleted' };
   }
 }

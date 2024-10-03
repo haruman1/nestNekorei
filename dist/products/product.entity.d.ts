@@ -1,4 +1,5 @@
 import { Category } from './category.entity';
+import { OrderItem } from 'src/orders/order.entity';
 export declare class Product {
     id: number;
     name: string;
@@ -7,4 +8,5 @@ export declare class Product {
     sku: string;
     quantity: number;
     category: Category;
+    orderItems: OrderItem[];
 }

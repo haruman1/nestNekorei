@@ -9,6 +9,7 @@ export declare class CartService {
     private usersService;
     private productsService;
     constructor(cartRepository: Repository<Cart>, cartItemRepository: Repository<CartItem>, usersService: UsersService, productsService: ProductsService);
+    private findUserById;
     findOrCreateCart(userId: number): Promise<Cart>;
     addItem(userId: number, createCartItemDto: CartDto.CreateCartItemDto): Promise<Cart>;
     updateItem(userId: number, cartItemId: number, updateCartItemDto: CartDto.UpdateCartItemDto): Promise<Cart>;

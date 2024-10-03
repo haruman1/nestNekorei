@@ -17,7 +17,7 @@ const order_entity_1 = require("../orders/order.entity");
 const cart_entity_1 = require("../cart/entity/cart.entity");
 let User = class User {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, email: { required: true, type: () => String }, name: { required: true, type: () => String }, password: { required: true, type: () => String }, role: { required: true, type: () => String }, profile: { required: true, type: () => String }, orders: { required: true, type: () => [require("../orders/order.entity").Order] }, carts: { required: true, type: () => [require("../cart/entity/cart.entity").Cart] } };
+        return { id: { required: true, type: () => Number }, userId: { required: true, type: () => String }, email: { required: true, type: () => String }, name: { required: true, type: () => String }, password: { required: true, type: () => String }, role: { required: true, type: () => String }, profile: { required: true, type: () => String }, orders: { required: true, type: () => [require("../orders/order.entity").Order] }, carts: { required: true, type: () => [require("../cart/entity/cart.entity").Cart] } };
     }
 };
 exports.User = User;
@@ -25,6 +25,13 @@ __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
 ], User.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    (0, swagger_1.ApiProperty)({
+        example: 'NKXXXX',
+    }),
+    __metadata("design:type", String)
+], User.prototype, "userId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ unique: true }),
     (0, swagger_1.ApiProperty)({
@@ -80,25 +87,6 @@ __decorate([
 ], User.prototype, "profile", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => order_entity_1.Order, (order) => order.user),
-    (0, swagger_1.ApiProperty)({
-        example: [
-            {
-                id: 1,
-                status: 'pending',
-                total: 100000,
-                createdAt: new Date(),
-                items: [],
-                user: null,
-                user_id: 1,
-                description: 'isi dengan order anda',
-                required: null,
-                type: [order_entity_1.Order],
-            },
-        ],
-        description: 'isi dengan order anda',
-        required: null,
-        type: [order_entity_1.Order],
-    }),
     __metadata("design:type", Array)
 ], User.prototype, "orders", void 0);
 __decorate([

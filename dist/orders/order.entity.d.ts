@@ -10,9 +10,8 @@ export declare class Order {
 }
 export declare class OrderItem {
     id: number;
-    name: string;
-    order: Order;
     product: Product;
+    name: string;
     quantity: number;
-    price: number;
+    order: Order;
 }

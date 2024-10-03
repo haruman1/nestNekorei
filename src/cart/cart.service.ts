@@ -11,6 +11,7 @@ import { Cart, CartItem } from './entity/cart.entity';
 import { CartDto } from './dto';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
+import { User } from '../users/user.entity';
 
 @Injectable()
 export class CartService {
@@ -28,22 +29,30 @@ export class CartService {
     private productsService: ProductsService,
   ) {}
 
+  // Helper function to find user
+  private async findUserById(userId: number): Promise<User> {
+    const user = await this.usersService.findOneById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  // Find or create a cart for a specific user
   async findOrCreateCart(userId: number): Promise<Cart> {
+    const user = await this.findUserById(userId);
     let cart = await this.cartRepository.findOne({
-      where: { user: { id: userId } },
+      where: { user: { id: user.id } },
       relations: ['items', 'items.product'],
     });
     if (!cart) {
-      const user = await this.usersService.findOneById(userId);
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
       cart = this.cartRepository.create({ user, items: [] });
       cart = await this.cartRepository.save(cart);
     }
     return cart;
   }
 
+  // Add an item to the cart
   async addItem(
     userId: number,
     createCartItemDto: CartDto.CreateCartItemDto,
@@ -51,10 +60,12 @@ export class CartService {
     const cart = await this.findOrCreateCart(userId);
     const { productId, quantity } = createCartItemDto;
     const product = await this.productsService.findProductById(productId);
+
     if (!product) {
       throw new NotFoundException('Product not found');
     }
 
+    // Find existing item in cart
     let cartItem = cart.items.find((item) => item.product.id === productId);
     if (cartItem) {
       cartItem.quantity += quantity;
@@ -67,6 +78,7 @@ export class CartService {
     return this.cartRepository.save(cart);
   }
 
+  // Update the quantity of an item in the cart
   async updateItem(
     userId: number,
     cartItemId: number,
@@ -74,6 +86,7 @@ export class CartService {
   ): Promise<Cart> {
     const cart = await this.findOrCreateCart(userId);
     const cartItem = cart.items.find((item) => item.id === cartItemId);
+
     if (!cartItem) {
       throw new NotFoundException('Cart item not found');
     }
@@ -83,11 +96,13 @@ export class CartService {
     return this.cartRepository.save(cart);
   }
 
+  // Remove an item from the cart
   async removeItem(userId: number, cartItemId: number): Promise<Cart> {
     const cart = await this.findOrCreateCart(userId);
     const cartItemIndex = cart.items.findIndex(
       (item) => item.id === cartItemId,
     );
+
     if (cartItemIndex === -1) {
       throw new NotFoundException('Cart item not found');
     }
@@ -97,10 +112,12 @@ export class CartService {
     return this.cartRepository.save(cart);
   }
 
+  // Get cart summary for a specific user
   async getCartSummary(userId: number): Promise<Cart> {
     return this.findOrCreateCart(userId);
   }
 
+  // Clear all items from the cart
   async clearCart(userId: number): Promise<void> {
     const cart = await this.findOrCreateCart(userId);
     await this.cartItemRepository.remove(cart.items);

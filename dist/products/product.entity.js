@@ -13,11 +13,10 @@ exports.Product = void 0;
 const openapi = require("@nestjs/swagger");
 const typeorm_1 = require("typeorm");
 const category_entity_1 = require("./category.entity");
-const typeorm_2 = require("typeorm");
 const order_entity_1 = require("../orders/order.entity");
 let Product = class Product {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, name: { required: true, type: () => String }, description: { required: true, type: () => String }, price: { required: true, type: () => Number }, sku: { required: true, type: () => String }, quantity: { required: true, type: () => Number }, category: { required: true, type: () => require("./category.entity").Category } };
+        return { id: { required: true, type: () => Number }, name: { required: true, type: () => String }, description: { required: true, type: () => String }, price: { required: true, type: () => Number }, sku: { required: true, type: () => String }, quantity: { required: true, type: () => Number }, category: { required: true, type: () => require("./category.entity").Category }, orderItems: { required: true, type: () => [require("../orders/order.entity").OrderItem] } };
     }
 };
 exports.Product = Product;
@@ -26,7 +25,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Product.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_2.OneToMany)(() => order_entity_1.OrderItem, (orderItem) => orderItem.name),
+    (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], Product.prototype, "name", void 0);
 __decorate([
@@ -34,7 +33,7 @@ __decorate([
     __metadata("design:type", String)
 ], Product.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)('decimal'),
+    (0, typeorm_1.Column)('decimal', { precision: 10, scale: 2 }),
     __metadata("design:type", Number)
 ], Product.prototype, "price", void 0);
 __decorate([
@@ -42,13 +41,17 @@ __decorate([
     __metadata("design:type", String)
 ], Product.prototype, "sku", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)('int'),
     __metadata("design:type", Number)
 ], Product.prototype, "quantity", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => category_entity_1.Category, (category) => category.products),
+    (0, typeorm_1.ManyToOne)(() => category_entity_1.Category, (category) => category.products, { eager: true }),
     __metadata("design:type", category_entity_1.Category)
 ], Product.prototype, "category", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => order_entity_1.OrderItem, (orderItem) => orderItem.product),
+    __metadata("design:type", Array)
+], Product.prototype, "orderItems", void 0);
 exports.Product = Product = __decorate([
     (0, typeorm_1.Entity)()
 ], Product);

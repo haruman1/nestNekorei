@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
+const CryptoJS = require("crypto-js");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./user.entity");
@@ -22,8 +23,13 @@ let UsersService = class UsersService {
     constructor(usersRepository) {
         this.usersRepository = usersRepository;
     }
+    generateRandomCode() {
+        const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
+        const randomCode = ` NK${randomNumber}`;
+        return randomCode;
+    }
     async create(createUserDto) {
-        const { email, name, password, role } = createUserDto;
+        const { email, userId, name, password, role } = createUserDto;
         console.log('Data yang diterima:', createUserDto);
         if (!email || !password || !role) {
             throw new common_1.BadRequestException('Maaf, data ada yang kosong. Silahkan lengkapi kembali.');
@@ -37,7 +43,9 @@ let UsersService = class UsersService {
         const saltRounds = 10;
         try {
             const hashedPassword = await bcrypt.hash(password, saltRounds);
+            const UserID = this.generateRandomCode();
             const user = this.usersRepository.create({
+                userId: UserID,
                 email,
                 name,
                 password: hashedPassword,
@@ -58,16 +66,16 @@ let UsersService = class UsersService {
         });
         if (!user) {
             console.log('User tidak ditemukan');
-            return null;
+            throw new common_1.NotFoundException('User not found');
         }
         return user;
     }
-    async update(id, updateUserDto) {
+    async update(userId, updateUserDto) {
         const { password, profile } = updateUserDto;
         const hashedPassword = password
             ? await bcrypt.hash(password, 10)
             : undefined;
-        await this.usersRepository.update(id, {
+        await this.usersRepository.update(userId, {
             ...(password && { password: hashedPassword }),
             ...(profile && { profile }),
         });
@@ -79,8 +87,15 @@ let UsersService = class UsersService {
         }
         return user;
     }
-    async remove(id) {
-        await this.usersRepository.delete(id);
+    async findOneByIdUser(userId) {
+        const user = await this.usersRepository.findOne({ where: { userId } });
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        return user;
+    }
+    async remove(userId) {
+        await this.usersRepository.delete(userId);
     }
 };
 exports.UsersService = UsersService;

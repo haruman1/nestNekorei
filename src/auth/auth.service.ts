@@ -26,7 +26,7 @@ export class AuthService {
 
     if (!user) {
       console.log('User not found');
-      return null;
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     // Cek apakah password cocok
@@ -39,7 +39,7 @@ export class AuthService {
     }
 
     console.log('Invalid password');
-    return null;
+    throw new UnauthorizedException('Invalid credentials');
   }
 
   async login(email: string, password: string) {
@@ -57,7 +57,7 @@ export class AuthService {
     }
 
     // Buat payload untuk JWT
-    const payload = { email: user.email, sub: user.id, name: user.name };
+    const payload = { userId: user.userId, name: user.name };
 
     // Keluarkan token JWT
     return {

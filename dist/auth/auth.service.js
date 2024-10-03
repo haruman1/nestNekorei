@@ -30,7 +30,7 @@ let AuthService = class AuthService {
         const user = await this.jwtStrategy.validate(payload);
         if (!user) {
             console.log('User not found');
-            return null;
+            throw new common_1.UnauthorizedException('Invalid credentials');
         }
         const isPasswordValid = await bcrypt.compare(pass, user.password);
         if (isPasswordValid) {
@@ -38,7 +38,7 @@ let AuthService = class AuthService {
             return result;
         }
         console.log('Invalid password');
-        return null;
+        throw new common_1.UnauthorizedException('Invalid credentials');
     }
     async login(email, password) {
         if (!email || !password) {
@@ -49,7 +49,7 @@ let AuthService = class AuthService {
         if (!user) {
             throw new common_1.BadRequestException('Invalid email or password 1');
         }
-        const payload = { email: user.email, sub: user.id, name: user.name };
+        const payload = { userId: user.userId, name: user.name };
         return {
             access_token: this.jwtService.sign(payload),
         };

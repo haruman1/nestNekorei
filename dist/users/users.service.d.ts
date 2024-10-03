@@ -4,9 +4,11 @@ import { UsersDto } from './dto';
 export declare class UsersService {
     private usersRepository;
     constructor(usersRepository: Repository<User>);
+    generateRandomCode(): string;
     create(createUserDto: UsersDto.CreateUserDto): Promise<User>;
     findOneByEmail(email: string): Promise<User>;
-    update(id: number, updateUserDto: UsersDto.UpdateUserDto): Promise<void>;
+    update(userId: string, updateUserDto: UsersDto.UpdateUserDto): Promise<void>;
     findOneById(id: number): Promise<User>;
-    remove(id: number): Promise<void>;
+    findOneByIdUser(userId: string): Promise<User>;
+    remove(userId: string): Promise<void>;
 }

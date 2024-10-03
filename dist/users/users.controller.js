@@ -32,16 +32,14 @@ let UsersController = class UsersController {
         return this.authService.login(body.email, body.password);
     }
     async getProfile(req) {
-        return this.usersService.findOneByEmail(req.user.email);
+        return this.usersService.findOneByIdUser(req.user.userId);
     }
     async updateProfile(req, updateUserDto) {
-        const user = req.user;
-        await this.usersService.update(user.id, updateUserDto);
-        return this.usersService.findOneByEmail(user.email);
+        await this.usersService.update(req.user.userId, updateUserDto);
+        return this.usersService.findOneByEmail(req.user.email);
     }
     async deleteProfile(req) {
-        const user = req.user;
-        await this.usersService.remove(user.id);
+        await this.usersService.remove(req.user.userId);
         return { message: 'User profile successfully deleted' };
     }
 };

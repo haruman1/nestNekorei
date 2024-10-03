@@ -28,62 +28,40 @@ let OrdersService = class OrdersService {
     }
     async createOrder(createOrderDto) {
         const { userId, items } = createOrderDto;
-        const missingFields = [];
-        if (!userId) {
-            missingFields.push('userId');
-        }
-        if (!items) {
-            missingFields.push('items');
-        }
-        if (missingFields.length > 0) {
-            throw new common_1.BadRequestException(`Missing required fields: ${missingFields.join(', ')}`);
+        if (!userId || !items || items.length === 0) {
+            throw new common_1.BadRequestException('Missing required fields: userId or items');
         }
         const user = await this.usersService.findOneById(userId);
+        if (!user) {
+            throw new common_1.NotFoundException(`User with ID ${userId} not found`);
+        }
         const orderItems = [];
         let total = 0;
+        const order = this.ordersRepository.create({
+            user,
+            status: 'placed',
+            total: 0,
+        });
         for (const item of items) {
             const product = await this.productsService.findProductById(item.productId);
             if (!product) {
                 throw new common_1.NotFoundException(`Product with ID ${item.productId} not found`);
             }
             const orderItem = this.orderItemsRepository.create({
-                product,
+                product: product.orderItems[0],
+                name: product.name,
                 quantity: item.quantity,
-                price: product.price * item.quantity,
+                order: order,
             });
-            if (!orderItem.id) {
-                missingFields.push('id');
-            }
-            if (!orderItem.quantity) {
-                missingFields.push('quantity');
-            }
-            if (!orderItem.price) {
-                missingFields.push('price');
-            }
             orderItems.push(orderItem);
-            total += orderItem.price;
+            total += product.price * item.quantity;
         }
         if (orderItems.length === 0) {
             throw new common_1.BadRequestException('Order items cannot be empty');
         }
-        const order = this.ordersRepository.create({
-            user,
-            status: 'placed',
-            total,
-            items: orderItems,
-        });
-        if (!order.items[0].id) {
-            missingFields.push('items.id');
-        }
-        if (!order.items[0].quantity) {
-            missingFields.push('items.quantity');
-        }
-        if (!order.items[0].price) {
-            missingFields.push('items.price');
-        }
-        if (missingFields.length > 0) {
-            throw new common_1.BadRequestException(`The following fields are missing: ${missingFields.join(', ')}.`);
-        }
+        await this.orderItemsRepository.save(orderItems);
+        order.total = total;
+        order.items = orderItems;
         return this.ordersRepository.save(order);
     }
     async findAllOrders() {

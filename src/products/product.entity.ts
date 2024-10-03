@@ -1,6 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { Category } from './category.entity';
-import { OneToMany } from 'typeorm';
 import { OrderItem } from 'src/orders/order.entity';
 
 @Entity()
@@ -8,21 +13,28 @@ export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.name)
+  // Nama produk sebagai kolom biasa
+  @Column()
   name: string;
 
   @Column('text')
   description: string;
 
-  @Column('decimal')
+  // Pastikan tipe data decimal memiliki presisi yang tepat
+  @Column('decimal', { precision: 10, scale: 2 })
   price: number;
 
   @Column()
   sku: string;
 
-  @Column()
+  @Column('int')
   quantity: number;
 
-  @ManyToOne(() => Category, (category) => category.products)
+  // Relasi Many-to-One ke Category
+  @ManyToOne(() => Category, (category) => category.products, { eager: true })
   category: Category;
+
+  // Relasi One-to-Many ke OrderItem
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
+  orderItems: OrderItem[];
 }

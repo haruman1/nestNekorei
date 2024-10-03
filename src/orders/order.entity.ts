@@ -14,18 +14,21 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.orders)
+  // Relasi Many-to-One ke entitas User, tidak langsung ke field userId
+  @ManyToOne(() => User, (user) => user.orders, { eager: true })
   user: User;
 
   @Column()
   status: string; // 'placed', 'shipped', 'delivered', 'cancelled', 'returned'
 
-  @Column('decimal')
+  // Pastikan tipe data decimal diatur dengan panjang dan presisi
+  @Column('decimal', { precision: 10, scale: 2 })
   total: number;
 
   @CreateDateColumn()
   createdAt: Date;
 
+  // Relasi One-to-Many ke entitas OrderItem
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
   items: OrderItem[];
 }
@@ -35,18 +38,17 @@ export class OrderItem {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Product, (product) => product.name)
-  name: string;
-
-  @ManyToOne(() => Order, (order) => order.items)
-  order: Order;
-
-  @ManyToOne(() => Product, (product) => product.id)
+  // Relasi Many-to-One ke entitas Product
+  @ManyToOne(() => Product, (product) => product.orderItems, { eager: true })
   product: Product;
 
-  @Column('int')
+  // Nama produk yang dipesan (sebagai salinan data dari Product entity)
+  @Column()
+  name: string;
+  @Column()
   quantity: number;
 
-  @Column('decimal')
-  price: number;
+  // Relasi Many-to-One ke entitas Order
+  @ManyToOne(() => Order, (order) => order.items)
+  order: Order;
 }

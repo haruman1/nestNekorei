@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { User } from 'src/users/user.entity';
 import { Product } from 'src/products/product.entity';
@@ -12,8 +13,11 @@ import { Product } from 'src/products/product.entity';
 export class Cart {
   @PrimaryGeneratedColumn()
   id: number;
-  @ManyToOne(() => User, (user) => user.carts)
+
+  @ManyToOne(() => User, (user) => user.carts) // Relasi ManyToOne antara Cart dan User
+  @JoinColumn({ name: 'userId' }) // Foreign key (userId) di tabel Cart
   user: User;
+
   @OneToMany(() => CartItem, (cartItem) => cartItem.cart, { cascade: true })
   items: CartItem[];
 }

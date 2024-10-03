@@ -7,6 +7,12 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  @ApiProperty({
+    example: 'NKXXXX',
+  })
+  userId: string;
+
   @Column({ unique: true })
   @ApiProperty({
     example: 'johndoe@example.com',
@@ -56,25 +62,6 @@ export class User {
   profile: string;
 
   @OneToMany(() => Order, (order) => order.user)
-  @ApiProperty({
-    example: [
-      {
-        id: 1,
-        status: 'pending',
-        total: 100000,
-        createdAt: new Date(),
-        items: [],
-        user: null,
-        user_id: 1,
-        description: 'isi dengan order anda',
-        required: null,
-        type: [Order],
-      },
-    ],
-    description: 'isi dengan order anda',
-    required: null,
-    type: [Order],
-  })
   orders: Order[];
 
   @OneToMany(() => Cart, (cart) => cart.user)
