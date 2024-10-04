@@ -93,6 +93,7 @@ let PaymentService = class PaymentService {
             payment_type: payload.payment_type,
             status_message: payload.status_message,
         });
+        return payload;
     }
 };
 exports.PaymentService = PaymentService;

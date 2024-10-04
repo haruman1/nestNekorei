@@ -38,7 +38,7 @@ __decorate([
 ], PaymentController.prototype, "createPayment", null);
 __decorate([
     (0, common_1.Post)('history'),
-    openapi.ApiResponse({ status: 201 }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

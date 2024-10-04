@@ -96,5 +96,7 @@ export class PaymentService {
       payment_type: payload.payment_type, //echanel / qris / gopay
       status_message: payload.status_message,
     });
+
+    return payload;
   }
 }
