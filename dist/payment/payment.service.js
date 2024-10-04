@@ -86,28 +86,20 @@ let PaymentService = class PaymentService {
                 status: 'deny',
             });
         }
-        if (payload === null) {
-            throw new common_1.BadRequestException('not found');
-        }
-        try {
-            this.transactionRepository.save({
-                ...payload,
-                order_Id: order.orderId,
-                Merchant_Id: payload.merchant_id,
-                time: payload.transaction_time,
-                transaction_id: payload.transaction_id,
-                transaction_status: payload.transaction_status,
-                acquirer: payload.acquirer,
-                expiry_time: payload.expiry_time,
-                gross_amount: payload.gross_amount,
-                payment_type: payload.payment_type,
-                status_message: payload.status_message,
-            });
-            return payload;
-        }
-        catch (error) {
-            throw new common_1.BadRequestException('not found');
-        }
+        this.transactionRepository.save({
+            ...payload,
+            order_Id: order.orderId,
+            Merchant_Id: payload.merchant_id,
+            time: payload.transaction_time,
+            transaction_id: payload.transaction_id,
+            transaction_status: payload.transaction_status,
+            acquirer: payload.acquirer,
+            expiry_time: payload.expiry_time,
+            gross_amount: payload.gross_amount,
+            payment_type: payload.payment_type,
+            status_message: payload.status_message,
+        });
+        return { message: 'success Masukkan data data' };
     }
 };
 exports.PaymentService = PaymentService;

@@ -5,5 +5,7 @@ export declare class PaymentController {
     createPayment(body: {
         orderID: string;
     }): Promise<Snap>;
-    PaymentTransaction(payload: any): Promise<any>;
+    PaymentTransaction(payload: any): Promise<{
+        message: string;
+    }>;
 }
