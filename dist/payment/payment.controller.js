@@ -30,6 +30,7 @@ let PaymentController = class PaymentController {
 };
 exports.PaymentController = PaymentController;
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('create'),
     openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)()),
@@ -46,7 +47,6 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], PaymentController.prototype, "PaymentTransaction", null);
 exports.PaymentController = PaymentController = __decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('payment'),
     __metadata("design:paramtypes", [payment_service_1.PaymentService])
 ], PaymentController);
