@@ -16,6 +16,7 @@ exports.PaymentController = void 0;
 const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const payment_service_1 = require("./payment.service");
+const jwt_auth_guard_1 = require("../auth/jwt/jwt-auth.guard");
 let PaymentController = class PaymentController {
     constructor(paymentservice) {
         this.paymentservice = paymentservice;
@@ -45,6 +46,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], PaymentController.prototype, "PaymentTransaction", null);
 exports.PaymentController = PaymentController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('payment'),
     __metadata("design:paramtypes", [payment_service_1.PaymentService])
 ], PaymentController);

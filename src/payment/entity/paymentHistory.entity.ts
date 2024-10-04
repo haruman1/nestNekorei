@@ -5,25 +5,35 @@ export class PaymentHistory {
   @PrimaryGeneratedColumn()
   id: number;
   @Column()
-  order_Id: string;
+  transaction_type: string;
   @Column()
-  Merchant_Id: string;
-  @Column()
-  time: string;
-  @Column()
-  transaction_Id: string;
+  transaction_time: string;
   @Column()
   transaction_status: string;
   @Column()
-  acquirer: string;
+  transaction_id: string;
   @Column()
-  expiry_time: string;
+  status_message: string;
   @Column()
-  gross_amount: string;
+  status_code: string;
   @Column()
-  issuer: string;
+  signature_key: string;
+  @Column()
+  settlement_time: string;
   @Column()
   payment_type: string;
   @Column()
-  status_message: string;
+  order_id: string;
+  @Column()
+  merchant_id: string;
+  @Column()
+  issuer: string;
+  @Column()
+  gross_amount: string;
+  @Column()
+  fraud_status: string;
+  @Column()
+  acquirer: string;
+  @Column()
+  currency: string;
 }

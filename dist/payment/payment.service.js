@@ -67,33 +67,47 @@ let PaymentService = class PaymentService {
             where: { orderId: payload.order_id },
             relations: ['user', 'items'],
         });
+        if (!payload || Object.keys(payload).length === 0) {
+            throw new common_1.BadRequestException('Payload is empty or invalid');
+        }
         if (!order) {
             throw new common_1.BadRequestException('Order not found');
         }
         if (payload.transaction_status === 'settlement') {
-            await this.orderRepository.update(order.orderId, {
-                status: 'settlement',
-            });
+            await this.orderRepository.update({ orderId: payload.order_id }, { status: 'settlement' });
         }
         if (payload.transaction_status === 'pending') {
-            await this.orderRepository.update(order.orderId, {
+            await this.orderRepository.update({ orderId: payload.order_id }, {
                 status: 'pending',
             });
         }
-        this.transactionRepository.save({
-            ...payload,
-            order_Id: order.orderId,
-            Merchant_Id: payload.merchant_id,
-            time: payload.transaction_time,
-            transaction_id: payload.transaction_id,
-            transaction_status: payload.transaction_status,
-            acquirer: payload.acquirer,
-            expiry_time: payload.expiry_time,
-            gross_amount: payload.gross_amount,
-            payment_type: payload.payment_type,
-            status_message: payload.status_message,
-        });
-        return payload;
+        if (payload.transaction_status === 'deny') {
+            await this.orderRepository.update({ orderId: payload.order_id }, {
+                status: 'deny',
+            });
+        }
+        if (payload === null) {
+            throw new common_1.BadRequestException('not found');
+        }
+        try {
+            this.transactionRepository.save({
+                ...payload,
+                order_Id: order.orderId,
+                Merchant_Id: payload.merchant_id,
+                time: payload.transaction_time,
+                transaction_id: payload.transaction_id,
+                transaction_status: payload.transaction_status,
+                acquirer: payload.acquirer,
+                expiry_time: payload.expiry_time,
+                gross_amount: payload.gross_amount,
+                payment_type: payload.payment_type,
+                status_message: payload.status_message,
+            });
+            return payload;
+        }
+        catch (error) {
+            throw new common_1.BadRequestException('not found');
+        }
     }
 };
 exports.PaymentService = PaymentService;
