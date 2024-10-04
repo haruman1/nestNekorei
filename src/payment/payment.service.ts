@@ -24,7 +24,7 @@ export class PaymentService {
     // private // private orderRepository: Repository<Order>,
   ) {
     this.midtrans = new MidtransClient.Snap({
-      isProduction: true,
+      isProduction: false,
       serverKey: process.env.MIDTRANS_PRD_SERVER_KEY,
       clientKey: process.env.MIDTRANS_PRD_CLIENT_KEY,
     });
