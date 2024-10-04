@@ -2,6 +2,7 @@ import { User } from '../users/user.entity';
 import { Product } from '../products/product.entity';
 export declare class Order {
     id: number;
+    orderId: string;
     user: User;
     status: string;
     total: number;
@@ -13,5 +14,6 @@ export declare class OrderItem {
     product: Product;
     name: string;
     quantity: number;
+    price: number;
     order: Order;
 }

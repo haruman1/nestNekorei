@@ -14,13 +14,14 @@ const typeorm_1 = require("@nestjs/typeorm");
 const order_entity_1 = require("./order.entity");
 const users_module_1 = require("../users/users.module");
 const products_module_1 = require("../products/products.module");
+const paymentHistory_entity_1 = require("../payment/entity/paymentHistory.entity");
 let OrdersModule = class OrdersModule {
 };
 exports.OrdersModule = OrdersModule;
 exports.OrdersModule = OrdersModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([order_entity_1.Order, order_entity_1.OrderItem]),
+            typeorm_1.TypeOrmModule.forFeature([order_entity_1.Order, order_entity_1.OrderItem, paymentHistory_entity_1.PaymentHistory]),
             (0, common_1.forwardRef)(() => users_module_1.UsersModule),
             products_module_1.ProductsModule,
         ],

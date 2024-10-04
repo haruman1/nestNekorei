@@ -3,6 +3,7 @@ export declare class PaymentController {
     private readonly paymentservice;
     constructor(paymentservice: PaymentService);
     createPayment(body: {
-        orderID: number;
+        orderID: string;
     }): Promise<Snap>;
+    PaymentTransaction(payload: any): Promise<void>;
 }

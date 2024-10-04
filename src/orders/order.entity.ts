@@ -14,6 +14,9 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  orderId: string;
+
   // Relasi Many-to-One ke entitas User, tidak langsung ke field userId
   @ManyToOne(() => User, (user) => user.orders, { eager: true })
   user: User;
@@ -22,7 +25,7 @@ export class Order {
   status: string; // 'placed', 'shipped', 'delivered', 'cancelled', 'returned'
 
   // Pastikan tipe data decimal diatur dengan panjang dan presisi
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column()
   total: number;
 
   @CreateDateColumn()
@@ -45,8 +48,12 @@ export class OrderItem {
   // Nama produk yang dipesan (sebagai salinan data dari Product entity)
   @Column()
   name: string;
+
   @Column()
   quantity: number;
+
+  @Column()
+  price: number;
 
   // Relasi Many-to-One ke entitas Order
   @ManyToOne(() => Order, (order) => order.items)

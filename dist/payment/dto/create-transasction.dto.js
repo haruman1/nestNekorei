@@ -9,41 +9,28 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateOrderDto = void 0;
 const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
-class OrderItemDto {
+class createPaymentHitory {
     static _OPENAPI_METADATA_FACTORY() {
-        return { productId: { required: true, type: () => Number }, quantity: { required: true, type: () => Number } };
+        return { orderId: { required: true, type: () => String }, transaction_Id: { required: true, type: () => String }, transaction_status: { required: true, type: () => String }, gross_amount: { required: true, type: () => String } };
     }
 }
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsNumber)(),
-    __metadata("design:type", Number)
-], OrderItemDto.prototype, "productId", void 0);
-__decorate([
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsNumber)(),
-    __metadata("design:type", Number)
-], OrderItemDto.prototype, "quantity", void 0);
-class CreateOrderDto {
-    static _OPENAPI_METADATA_FACTORY() {
-        return { userId: { required: true, type: () => String }, orderId: { required: true, type: () => String }, items: { required: true, type: () => [OrderItemDto] } };
-    }
-}
-exports.CreateOrderDto = CreateOrderDto;
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], createPaymentHitory.prototype, "orderId", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateOrderDto.prototype, "userId", void 0);
+], createPaymentHitory.prototype, "transaction_Id", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateOrderDto.prototype, "orderId", void 0);
+], createPaymentHitory.prototype, "transaction_status", void 0);
 __decorate([
-    (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.ArrayNotEmpty)(),
-    __metadata("design:type", Array)
-], CreateOrderDto.prototype, "items", void 0);
-//# sourceMappingURL=create-order.dto.js.map
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], createPaymentHitory.prototype, "gross_amount", void 0);
+//# sourceMappingURL=create-transasction.dto.js.map

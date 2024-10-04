@@ -12,6 +12,7 @@ import { OrdersDto } from './dto';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
 import { User } from 'src/users/user.entity';
+import * as CryptoJS from 'crypto-js';
 
 @Injectable()
 export class OrdersService {
@@ -28,32 +29,22 @@ export class OrdersService {
     @Inject(forwardRef(() => ProductsService))
     private productsService: ProductsService,
   ) {}
-
+  generateRandomCode(): string {
+    const randomNumber = CryptoJS.lib.WordArray.random(4).toString(); // Menghasilkan angka acak (4 byte)
+    const randomCode = `Nekorei-${randomNumber}`; // Gabungkan "NK" dengan angka acak
+    return randomCode;
+  }
   async createOrder(createOrderDto: OrdersDto.CreateOrderDto): Promise<Order> {
-    const { userId, items } = createOrderDto;
+    const { userId, orderId, items } = createOrderDto;
 
-    // Validasi input
-    if (!userId || !items || items.length === 0) {
-      throw new BadRequestException('Missing required fields: userId or items');
-    }
-
-    // Cari user yang terkait
-    const user = await this.usersService.findOneById(userId);
+    const user = await this.usersService.findOneByIdUser(userId);
     if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
+      throw new NotFoundException('User not found');
     }
 
     const orderItems: OrderItem[] = [];
     let total = 0;
 
-    // Buat pesanan terlebih dahulu
-    const order = this.ordersRepository.create({
-      user,
-      status: 'placed',
-      total: 0, // Total akan dihitung kemudian
-    });
-
-    // Loop untuk membuat OrderItem
     for (const item of items) {
       const product = await this.productsService.findProductById(
         item.productId,
@@ -63,30 +54,27 @@ export class OrdersService {
           `Product with ID ${item.productId} not found`,
         );
       }
-
-      // Buat OrderItem dan kaitkan dengan Order
-      const orderItem: OrderItem = this.orderItemsRepository.create({
-        product: product.orderItems[0], // orderItems[0] adalah objek pertama dari array orderItems
+      const orderItem = this.orderItemsRepository.create({
+        product: {
+          id: product.id,
+        },
         name: product.name,
+
         quantity: item.quantity,
-        order: order,
+        price: product.price * item.quantity,
       });
-
-      // Simpan item ke dalam array
       orderItems.push(orderItem);
-      total += product.price * item.quantity; // orderItem adalah objek individual
+      total += orderItem.price;
     }
 
-    if (orderItems.length === 0) {
-      throw new BadRequestException('Order items cannot be empty');
-    }
+    const order = this.ordersRepository.create({
+      user,
+      orderId: this.generateRandomCode(),
+      status: 'placed',
+      total,
+      items: orderItems,
+    });
 
-    // Simpan dulu orderItem sebelum pesanan agar relasi sudah ada
-    await this.orderItemsRepository.save(orderItems);
-
-    // Update total order dan simpan order
-    order.total = total;
-    order.items = orderItems;
     return this.ordersRepository.save(order);
   }
 

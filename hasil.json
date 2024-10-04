@@ -1,0 +1,77 @@
+{
+//BERHASIL BANK
+  "transaction_time": "2024-10-04 13:36:23",
+  "transaction_status": "settlement",
+  "transaction_id": "bade8769-c4d5-4dfe-8ac2-5a94b4f61065",
+  "status_message": "midtrans payment notification",
+  "status_code": "200",
+  "signature_key": "c9826c6aa987db371e3107a17ea124ebef1561811717fde23a4c5dd4cdec29486a5892370a8f4d2ef1b2ce43d9c3a176c11f3ca4c40f7c2961f34d5cb341f1f4",
+  "settlement_time": "2024-10-04 13:36:46",
+  "payment_type": "echannel",
+  "order_id": "Nekorei-8f4a7bd1",
+  "merchant_id": "G519473280",
+  "gross_amount": "50.00",
+  "fraud_status": "accept",
+  "expiry_time": "2024-10-05 13:36:23",
+  "currency": "IDR",
+  "biller_code": "70012",
+  "bill_key": "736095736642"
+}
+{
+    //PENDING BANK
+    "transaction_time": "2024-10-04 13:36:23",
+    "transaction_status": "pending",
+    "transaction_id": "bade8769-c4d5-4dfe-8ac2-5a94b4f61065",
+    "status_message": "midtrans payment notification",
+    "status_code": "201",
+    "signature_key": "67c6dff24be0834f61fd1a9bd5bf6dc3f8c26e6b409c80b38073f25c68de624312476e25e7d08157b7fcb6a98bd64d12a5ece0aef6b2ae7a35d19dba95eb8f8b",
+    "payment_type": "echannel",
+    "order_id": "Nekorei-8f4a7bd1",
+    "merchant_id": "G519473280",
+    "gross_amount": "50.00",
+    "fraud_status": "accept",
+    "expiry_time": "2024-10-05 13:36:23",
+    "currency": "IDR",
+    "biller_code": "70012",
+    "bill_key": "736095736642"
+  }
+  {
+    //GOPAY E-WALLET BERHASIL
+    "transaction_type": "on-us",
+    "transaction_time": "2024-10-04 13:42:49",
+    "transaction_status": "settlement",
+    "transaction_id": "c5fcd68b-cfb5-459d-a48b-2192f09f65ed",
+    "status_message": "midtrans payment notification",
+    "status_code": "200",
+    "signature_key": "199223f4d0628b224b42a7b72de803a6f2f82f4f09adf242cd4de78ae2e5f918f80d73486dd88be065a43ba823fe8cc265b630801f41b6c1d20f5b2e35a34110",
+    "settlement_time": "2024-10-04 13:43:21",
+    "reference_id": "5e3f491a-9d6a-4a73-8807-1e8dc442e007",
+    "payment_type": "qris",
+    "order_id": "Nekorei-b47fb1f0",
+    "merchant_id": "G519473280",
+    "issuer": "gopay",
+    "gross_amount": "50.00",
+    "fraud_status": "accept",
+    "expiry_time": "2024-10-04 13:57:49",
+    "currency": "IDR",
+    "acquirer": "gopay"
+  }
+  {
+    //GOPAY E-WALLET PENDING
+    "transaction_type": "off-us",
+    "transaction_time": "2024-10-04 13:42:49",
+    "transaction_status": "pending",
+    "transaction_id": "c5fcd68b-cfb5-459d-a48b-2192f09f65ed",
+    "status_message": "midtrans payment notification",
+    "status_code": "201",
+    "signature_key": "c3c2f4cf9751a202b7af783a13073d1e8366726be3310f7667a1e22d9e73e4c8b5b42f73e626b880d826242c396727b8aef6bf26569899c61580f7a05cf16ffd",
+    "reference_id": "5e3f491a-9d6a-4a73-8807-1e8dc442e007",
+    "payment_type": "qris",
+    "order_id": "Nekorei-b47fb1f0",
+    "merchant_id": "G519473280",
+    "gross_amount": "50.00",
+    "fraud_status": "accept",
+    "expiry_time": "2024-10-04 13:57:49",
+    "currency": "IDR",
+    "acquirer": "gopay"
+  }

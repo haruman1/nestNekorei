@@ -9,6 +9,6 @@ export declare class UsersService {
     findOneByEmail(email: string): Promise<User>;
     update(userId: string, updateUserDto: UsersDto.UpdateUserDto): Promise<void>;
     findOneById(id: number): Promise<User>;
-    findOneByIdUser(userId: string): Promise<User>;
-    remove(userId: string): Promise<void>;
+    findOneByIdUser(id: string): Promise<User>;
+    remove(id: string): Promise<void>;
 }

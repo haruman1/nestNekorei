@@ -16,7 +16,7 @@ const user_entity_1 = require("../users/user.entity");
 const product_entity_1 = require("../products/product.entity");
 let Order = class Order {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, user: { required: true, type: () => require("../users/user.entity").User }, status: { required: true, type: () => String }, total: { required: true, type: () => Number }, createdAt: { required: true, type: () => Date }, items: { required: true, type: () => [require("./order.entity").OrderItem] } };
+        return { id: { required: true, type: () => Number }, orderId: { required: true, type: () => String }, user: { required: true, type: () => require("../users/user.entity").User }, status: { required: true, type: () => String }, total: { required: true, type: () => Number }, createdAt: { required: true, type: () => Date }, items: { required: true, type: () => [require("./order.entity").OrderItem] } };
     }
 };
 exports.Order = Order;
@@ -24,6 +24,10 @@ __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
 ], Order.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Order.prototype, "orderId", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.orders, { eager: true }),
     __metadata("design:type", user_entity_1.User)
@@ -33,7 +37,7 @@ __decorate([
     __metadata("design:type", String)
 ], Order.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.Column)('decimal', { precision: 10, scale: 2 }),
+    (0, typeorm_1.Column)(),
     __metadata("design:type", Number)
 ], Order.prototype, "total", void 0);
 __decorate([
@@ -49,7 +53,7 @@ exports.Order = Order = __decorate([
 ], Order);
 let OrderItem = class OrderItem {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, product: { required: true, type: () => require("../products/product.entity").Product }, name: { required: true, type: () => String }, quantity: { required: true, type: () => Number }, order: { required: true, type: () => require("./order.entity").Order } };
+        return { id: { required: true, type: () => Number }, product: { required: true, type: () => require("../products/product.entity").Product }, name: { required: true, type: () => String }, quantity: { required: true, type: () => Number }, price: { required: true, type: () => Number }, order: { required: true, type: () => require("./order.entity").Order } };
     }
 };
 exports.OrderItem = OrderItem;
@@ -69,6 +73,10 @@ __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", Number)
 ], OrderItem.prototype, "quantity", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], OrderItem.prototype, "price", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => Order, (order) => order.items),
     __metadata("design:type", Order)

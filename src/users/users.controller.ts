@@ -19,8 +19,8 @@ import { AuthService } from '../auth/auth.service';
 
 interface JwtPayload {
   userId: string;
+  name: string;
   email: string;
-  role: string;
 }
 
 @Controller('users')
@@ -53,7 +53,7 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     await this.usersService.update(req.user.userId, updateUserDto);
-    return this.usersService.findOneByEmail(req.user.email);
+    return this.usersService.findOneByIdUser(req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard)

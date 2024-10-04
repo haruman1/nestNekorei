@@ -10,7 +10,6 @@ import { ConfigModule } from '@nestjs/config';
 import { OrdersModule } from './orders/orders.module';
 import { Order, OrderItem } from './orders/order.entity';
 
-import { json } from 'body-parser';
 import { PaymentService } from './payment/payment.service';
 import { PaymentController } from './payment/payment.controller';
 import { PaymentModule } from './payment/payment.module';
@@ -19,7 +18,7 @@ import { InvoicesController } from './invoices/invoices.controller';
 import { InvoicesModule } from './invoices/invoices.module';
 import { CartModule } from './cart/cart.module';
 import { Cart, CartItem } from './cart/entity/cart.entity';
-
+import { PaymentHistory } from './payment/entity/paymentHistory.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -33,7 +32,16 @@ import { Cart, CartItem } from './cart/entity/cart.entity';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [Cart, CartItem, User, Product, Category, Order, OrderItem],
+      entities: [
+        Cart,
+        CartItem,
+        User,
+        Product,
+        Category,
+        Order,
+        OrderItem,
+        PaymentHistory,
+      ],
       synchronize: true,
     }),
     UsersModule,

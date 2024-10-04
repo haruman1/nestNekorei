@@ -25,7 +25,7 @@ let UsersService = class UsersService {
     }
     generateRandomCode() {
         const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
-        const randomCode = ` NK${randomNumber}`;
+        const randomCode = `NK${randomNumber}`;
         return randomCode;
     }
     async create(createUserDto) {
@@ -59,7 +59,7 @@ let UsersService = class UsersService {
     }
     async findOneByEmail(email) {
         if (!email) {
-            throw new common_1.BadRequestException('Email must be provided');
+            throw new common_1.BadRequestException('Email must be provided222');
         }
         const user = await this.usersRepository.findOne({
             where: { email },
@@ -87,15 +87,17 @@ let UsersService = class UsersService {
         }
         return user;
     }
-    async findOneByIdUser(userId) {
-        const user = await this.usersRepository.findOne({ where: { userId } });
+    async findOneByIdUser(id) {
+        const user = await this.usersRepository.findOne({
+            where: { userId: id },
+        });
         if (!user) {
             throw new common_1.NotFoundException('User not found');
         }
         return user;
     }
-    async remove(userId) {
-        await this.usersRepository.delete(userId);
+    async remove(id) {
+        await this.usersRepository.delete(id);
     }
 };
 exports.UsersService = UsersService;

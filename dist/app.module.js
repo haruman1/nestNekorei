@@ -26,6 +26,7 @@ const invoices_controller_1 = require("./invoices/invoices.controller");
 const invoices_module_1 = require("./invoices/invoices.module");
 const cart_module_1 = require("./cart/cart.module");
 const cart_entity_1 = require("./cart/entity/cart.entity");
+const paymentHistory_entity_1 = require("./payment/entity/paymentHistory.entity");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -42,7 +43,16 @@ exports.AppModule = AppModule = __decorate([
                 username: process.env.DATABASE_USERNAME,
                 password: process.env.DATABASE_PASSWORD,
                 database: process.env.DATABASE_NAME,
-                entities: [cart_entity_1.Cart, cart_entity_1.CartItem, user_entity_1.User, product_entity_1.Product, category_entity_1.Category, order_entity_1.Order, order_entity_1.OrderItem],
+                entities: [
+                    cart_entity_1.Cart,
+                    cart_entity_1.CartItem,
+                    user_entity_1.User,
+                    product_entity_1.Product,
+                    category_entity_1.Category,
+                    order_entity_1.Order,
+                    order_entity_1.OrderItem,
+                    paymentHistory_entity_1.PaymentHistory,
+                ],
                 synchronize: true,
             }),
             users_module_1.UsersModule,

@@ -23,6 +23,9 @@ let PaymentController = class PaymentController {
     createPayment(body) {
         return this.paymentservice.createPayment(body.orderID);
     }
+    PaymentTransaction(payload) {
+        return this.paymentservice.PaymentTransaction(payload);
+    }
 };
 exports.PaymentController = PaymentController;
 __decorate([
@@ -33,6 +36,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], PaymentController.prototype, "createPayment", null);
+__decorate([
+    (0, common_1.Post)('history'),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], PaymentController.prototype, "PaymentTransaction", null);
 exports.PaymentController = PaymentController = __decorate([
     (0, common_1.Controller)('payment'),
     __metadata("design:paramtypes", [payment_service_1.PaymentService])

@@ -24,7 +24,7 @@ export class UsersService {
 
   generateRandomCode(): string {
     const randomNumber = CryptoJS.lib.WordArray.random(4).toString(); // Menghasilkan angka acak (4 byte)
-    const randomCode = ` NK${randomNumber}`; // Gabungkan "NK" dengan angka acak
+    const randomCode = `NK${randomNumber}`; // Gabungkan "NK" dengan angka acak
     return randomCode;
   }
 
@@ -76,7 +76,7 @@ export class UsersService {
 
   async findOneByEmail(email: string): Promise<User> {
     if (!email) {
-      throw new BadRequestException('Email must be provided');
+      throw new BadRequestException('Email must be provided222');
     }
 
     const user = await this.usersRepository.findOne({
@@ -111,14 +111,16 @@ export class UsersService {
     }
     return user;
   }
-  async findOneByIdUser(userId: string): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { userId } });
+  async findOneByIdUser(id: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { userId: id },
+    });
     if (!user) {
       throw new NotFoundException('User not found');
     }
     return user;
   }
-  async remove(userId: string): Promise<void> {
-    await this.usersRepository.delete(userId);
+  async remove(id: string): Promise<void> {
+    await this.usersRepository.delete(id);
   }
 }

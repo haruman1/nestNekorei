@@ -20,12 +20,14 @@ class OrderItemDto {
 
 export class CreateOrderDto {
   @IsNotEmpty()
-  @IsNumber()
-  userId: number;
+  userId: string;
+
+  @IsNotEmpty()
+  orderId: string;
 
   @IsArray()
   @ArrayNotEmpty()
-  @ValidateNested({ each: true })
-  @Type(() => OrderItemDto)
+  // @ValidateNested({ each: true })
+  // @Type(() => OrderItemDto)
   items: OrderItemDto[];
 }

@@ -9,6 +9,7 @@ export declare class OrdersService {
     private usersService;
     private productsService;
     constructor(ordersRepository: Repository<Order>, orderItemsRepository: Repository<OrderItem>, usersService: UsersService, productsService: ProductsService);
+    generateRandomCode(): string;
     createOrder(createOrderDto: OrdersDto.CreateOrderDto): Promise<Order>;
     findAllOrders(): Promise<Order[]>;
     findOrderById(id: number): Promise<Order>;

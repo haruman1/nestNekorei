@@ -19,6 +19,7 @@ const typeorm_2 = require("typeorm");
 const order_entity_1 = require("./order.entity");
 const users_service_1 = require("../users/users.service");
 const products_service_1 = require("../products/products.service");
+const CryptoJS = require("crypto-js");
 let OrdersService = class OrdersService {
     constructor(ordersRepository, orderItemsRepository, usersService, productsService) {
         this.ordersRepository = ordersRepository;
@@ -26,42 +27,42 @@ let OrdersService = class OrdersService {
         this.usersService = usersService;
         this.productsService = productsService;
     }
+    generateRandomCode() {
+        const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
+        const randomCode = `Nekorei-${randomNumber}`;
+        return randomCode;
+    }
     async createOrder(createOrderDto) {
-        const { userId, items } = createOrderDto;
-        if (!userId || !items || items.length === 0) {
-            throw new common_1.BadRequestException('Missing required fields: userId or items');
-        }
-        const user = await this.usersService.findOneById(userId);
+        const { userId, orderId, items } = createOrderDto;
+        const user = await this.usersService.findOneByIdUser(userId);
         if (!user) {
-            throw new common_1.NotFoundException(`User with ID ${userId} not found`);
+            throw new common_1.NotFoundException('User not found');
         }
         const orderItems = [];
         let total = 0;
-        const order = this.ordersRepository.create({
-            user,
-            status: 'placed',
-            total: 0,
-        });
         for (const item of items) {
             const product = await this.productsService.findProductById(item.productId);
             if (!product) {
                 throw new common_1.NotFoundException(`Product with ID ${item.productId} not found`);
             }
             const orderItem = this.orderItemsRepository.create({
-                product: product.orderItems[0],
+                product: {
+                    id: product.id,
+                },
                 name: product.name,
                 quantity: item.quantity,
-                order: order,
+                price: product.price * item.quantity,
             });
             orderItems.push(orderItem);
-            total += product.price * item.quantity;
+            total += orderItem.price;
         }
-        if (orderItems.length === 0) {
-            throw new common_1.BadRequestException('Order items cannot be empty');
-        }
-        await this.orderItemsRepository.save(orderItems);
-        order.total = total;
-        order.items = orderItems;
+        const order = this.ordersRepository.create({
+            user,
+            orderId: this.generateRandomCode(),
+            status: 'placed',
+            total,
+            items: orderItems,
+        });
         return this.ordersRepository.save(order);
     }
     async findAllOrders() {

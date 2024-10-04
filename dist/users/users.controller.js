@@ -36,7 +36,7 @@ let UsersController = class UsersController {
     }
     async updateProfile(req, updateUserDto) {
         await this.usersService.update(req.user.userId, updateUserDto);
-        return this.usersService.findOneByEmail(req.user.email);
+        return this.usersService.findOneByIdUser(req.user.userId);
     }
     async deleteProfile(req) {
         await this.usersService.remove(req.user.userId);

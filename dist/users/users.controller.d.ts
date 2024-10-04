@@ -5,8 +5,8 @@ import { Request } from 'express';
 import { AuthService } from '../auth/auth.service';
 interface JwtPayload {
     userId: string;
+    name: string;
     email: string;
-    role: string;
 }
 export declare class UsersController {
     private readonly usersService;
