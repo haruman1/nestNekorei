@@ -12,7 +12,6 @@ async function bootstrap() {
     .setTitle('Nekorei API')
     .setDescription('The cats API description')
     .setVersion('1.0')
-
     .build();
   const options: SwaggerDocumentOptions = {
     operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
@@ -22,6 +21,6 @@ async function bootstrap() {
   SwaggerModule.setup('swagger', app, document, {
     jsonDocumentUrl: 'swagger/json',
   });
-  await app.listen(3000);
+  await app.listen(3001);
 }
 bootstrap();

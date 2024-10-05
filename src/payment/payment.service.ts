@@ -25,8 +25,8 @@ export class PaymentService {
   ) {
     this.midtrans = new MidtransClient.Snap({
       isProduction: false,
-      serverKey: process.env.MIDTRANS_PRD_SERVER_KEY,
-      clientKey: process.env.MIDTRANS_PRD_CLIENT_KEY,
+      serverKey: process.env.MIDTRANS_SB_SERVER_KEY,
+      clientKey: process.env.MIDTRANS_SB_CLIENT_KEY,
     });
   }
 

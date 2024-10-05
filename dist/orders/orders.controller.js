@@ -18,11 +18,13 @@ const common_1 = require("@nestjs/common");
 const orders_service_1 = require("./orders.service");
 const create_order_dto_1 = require("./dto/create-order.dto");
 const update_order_status_dto_1 = require("./dto/update-order-status.dto");
+const jwt_auth_guard_1 = require("../auth/jwt/jwt-auth.guard");
 let OrdersController = class OrdersController {
     constructor(ordersService) {
         this.ordersService = ordersService;
     }
-    createOrder(createOrderDto) {
+    createOrder(createOrderDto, req) {
+        createOrderDto.userId = req.user.userId;
         return this.ordersService.createOrder(createOrderDto);
     }
     findAllOrders() {
@@ -43,8 +45,9 @@ __decorate([
     (0, common_1.Post)(),
     openapi.ApiResponse({ status: 201, type: require("./order.entity").Order }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_order_dto_1.CreateOrderDto]),
+    __metadata("design:paramtypes", [create_order_dto_1.CreateOrderDto, Object]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "createOrder", null);
 __decorate([
@@ -80,6 +83,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "removeOrder", null);
 exports.OrdersController = OrdersController = __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('orders'),
     __metadata("design:paramtypes", [orders_service_1.OrdersService])
 ], OrdersController);

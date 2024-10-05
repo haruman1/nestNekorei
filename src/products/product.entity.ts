@@ -13,6 +13,9 @@ export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  productId: string;
+
   // Nama produk sebagai kolom biasa
   @Column()
   name: string;

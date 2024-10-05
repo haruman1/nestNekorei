@@ -3,6 +3,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsArray,
+  IsString,
   ArrayNotEmpty,
 } from 'class-validator';
 
@@ -10,8 +11,8 @@ import { Type } from 'class-transformer';
 
 class OrderItemDto {
   @IsNotEmpty()
-  @IsNumber()
-  productId: number;
+  @IsString()
+  productId: String;
 
   @IsNotEmpty()
   @IsNumber()
@@ -21,9 +22,6 @@ class OrderItemDto {
 export class CreateOrderDto {
   @IsNotEmpty()
   userId: string;
-
-  @IsNotEmpty()
-  orderId: string;
 
   @IsArray()
   @ArrayNotEmpty()

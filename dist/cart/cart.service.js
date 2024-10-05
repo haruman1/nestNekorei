@@ -52,7 +52,7 @@ let CartService = class CartService {
         if (!product) {
             throw new common_1.NotFoundException('Product not found');
         }
-        let cartItem = cart.items.find((item) => item.product.id === productId);
+        let cartItem = cart.items.find((item) => item.product.productId === productId);
         if (cartItem) {
             cartItem.quantity += quantity;
         }

@@ -6,17 +6,30 @@ import {
   Param,
   Patch,
   Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
+interface JwtPayload {
+  userId: string;
+  name: string;
+  email: string;
+}
 
+@UseGuards(JwtAuthGuard)
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  createOrder(@Body() createOrderDto: CreateOrderDto) {
+  createOrder(
+    @Body() createOrderDto: CreateOrderDto,
+    @Req() req: Request & { user: JwtPayload },
+  ) {
+    createOrderDto.userId = req.user.userId;
     return this.ordersService.createOrder(createOrderDto);
   }
 

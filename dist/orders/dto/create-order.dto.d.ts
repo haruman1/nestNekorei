@@ -1,10 +1,9 @@
 declare class OrderItemDto {
-    productId: number;
+    productId: String;
     quantity: number;
 }
 export declare class CreateOrderDto {
     userId: string;
-    orderId: string;
     items: OrderItemDto[];
 }
 export {};

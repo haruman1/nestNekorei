@@ -10,6 +10,10 @@ export class CreateProductDto {
   description: string;
 
   @IsNotEmpty()
+  @IsString()
+  productId: string;
+
+  @IsNotEmpty()
   @IsNumber()
   price: number;
 

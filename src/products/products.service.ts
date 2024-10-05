@@ -12,6 +12,7 @@ import { ProductsDto } from './dto';
 // import { UpdateProductDto } from './dto/update-product.dto';
 // import { CreateCategoryDto } from './dto/create-category.dto';
 // import { UpdateCategoryDto } from './dto/update-category.dto';
+import * as CryptoJS from 'crypto-js';
 
 @Injectable()
 export class ProductsService {
@@ -21,7 +22,11 @@ export class ProductsService {
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
   ) {}
-
+  generateRandomCode(name: string): string {
+    const randomNumber = CryptoJS.lib.WordArray.random(4).toString(); // Menghasilkan angka acak (4 byte)
+    const randomCode = name + `-${randomNumber}`; // Gabungkan "NK" dengan angka acak
+    return randomCode;
+  }
   /**
    * Creates a new product.
    *
@@ -73,22 +78,31 @@ export class ProductsService {
   }
 
   async findAllProducts(): Promise<Product[]> {
-    return this.productsRepository.find({ relations: ['product'] });
+    return this.productsRepository.find({ relations: ['category'] });
   }
 
-  async findProductById(id: number): Promise<Product> {
+  async findProductById(id: string): Promise<Product> {
     const product = await this.productsRepository.findOne({
-      where: { id },
+      where: { category: { categoryId: id } },
       relations: ['category'],
     });
     if (!product) {
-      throw new NotFoundException('Product not found harus salah');
+      throw new NotFoundException('Product not found 1');
     }
     return product;
   }
-
+  async findProductByProductId(id: string): Promise<Product> {
+    const product = await this.productsRepository.findOne({
+      where: { productId: id },
+      relations: ['category'],
+    });
+    if (!product) {
+      throw new NotFoundException('Product not found 2');
+    }
+    return product;
+  }
   async updateProduct(
-    id: number,
+    id: string,
     updateProductDto: ProductsDto.UpdateProductDto,
   ): Promise<Product> {
     const product = await this.findProductById(id);
@@ -106,7 +120,7 @@ export class ProductsService {
     return this.productsRepository.save(product);
   }
 
-  async removeProduct(id: number): Promise<void> {
+  async removeProduct(id: string): Promise<void> {
     const product = await this.findProductById(id);
     await this.productsRepository.remove(product);
   }
@@ -114,17 +128,22 @@ export class ProductsService {
   async createCategory(
     createCategoryDto: ProductsDto.CreateCategoryDto,
   ): Promise<Category> {
+    createCategoryDto.categoryId = this.generateRandomCode('CTNEK');
+    if (!createCategoryDto.name || !createCategoryDto.categoryId) {
+      throw new BadRequestException('Name and categoryId is required');
+    }
+
     const category = this.categoriesRepository.create(createCategoryDto);
     return this.categoriesRepository.save(category);
   }
 
   async findAllCategories(): Promise<Category[]> {
-    return this.categoriesRepository.find({ relations: ['id', 'name'] });
+    return this.categoriesRepository.find({ relations: ['products'] });
   }
 
-  async findCategoryById(id: number): Promise<Category> {
+  async findCategoryById(id: string): Promise<Category> {
     const category = await this.categoriesRepository.findOne({
-      where: { id },
+      where: { categoryId: id },
       relations: ['products'],
     });
     if (!category) {
@@ -134,7 +153,7 @@ export class ProductsService {
   }
 
   async updateCategory(
-    id: number,
+    id: string,
     updateCategoryDto: ProductsDto.UpdateCategoryDto,
   ): Promise<Category> {
     const category = await this.findCategoryById(id);
@@ -142,7 +161,7 @@ export class ProductsService {
     return this.categoriesRepository.save(category);
   }
 
-  async removeCategory(id: number): Promise<void> {
+  async removeCategory(id: string): Promise<void> {
     const category = await this.findCategoryById(id);
     await this.categoriesRepository.remove(category);
   }

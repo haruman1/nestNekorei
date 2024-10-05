@@ -35,7 +35,7 @@ export class OrdersService {
     return randomCode;
   }
   async createOrder(createOrderDto: OrdersDto.CreateOrderDto): Promise<Order> {
-    const { userId, orderId, items } = createOrderDto;
+    const { userId, items } = createOrderDto;
 
     const user = await this.usersService.findOneByIdUser(userId);
     if (!user) {
@@ -46,8 +46,8 @@ export class OrdersService {
     let total = 0;
 
     for (const item of items) {
-      const product = await this.productsService.findProductById(
-        item.productId,
+      const product = await this.productsService.findProductByProductId(
+        item.productId.toString(),
       );
       if (!product) {
         throw new NotFoundException(

@@ -17,7 +17,7 @@ async function bootstrap() {
     swagger_1.SwaggerModule.setup('swagger', app, document, {
         jsonDocumentUrl: 'swagger/json',
     });
-    await app.listen(3000);
+    await app.listen(3001);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

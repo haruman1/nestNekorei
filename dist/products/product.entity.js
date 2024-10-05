@@ -16,7 +16,7 @@ const category_entity_1 = require("./category.entity");
 const order_entity_1 = require("../orders/order.entity");
 let Product = class Product {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, name: { required: true, type: () => String }, description: { required: true, type: () => String }, price: { required: true, type: () => Number }, sku: { required: true, type: () => String }, quantity: { required: true, type: () => Number }, category: { required: true, type: () => require("./category.entity").Category }, orderItems: { required: true, type: () => [require("../orders/order.entity").OrderItem] } };
+        return { id: { required: true, type: () => Number }, productId: { required: true, type: () => String }, name: { required: true, type: () => String }, description: { required: true, type: () => String }, price: { required: true, type: () => Number }, sku: { required: true, type: () => String }, quantity: { required: true, type: () => Number }, category: { required: true, type: () => require("./category.entity").Category }, orderItems: { required: true, type: () => [require("../orders/order.entity").OrderItem] } };
     }
 };
 exports.Product = Product;
@@ -24,6 +24,10 @@ __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
 ], Product.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Product.prototype, "productId", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)

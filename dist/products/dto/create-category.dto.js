@@ -14,7 +14,7 @@ const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class CreateCategoryDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { name: { required: true, type: () => String } };
+        return { name: { required: true, type: () => String }, categoryId: { required: true, type: () => String } };
     }
 }
 exports.CreateCategoryDto = CreateCategoryDto;
@@ -23,4 +23,9 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateCategoryDto.prototype, "name", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateCategoryDto.prototype, "categoryId", void 0);
 //# sourceMappingURL=create-category.dto.js.map

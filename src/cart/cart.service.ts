@@ -66,7 +66,9 @@ export class CartService {
     }
 
     // Find existing item in cart
-    let cartItem = cart.items.find((item) => item.product.id === productId);
+    let cartItem = cart.items.find(
+      (item) => item.product.productId === productId,
+    );
     if (cartItem) {
       cartItem.quantity += quantity;
     } else {

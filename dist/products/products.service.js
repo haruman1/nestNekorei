@@ -18,10 +18,16 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const product_entity_1 = require("./product.entity");
 const category_entity_1 = require("./category.entity");
+const CryptoJS = require("crypto-js");
 let ProductsService = class ProductsService {
     constructor(productsRepository, categoriesRepository) {
         this.productsRepository = productsRepository;
         this.categoriesRepository = categoriesRepository;
+    }
+    generateRandomCode(name) {
+        const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
+        const randomCode = name + `-${randomNumber}`;
+        return randomCode;
     }
     async createProduct(createProductDto, CategoryId) {
         const { categoryId, ...rest } = createProductDto;
@@ -57,15 +63,25 @@ let ProductsService = class ProductsService {
         return this.productsRepository.save(product);
     }
     async findAllProducts() {
-        return this.productsRepository.find({ relations: ['product'] });
+        return this.productsRepository.find({ relations: ['category'] });
     }
     async findProductById(id) {
         const product = await this.productsRepository.findOne({
-            where: { id },
+            where: { category: { categoryId: id } },
             relations: ['category'],
         });
         if (!product) {
-            throw new common_1.NotFoundException('Product not found harus salah');
+            throw new common_1.NotFoundException('Product not found 1');
+        }
+        return product;
+    }
+    async findProductByProductId(id) {
+        const product = await this.productsRepository.findOne({
+            where: { productId: id },
+            relations: ['category'],
+        });
+        if (!product) {
+            throw new common_1.NotFoundException('Product not found 2');
         }
         return product;
     }
@@ -89,15 +105,19 @@ let ProductsService = class ProductsService {
         await this.productsRepository.remove(product);
     }
     async createCategory(createCategoryDto) {
+        createCategoryDto.categoryId = this.generateRandomCode('CTNEK');
+        if (!createCategoryDto.name || !createCategoryDto.categoryId) {
+            throw new common_1.BadRequestException('Name and categoryId is required');
+        }
         const category = this.categoriesRepository.create(createCategoryDto);
         return this.categoriesRepository.save(category);
     }
     async findAllCategories() {
-        return this.categoriesRepository.find({ relations: ['id', 'name'] });
+        return this.categoriesRepository.find({ relations: ['products'] });
     }
     async findCategoryById(id) {
         const category = await this.categoriesRepository.findOne({
-            where: { id },
+            where: { categoryId: id },
             relations: ['products'],
         });
         if (!category) {

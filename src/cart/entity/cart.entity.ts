@@ -30,7 +30,7 @@ export class CartItem {
   @ManyToOne(() => Cart, (cart) => cart.items)
   cart: Cart;
 
-  @ManyToOne(() => Product, (product) => product.id)
+  @ManyToOne(() => Product, (product) => product.productId)
   product: Product;
 
   @Column('int')

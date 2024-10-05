@@ -14,13 +14,13 @@ const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class OrderItemDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { productId: { required: true, type: () => Number }, quantity: { required: true, type: () => Number } };
+        return { productId: { required: true, type: () => Object }, quantity: { required: true, type: () => Number } };
     }
 }
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsNumber)(),
-    __metadata("design:type", Number)
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
 ], OrderItemDto.prototype, "productId", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
@@ -29,7 +29,7 @@ __decorate([
 ], OrderItemDto.prototype, "quantity", void 0);
 class CreateOrderDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { userId: { required: true, type: () => String }, orderId: { required: true, type: () => String }, items: { required: true, type: () => [OrderItemDto] } };
+        return { userId: { required: true, type: () => String }, items: { required: true, type: () => [OrderItemDto] } };
     }
 }
 exports.CreateOrderDto = CreateOrderDto;
@@ -37,10 +37,6 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateOrderDto.prototype, "userId", void 0);
-__decorate([
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], CreateOrderDto.prototype, "orderId", void 0);
 __decorate([
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.ArrayNotEmpty)(),
