@@ -11,7 +11,6 @@ import { Order } from '../orders/order.entity';
 import * as MidtransClient from 'midtrans-client';
 import { Snap } from 'midtrans-client';
 import { PaymentHistory } from './entity/paymentHistory.entity';
-import exp from 'constants';
 
 @Injectable()
 export class PaymentService {
@@ -21,7 +20,6 @@ export class PaymentService {
     private orderRepository: Repository<Order>,
     @InjectRepository(PaymentHistory)
     private transactionRepository: Repository<PaymentHistory>,
-    // private // private orderRepository: Repository<Order>,
   ) {
     this.midtrans = new MidtransClient.Snap({
       isProduction: false,
@@ -64,44 +62,42 @@ export class PaymentService {
       throw new BadRequestException(error.message);
     }
   }
-  async PaymentTransaction(payload: any) {
+
+  async verifyPayment(orderID: string, status: string) {
     const order = await this.orderRepository.findOne({
-      where: { orderId: payload.order_id },
+      where: { orderId: orderID },
       relations: ['user', 'items'],
     });
-    if (!payload || Object.keys(payload).length === 0) {
-      throw new BadRequestException('Payload is empty or invalid');
-    }
     if (!order) {
       throw new BadRequestException('Order not found');
     }
-    if (payload.transaction_status === 'settlement') {
+    if (status === 'settlement') {
       await this.orderRepository.update(
-        { orderId: payload.order_id },
+        { orderId: order.orderId },
         { status: 'settlement' },
       );
     }
-    if (payload.transaction_status === 'pending') {
-      await this.orderRepository.update(
-        { orderId: payload.order_id },
-        {
-          status: 'pending',
-        },
-      );
+  }
+  async transactionStatus(orderId: string) {
+    const order = await this.orderRepository.findOne({
+      where: { orderId: orderId },
+      relations: ['user', 'items'],
+    });
+    if (!order) {
+      throw new BadRequestException('Order not found');
     }
-
-    if (payload.transaction_status === 'deny') {
-      await this.orderRepository.update(
-        { orderId: payload.order_id },
-        {
-          status: 'deny',
-        },
-      );
+    this.midtrans.transaction
+      .status(order.orderId)
+      .then((statusResponse) => {});
+  }
+  async PaymentTransaction(payload: any) {
+    if (!payload || Object.keys(payload).length === 0) {
+      throw new BadRequestException('Payload is empty or invalid');
     }
 
     this.transactionRepository.save({
       ...payload,
-      order_Id: order.orderId,
+      order_Id: payload.order_id,
       Merchant_Id: payload.merchant_id,
       time: payload.transaction_time,
       transaction_id: payload.transaction_id,
@@ -114,5 +110,39 @@ export class PaymentService {
     });
 
     return { message: 'success Masukkan data data' };
+  }
+  async paymentCheck(orderId: string) {
+    const order = await this.orderRepository.findOne({
+      where: { orderId: orderId },
+      relations: ['user', 'items'],
+    });
+    const transaction = await this.transactionRepository.findOne({
+      where: { order_id: order.orderId },
+    });
+    if (!order) {
+      throw new BadRequestException('Order not found');
+    }
+    if (!transaction) {
+      throw new BadRequestException('Transaction not found');
+    }
+    if (transaction.transaction_status === 'settlement') {
+      await this.orderRepository.update(
+        { orderId: order.orderId },
+        { status: 'settlement' },
+      );
+    }
+    if (transaction.transaction_status === 'deny') {
+      await this.orderRepository.update(
+        { orderId: order.orderId },
+        { status: 'deny' },
+      );
+    }
+    if (transaction.transaction_status === 'expire') {
+      await this.orderRepository.update(
+        { orderId: order.orderId },
+        { status: 'expire' },
+      );
+    }
+    return { messagePayment: 'Payment Status Updated' };
   }
 }

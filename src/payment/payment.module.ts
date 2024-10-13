@@ -1,4 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
+//bullmq
+
 import { PaymentController } from './payment.controller';
 import { PaymentService } from './payment.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,7 +13,7 @@ import { PaymentHistory } from './entity/paymentHistory.entity';
     forwardRef(() => OrdersModule),
     TypeOrmModule.forFeature([Order, OrderItem, PaymentHistory]),
   ],
-  providers: [PaymentService],
+  providers: [PaymentService], // Add worker to providers
   controllers: [PaymentController],
   exports: [PaymentService],
 })

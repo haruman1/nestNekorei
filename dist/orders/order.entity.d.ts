@@ -7,6 +7,7 @@ export declare class Order {
     status: string;
     total: number;
     createdAt: Date;
+    updatedAt: Date;
     items: OrderItem[];
 }
 export declare class OrderItem {

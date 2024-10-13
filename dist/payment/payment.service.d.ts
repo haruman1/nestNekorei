@@ -8,7 +8,12 @@ export declare class PaymentService {
     private midtrans;
     constructor(orderRepository: Repository<Order>, transactionRepository: Repository<PaymentHistory>);
     createPayment(orderID: string): Promise<Snap>;
+    verifyPayment(orderID: string, status: string): Promise<void>;
+    transactionStatus(orderId: string): Promise<void>;
     PaymentTransaction(payload: any): Promise<{
         message: string;
+    }>;
+    paymentCheck(orderId: string): Promise<{
+        messagePayment: string;
     }>;
 }

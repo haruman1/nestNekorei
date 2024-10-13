@@ -9,14 +9,15 @@ import * as CryptoJS from 'crypto-js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-// import { CreateUserDto } from './dto/create-user.dto';
-// import { UpdateUserDto } from './dto/update-user.dto';
+import { UserResponse } from './interface/user-response.interface';
+
 import { UsersDto } from './dto';
 import * as bcrypt from 'bcryptjs';
-import { OrdersService } from 'src/orders/orders.service';
 
+import ImageKit from 'imagekit';
 @Injectable()
 export class UsersService {
+  private imagekit: ImageKit;
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
@@ -28,8 +29,8 @@ export class UsersService {
     return randomCode;
   }
 
-  async create(createUserDto: UsersDto.CreateUserDto): Promise<User> {
-    const { email, userId, name, password, role } = createUserDto;
+  async create(createUserDto: UsersDto.CreateUserDto): Promise<UserResponse> {
+    const { email, name, password, role } = createUserDto;
 
     // Log data yang diterima untuk debugging
     console.log('Data yang diterima:', createUserDto);
@@ -65,15 +66,43 @@ export class UsersService {
         password: hashedPassword,
         role,
       });
-
+      await this.usersRepository.save(user);
       // Simpan user ke database
-      return this.usersRepository.save(user);
+      const response: UserResponse = {
+        status: 200,
+        data: 'User created successfully',
+        dataUser: {
+          id: user.userId,
+          email: user.email,
+          name: user.name,
+        },
+      };
+      return response;
     } catch (err) {
       // Lempar error jika terjadi kesalahan dalam proses pembuatan user
       throw new BadRequestException('Error creating user: ' + err.message);
     }
   }
 
+  async ImageKitAuth() {
+    this.imagekit = new ImageKit({
+      publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+      privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+      urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+    });
+    return this.imagekit.getAuthenticationParameters();
+  }
+  async konyol(userId: string) {
+    const user = await this.usersRepository.findOne({
+      where: { userId },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return {
+      message: 'yah, konyol',
+    };
+  }
   async findOneByEmail(email: string): Promise<User> {
     if (!email) {
       throw new BadRequestException('Email must be provided222');

@@ -42,11 +42,21 @@ let UsersController = class UsersController {
         await this.usersService.remove(req.user.userId);
         return { message: 'User profile successfully deleted' };
     }
+    async ImageKit(req) {
+        const user = await this.usersService.findOneByIdUser(req.user.userId);
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        return this.usersService.ImageKitAuth();
+    }
+    async konyol(req) {
+        return this.usersService.konyol(req.user.userId);
+    }
 };
 exports.UsersController = UsersController;
 __decorate([
     (0, common_1.Post)('register'),
-    openapi.ApiResponse({ status: 201, type: require("./user.entity").User }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
@@ -88,6 +98,24 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "deleteProfile", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)('image/auth'),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "ImageKit", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)('konyol'),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "konyol", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService,

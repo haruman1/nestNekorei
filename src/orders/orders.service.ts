@@ -13,7 +13,7 @@ import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
 import { User } from 'src/users/user.entity';
 import * as CryptoJS from 'crypto-js';
-
+import { OrderResponse } from './interface/order.interface';
 @Injectable()
 export class OrdersService {
   constructor(
@@ -34,7 +34,9 @@ export class OrdersService {
     const randomCode = `Nekorei-${randomNumber}`; // Gabungkan "NK" dengan angka acak
     return randomCode;
   }
-  async createOrder(createOrderDto: OrdersDto.CreateOrderDto): Promise<Order> {
+  async createOrder(
+    createOrderDto: OrdersDto.CreateOrderDto,
+  ): Promise<OrderResponse> {
     const { userId, items } = createOrderDto;
 
     const user = await this.usersService.findOneByIdUser(userId);
@@ -75,7 +77,25 @@ export class OrdersService {
       items: orderItems,
     });
 
-    return this.ordersRepository.save(order);
+    await this.ordersRepository.save(order);
+    const ResponseOrder: OrderResponse = {
+      id: order.orderId,
+      userId: order.user.userId,
+      total: order.total,
+      status: order.status,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+      items: [
+        {
+          id: order.items[0].id,
+          productId: order.items[0].product.productId,
+          name: order.items[0].name,
+          quantity: order.items[0].quantity,
+          price: order.items[0].price,
+        },
+      ],
+    };
+    return ResponseOrder;
   }
 
   async findAllOrders(): Promise<Order[]> {

@@ -13,11 +13,7 @@ import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
-interface JwtPayload {
-  userId: string;
-  name: string;
-  email: string;
-}
+import { JwtPayload } from 'src/auth/jwt/jwt-payload.interface';
 
 @UseGuards(JwtAuthGuard)
 @Controller('orders')

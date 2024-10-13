@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 // import { UsersDto } from './dto';
@@ -17,11 +18,7 @@ import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { Request } from 'express';
 import { AuthService } from '../auth/auth.service';
 
-interface JwtPayload {
-  userId: string;
-  name: string;
-  email: string;
-}
+import { JwtPayload } from '../auth/jwt/jwt-payload.interface';
 
 @Controller('users')
 export class UsersController {
@@ -31,6 +28,7 @@ export class UsersController {
   ) {}
 
   @Post('register')
+  //masih salah validasi, harusnya email itu email. tapi huruf biasa tetap masuk
   async register(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.create(createUserDto);
   }
@@ -61,5 +59,20 @@ export class UsersController {
   async deleteProfile(@Req() req: Request & { user: JwtPayload }) {
     await this.usersService.remove(req.user.userId);
     return { message: 'User profile successfully deleted' };
+  }
+  @UseGuards(JwtAuthGuard)
+  @Post('image/auth')
+  async ImageKit(@Req() req: Request & { user: JwtPayload }) {
+    const user = await this.usersService.findOneByIdUser(req.user.userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return this.usersService.ImageKitAuth();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('konyol')
+  async konyol(@Req() req: Request & { user: JwtPayload }) {
+    return this.usersService.konyol(req.user.userId);
   }
 }

@@ -16,7 +16,7 @@ const user_entity_1 = require("../users/user.entity");
 const product_entity_1 = require("../products/product.entity");
 let Order = class Order {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, orderId: { required: true, type: () => String }, user: { required: true, type: () => require("../users/user.entity").User }, status: { required: true, type: () => String }, total: { required: true, type: () => Number }, createdAt: { required: true, type: () => Date }, items: { required: true, type: () => [require("./order.entity").OrderItem] } };
+        return { id: { required: true, type: () => Number }, orderId: { required: true, type: () => String }, user: { required: true, type: () => require("../users/user.entity").User }, status: { required: true, type: () => String }, total: { required: true, type: () => Number }, createdAt: { required: true, type: () => Date }, updatedAt: { required: true, type: () => Date }, items: { required: true, type: () => [require("./order.entity").OrderItem] } };
     }
 };
 exports.Order = Order;
@@ -44,6 +44,10 @@ __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], Order.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], Order.prototype, "updatedAt", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => OrderItem, (orderItem) => orderItem.order, { cascade: true }),
     __metadata("design:type", Array)

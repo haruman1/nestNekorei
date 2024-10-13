@@ -31,6 +31,9 @@ export class Order {
   @CreateDateColumn()
   createdAt: Date;
 
+  @CreateDateColumn()
+  updatedAt: Date;
+
   // Relasi One-to-Many ke entitas OrderItem
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
   items: OrderItem[];

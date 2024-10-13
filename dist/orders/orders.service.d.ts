@@ -3,6 +3,7 @@ import { Order, OrderItem } from './order.entity';
 import { OrdersDto } from './dto';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
+import { OrderResponse } from './interface/order.interface';
 export declare class OrdersService {
     private ordersRepository;
     private orderItemsRepository;
@@ -10,7 +11,7 @@ export declare class OrdersService {
     private productsService;
     constructor(ordersRepository: Repository<Order>, orderItemsRepository: Repository<OrderItem>, usersService: UsersService, productsService: ProductsService);
     generateRandomCode(): string;
-    createOrder(createOrderDto: OrdersDto.CreateOrderDto): Promise<Order>;
+    createOrder(createOrderDto: OrdersDto.CreateOrderDto): Promise<OrderResponse>;
     findAllOrders(): Promise<Order[]>;
     findOrderById(id: number): Promise<Order>;
     updateOrderStatus(id: number, updateOrderStatusDto: OrdersDto.UpdateOrderStatusDto): Promise<Order>;
