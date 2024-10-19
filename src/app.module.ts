@@ -4,8 +4,8 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { User } from './users/user.entity';
-import { Product } from './products/product.entity';
-import { Category } from './products/category.entity';
+import { Product, ProductImage } from './products/entity/product.entity';
+import { Category } from './products/entity/category.entity';
 import { ConfigModule } from '@nestjs/config';
 import { OrdersModule } from './orders/orders.module';
 import { Order, OrderItem } from './orders/order.entity';
@@ -43,6 +43,7 @@ import { PaymentHistory } from './payment/entity/paymentHistory.entity';
         Order,
         OrderItem,
         PaymentHistory,
+        ProductImage,
       ],
       synchronize: true,
     }),

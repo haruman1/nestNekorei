@@ -7,8 +7,6 @@ import {
   ArrayNotEmpty,
 } from 'class-validator';
 
-import { Type } from 'class-transformer';
-
 class OrderItemDto {
   @IsNotEmpty()
   @IsString()

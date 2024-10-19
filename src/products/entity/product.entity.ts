@@ -16,14 +16,12 @@ export class Product {
   @Column()
   productId: string;
 
-  // Nama produk sebagai kolom biasa
   @Column()
   name: string;
 
   @Column('text')
   description: string;
 
-  // Pastikan tipe data decimal memiliki presisi yang tepat
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
 
@@ -33,11 +31,32 @@ export class Product {
   @Column('int')
   quantity: number;
 
-  // Relasi Many-to-One ke Category
+  // Many-to-One relation with Category
   @ManyToOne(() => Category, (category) => category.products, { eager: true })
   category: Category;
 
-  // Relasi One-to-Many ke OrderItem
+  // One-to-Many relation with OrderItem
   @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItems: OrderItem[];
+
+  // One-to-Many relation with ProductImage
+  @OneToMany(() => ProductImage, (productImage) => productImage.product)
+  productImages: ProductImage[];
+}
+
+// ProductImage entity definition
+
+@Entity()
+export class ProductImage {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  productId: string; // This should match the product's productId
+
+  @Column()
+  imageUrl: string; // Correct column name for storing the image URL
+
+  @ManyToOne(() => Product, (product) => product.productImages)
+  product: Product; // Correctly reference the Product entity
 }

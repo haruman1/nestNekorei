@@ -39,13 +39,14 @@ exports.ProductsService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const product_entity_1 = require("./product.entity");
-const category_entity_1 = require("./category.entity");
+const product_entity_1 = require("./entity/product.entity");
+const category_entity_1 = require("./entity/category.entity");
 const CryptoJS = __importStar(require("crypto-js"));
 let ProductsService = class ProductsService {
-    constructor(productsRepository, categoriesRepository) {
+    constructor(productsRepository, categoriesRepository, productImagesRepository) {
         this.productsRepository = productsRepository;
         this.categoriesRepository = categoriesRepository;
+        this.productImagesRepository = productImagesRepository;
     }
     generateRandomCode(name) {
         const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
@@ -55,7 +56,7 @@ let ProductsService = class ProductsService {
     async createProduct(createProductDto, CategoryId) {
         const { categoryId, ...rest } = createProductDto;
         const category = await this.categoriesRepository.findOne({
-            where: { id: CategoryId },
+            where: { categoryId: CategoryId },
         });
         if (!category) {
             throw new common_1.NotFoundException('Category not found');
@@ -79,24 +80,47 @@ let ProductsService = class ProductsService {
         if (!rest.quantity) {
             missingFields.push('quantity');
         }
+        if (!rest.image) {
+            missingFields.push('image');
+        }
         if (missingFields.length > 0) {
             throw new common_1.BadRequestException(`The following fields are missing: ${missingFields.join(', ')}.`);
         }
         const product = this.productsRepository.create({ ...rest, category });
-        return this.productsRepository.save(product);
+        const createImage = this.productImagesRepository.create({
+            productId: rest.productId,
+            imageUrl: rest.image,
+        });
+        const savedProductImage = this.productImagesRepository.save(createImage);
+        if (!savedProductImage) {
+            throw new common_1.NotFoundException('Product image not found');
+        }
+        const savedProduct = await this.productsRepository.save(product);
+        if (!savedProduct) {
+            throw new common_1.NotFoundException('Product not found');
+        }
+        return savedProduct;
     }
     async findAllProducts() {
-        return this.productsRepository.find({ relations: ['category'] });
-    }
-    async findProductById(id) {
-        const product = await this.productsRepository.findOne({
-            where: { category: { categoryId: id } },
-            relations: ['category'],
+        const products = await this.productsRepository.find({
+            relations: ['category', 'productImages'],
         });
-        if (!product) {
-            throw new common_1.NotFoundException('Product not found 1');
-        }
-        return product;
+        const response = {
+            status: 200,
+            data: products.map((product) => ({
+                id: product.productId,
+                name: product.name,
+                description: product.description,
+                price: product.price,
+                sku: product.sku,
+                quantity: product.quantity,
+                categoryId: product.category?.categoryId || null,
+                image: product.productImages.length > 0
+                    ? product.productImages[0].imageUrl
+                    : null,
+            })),
+        };
+        return response;
     }
     async findProductByProductId(id) {
         const product = await this.productsRepository.findOne({
@@ -108,25 +132,6 @@ let ProductsService = class ProductsService {
         }
         return product;
     }
-    async updateProduct(id, updateProductDto) {
-        const product = await this.findProductById(id);
-        const { categoryId, ...rest } = updateProductDto;
-        if (categoryId) {
-            const category = await this.categoriesRepository.findOne({
-                where: { id: categoryId },
-            });
-            if (!category) {
-                throw new common_1.NotFoundException('Category not found');
-            }
-            product.category = category;
-        }
-        Object.assign(product, rest);
-        return this.productsRepository.save(product);
-    }
-    async removeProduct(id) {
-        const product = await this.findProductById(id);
-        await this.productsRepository.remove(product);
-    }
     async createCategory(createCategoryDto) {
         createCategoryDto.categoryId = this.generateRandomCode('CTNEK');
         if (!createCategoryDto.name || !createCategoryDto.categoryId) {
@@ -135,8 +140,16 @@ let ProductsService = class ProductsService {
         const category = this.categoriesRepository.create(createCategoryDto);
         return this.categoriesRepository.save(category);
     }
-    async findAllCategories() {
-        return this.categoriesRepository.find({ relations: ['products'] });
+    async findAllCategoriesNew() {
+        const categories = await this.categoriesRepository.find();
+        const response = {
+            status: 200,
+            data: categories.map((category) => ({
+                id: category.categoryId,
+                name: category.name,
+            })),
+        };
+        return response;
     }
     async findCategoryById(id) {
         const category = await this.categoriesRepository.findOne({
@@ -192,7 +205,9 @@ exports.ProductsService = ProductsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(product_entity_1.Product)),
     __param(1, (0, typeorm_1.InjectRepository)(category_entity_1.Category)),
+    __param(2, (0, typeorm_1.InjectRepository)(product_entity_1.ProductImage)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository])
 ], ProductsService);
 //# sourceMappingURL=products.service.js.map

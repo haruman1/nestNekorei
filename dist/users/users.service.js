@@ -49,6 +49,12 @@ const imagekit_1 = __importDefault(require("imagekit"));
 let UsersService = class UsersService {
     constructor(usersRepository) {
         this.usersRepository = usersRepository;
+        const imageKit = new imagekit_1.default({
+            publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+            privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+            urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+        });
+        this.imagekit = imageKit;
     }
     generateRandomCode() {
         const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
@@ -95,11 +101,6 @@ let UsersService = class UsersService {
         }
     }
     async ImageKitAuth() {
-        this.imagekit = new imagekit_1.default({
-            publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
-            privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
-            urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
-        });
         return this.imagekit.getAuthenticationParameters();
     }
     async konyol(userId) {

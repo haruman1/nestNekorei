@@ -13,7 +13,7 @@ exports.OrderItem = exports.Order = void 0;
 const openapi = require("@nestjs/swagger");
 const typeorm_1 = require("typeorm");
 const user_entity_1 = require("../users/user.entity");
-const product_entity_1 = require("../products/product.entity");
+const product_entity_1 = require("../products/entity/product.entity");
 let Order = class Order {
     static _OPENAPI_METADATA_FACTORY() {
         return { id: { required: true, type: () => Number }, orderId: { required: true, type: () => String }, user: { required: true, type: () => require("../users/user.entity").User }, status: { required: true, type: () => String }, total: { required: true, type: () => Number }, createdAt: { required: true, type: () => Date }, updatedAt: { required: true, type: () => Date }, items: { required: true, type: () => [require("./order.entity").OrderItem] } };
@@ -57,7 +57,7 @@ exports.Order = Order = __decorate([
 ], Order);
 let OrderItem = class OrderItem {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, product: { required: true, type: () => require("../products/product.entity").Product }, name: { required: true, type: () => String }, quantity: { required: true, type: () => Number }, price: { required: true, type: () => Number }, order: { required: true, type: () => require("./order.entity").Order } };
+        return { id: { required: true, type: () => Number }, product: { required: true, type: () => require("../products/entity/product.entity").Product }, name: { required: true, type: () => String }, quantity: { required: true, type: () => Number }, price: { required: true, type: () => Number }, order: { required: true, type: () => require("./order.entity").Order } };
     }
 };
 exports.OrderItem = OrderItem;

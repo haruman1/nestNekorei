@@ -7,7 +7,7 @@ import {
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   const config = new DocumentBuilder()
     .setTitle('Nekorei API')
     .setDescription('The cats API description')
@@ -21,6 +21,6 @@ async function bootstrap() {
   SwaggerModule.setup('swagger', app, document, {
     jsonDocumentUrl: 'swagger/json',
   });
-  await app.listen(3001);
+  await app.listen(process.env.PORT_WEB);
 }
 bootstrap();

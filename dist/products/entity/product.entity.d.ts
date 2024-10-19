@@ -10,4 +10,11 @@ export declare class Product {
     quantity: number;
     category: Category;
     orderItems: OrderItem[];
+    productImages: ProductImage[];
+}
+export declare class ProductImage {
+    id: number;
+    productId: string;
+    imageUrl: string;
+    product: Product;
 }

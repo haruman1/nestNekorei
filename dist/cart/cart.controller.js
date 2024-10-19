@@ -19,31 +19,25 @@ const cart_service_1 = require("./cart.service");
 const create_cart_item_dto_1 = require("./dto/create-cart-item.dto");
 const update_cart_item_dto_1 = require("./dto/update-cart-item.dto");
 const jwt_auth_guard_1 = require("../auth/jwt/jwt-auth.guard");
-const current_user_decorator_1 = require("../auth/jwt/current-user.decorator");
 let CartController = class CartController {
     constructor(cartService) {
         this.cartService = cartService;
     }
-    addItem(user, createCartItemDto) {
-        const userId = user.id;
-        return this.cartService.addItem(userId, createCartItemDto);
+    addItem(req, createCartItemDto) {
+        return this.cartService.addItem(req.user.userId, createCartItemDto);
     }
-    updateItem(user, itemId, updateCartItemDto) {
-        const userId = user.id;
-        return this.cartService.updateItem(userId, itemId, updateCartItemDto);
+    updateItem(req, itemId, updateCartItemDto) {
+        return this.cartService.updateItem(req.user.userId, itemId, updateCartItemDto);
     }
-    removeItem(user, itemId) {
-        const userId = user.id;
-        return this.cartService.removeItem(userId, itemId);
+    removeItem(req, itemId) {
+        return this.cartService.removeItem(req.user.userId, itemId);
     }
-    getCartSummary(user) {
-        const userId = user.id;
-        return this.cartService.getCartSummary(userId);
+    getCartSummary(req) {
+        return this.cartService.getCartSummary(req.user.userId);
     }
-    async checkout(user) {
-        const userId = user.id;
-        const cart = await this.cartService.getCartSummary(userId);
-        await this.cartService.clearCart(userId);
+    async checkout(req) {
+        const cart = await this.cartService.getCartSummary(req.user.userId);
+        await this.cartService.clearCart(req.user.userId);
         return { message: 'Checkout successful' };
     }
 };
@@ -51,7 +45,7 @@ exports.CartController = CartController;
 __decorate([
     (0, common_1.Post)('add'),
     openapi.ApiResponse({ status: 201, type: require("./entity/cart.entity").Cart }),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, create_cart_item_dto_1.CreateCartItemDto]),
@@ -60,7 +54,7 @@ __decorate([
 __decorate([
     (0, common_1.Patch)('update/:itemId'),
     openapi.ApiResponse({ status: 200, type: require("./entity/cart.entity").Cart }),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Param)('itemId')),
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -70,7 +64,7 @@ __decorate([
 __decorate([
     (0, common_1.Delete)('remove/:itemId'),
     openapi.ApiResponse({ status: 200, type: require("./entity/cart.entity").Cart }),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Param)('itemId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Number]),
@@ -79,7 +73,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('summary'),
     openapi.ApiResponse({ status: 200, type: require("./entity/cart.entity").Cart }),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
@@ -87,7 +81,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('checkout'),
     openapi.ApiResponse({ status: 201 }),
-    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)

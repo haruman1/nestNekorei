@@ -13,8 +13,8 @@ const users_module_1 = require("./users/users.module");
 const auth_module_1 = require("./auth/auth.module");
 const products_module_1 = require("./products/products.module");
 const user_entity_1 = require("./users/user.entity");
-const product_entity_1 = require("./products/product.entity");
-const category_entity_1 = require("./products/category.entity");
+const product_entity_1 = require("./products/entity/product.entity");
+const category_entity_1 = require("./products/entity/category.entity");
 const config_1 = require("@nestjs/config");
 const orders_module_1 = require("./orders/orders.module");
 const order_entity_1 = require("./orders/order.entity");
@@ -52,6 +52,7 @@ exports.AppModule = AppModule = __decorate([
                     order_entity_1.Order,
                     order_entity_1.OrderItem,
                     paymentHistory_entity_1.PaymentHistory,
+                    product_entity_1.ProductImage,
                 ],
                 synchronize: true,
             }),

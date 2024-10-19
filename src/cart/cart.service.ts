@@ -30,8 +30,8 @@ export class CartService {
   ) {}
 
   // Helper function to find user
-  private async findUserById(userId: number): Promise<User> {
-    const user = await this.usersService.findOneById(userId);
+  private async findUserById(userId: string): Promise<User> {
+    const user = await this.usersService.findOneByIdUser(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -39,7 +39,7 @@ export class CartService {
   }
 
   // Find or create a cart for a specific user
-  async findOrCreateCart(userId: number): Promise<Cart> {
+  async findOrCreateCart(userId: string): Promise<Cart> {
     const user = await this.findUserById(userId);
     let cart = await this.cartRepository.findOne({
       where: { user: { id: user.id } },
@@ -54,12 +54,13 @@ export class CartService {
 
   // Add an item to the cart
   async addItem(
-    userId: number,
+    userId: string,
     createCartItemDto: CartDto.CreateCartItemDto,
   ): Promise<Cart> {
     const cart = await this.findOrCreateCart(userId);
     const { productId, quantity } = createCartItemDto;
-    const product = await this.productsService.findProductById(productId);
+    const product =
+      await this.productsService.findProductByProductId(productId);
 
     if (!product) {
       throw new NotFoundException('Product not found');
@@ -82,7 +83,7 @@ export class CartService {
 
   // Update the quantity of an item in the cart
   async updateItem(
-    userId: number,
+    userId: string,
     cartItemId: number,
     updateCartItemDto: CartDto.UpdateCartItemDto,
   ): Promise<Cart> {
@@ -99,7 +100,7 @@ export class CartService {
   }
 
   // Remove an item from the cart
-  async removeItem(userId: number, cartItemId: number): Promise<Cart> {
+  async removeItem(userId: string, cartItemId: number): Promise<Cart> {
     const cart = await this.findOrCreateCart(userId);
     const cartItemIndex = cart.items.findIndex(
       (item) => item.id === cartItemId,
@@ -115,12 +116,12 @@ export class CartService {
   }
 
   // Get cart summary for a specific user
-  async getCartSummary(userId: number): Promise<Cart> {
+  async getCartSummary(userId: string): Promise<Cart> {
     return this.findOrCreateCart(userId);
   }
 
   // Clear all items from the cart
-  async clearCart(userId: number): Promise<void> {
+  async clearCart(userId: string): Promise<void> {
     const cart = await this.findOrCreateCart(userId);
     await this.cartItemRepository.remove(cart.items);
     cart.items = [];

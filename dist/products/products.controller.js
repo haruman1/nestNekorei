@@ -17,7 +17,6 @@ const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const products_service_1 = require("./products.service");
 const create_product_dto_1 = require("./dto/create-product.dto");
-const update_product_dto_1 = require("./dto/update-product.dto");
 const create_category_dto_1 = require("./dto/create-category.dto");
 const update_category_dto_1 = require("./dto/update-category.dto");
 const jwt_auth_guard_1 = require("../auth/jwt/jwt-auth.guard");
@@ -33,23 +32,14 @@ let ProductsController = class ProductsController {
     findAllProducts() {
         return this.productsService.findAllProducts();
     }
-    findProductById(id) {
-        return this.productsService.findProductById(id);
-    }
-    updateProduct(id, updateProductDto) {
-        return this.productsService.updateProduct(id, updateProductDto);
-    }
-    removeProduct(id) {
-        return this.productsService.removeProduct(id);
-    }
     createCategory(createCategoryDto) {
         if (!createCategoryDto.name) {
             throw new common_1.BadRequestException('Please provide a Valid Input');
         }
         return this.productsService.createCategory(createCategoryDto);
     }
-    findAllCategories() {
-        return this.productsService.findAllCategories();
+    findCategoriesAll() {
+        return this.productsService.findAllCategoriesNew();
     }
     updateCategory(id, updateCategoryDto) {
         return this.productsService.updateCategory(id, updateCategoryDto);
@@ -67,7 +57,7 @@ let ProductsController = class ProductsController {
 exports.ProductsController = ProductsController;
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: require("./product.entity").Product }),
+    openapi.ApiResponse({ status: 201, type: require("./entity/product.entity").Product }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -75,40 +65,15 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "createProduct", null);
 __decorate([
-    (0, common_1.Get)('products'),
-    openapi.ApiResponse({ status: 200, type: [require("./product.entity").Product] }),
+    (0, common_1.Get)(),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "findAllProducts", null);
 __decorate([
-    (0, common_1.Get)(':id'),
-    openapi.ApiResponse({ status: 200, type: require("./product.entity").Product }),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], ProductsController.prototype, "findProductById", null);
-__decorate([
-    (0, common_1.Patch)(':id'),
-    openapi.ApiResponse({ status: 200, type: require("./product.entity").Product }),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_product_dto_1.UpdateProductDto]),
-    __metadata("design:returntype", void 0)
-], ProductsController.prototype, "updateProduct", null);
-__decorate([
-    (0, common_1.Delete)(':id'),
-    openapi.ApiResponse({ status: 200 }),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], ProductsController.prototype, "removeProduct", null);
-__decorate([
     (0, common_1.Post)('categories'),
-    openapi.ApiResponse({ status: 201, type: require("./category.entity").Category }),
+    openapi.ApiResponse({ status: 201, type: require("./entity/category.entity").Category }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_category_dto_1.CreateCategoryDto]),
@@ -116,14 +81,14 @@ __decorate([
 ], ProductsController.prototype, "createCategory", null);
 __decorate([
     (0, common_1.Get)('categories'),
-    openapi.ApiResponse({ status: 200, type: [require("./category.entity").Category] }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], ProductsController.prototype, "findAllCategories", null);
+], ProductsController.prototype, "findCategoriesAll", null);
 __decorate([
     (0, common_1.Patch)('categories/:id'),
-    openapi.ApiResponse({ status: 200, type: require("./category.entity").Category }),
+    openapi.ApiResponse({ status: 200, type: require("./entity/category.entity").Category }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -140,7 +105,7 @@ __decorate([
 ], ProductsController.prototype, "removeCategory", null);
 __decorate([
     (0, common_1.Get)('search'),
-    openapi.ApiResponse({ status: 200, type: [require("./product.entity").Product] }),
+    openapi.ApiResponse({ status: 200, type: [require("./entity/product.entity").Product] }),
     __param(0, (0, common_1.Query)('query')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -148,7 +113,7 @@ __decorate([
 ], ProductsController.prototype, "searchProducts", null);
 __decorate([
     (0, common_1.Get)('filter'),
-    openapi.ApiResponse({ status: 200, type: [require("./product.entity").Product] }),
+    openapi.ApiResponse({ status: 200, type: [require("./entity/product.entity").Product] }),
     __param(0, (0, common_1.Query)('categoryId')),
     __param(1, (0, common_1.Query)('minPrice')),
     __param(2, (0, common_1.Query)('maxPrice')),

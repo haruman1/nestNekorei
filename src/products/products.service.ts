@@ -5,14 +5,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Product } from './product.entity';
-import { Category } from './category.entity';
+import { Product, ProductImage } from './entity/product.entity';
+import { Category } from './entity/category.entity';
 import { ProductsDto } from './dto';
-// import { CreateProductDto } from './dto/create-product.dto';
-// import { UpdateProductDto } from './dto/update-product.dto';
-// import { CreateCategoryDto } from './dto/create-category.dto';
-// import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ProductResponse } from './interface';
 import * as CryptoJS from 'crypto-js';
+import { CategoriesResponse } from './interface';
 
 @Injectable()
 export class ProductsService {
@@ -21,6 +19,8 @@ export class ProductsService {
     private productsRepository: Repository<Product>,
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
+    @InjectRepository(ProductImage)
+    private productImagesRepository: Repository<ProductImage>,
   ) {}
   generateRandomCode(name: string): string {
     const randomNumber = CryptoJS.lib.WordArray.random(4).toString(); // Menghasilkan angka acak (4 byte)
@@ -35,11 +35,11 @@ export class ProductsService {
    */
   async createProduct(
     createProductDto: ProductsDto.CreateProductDto,
-    CategoryId: number,
+    CategoryId: string,
   ): Promise<Product> {
     const { categoryId, ...rest } = createProductDto;
     const category = await this.categoriesRepository.findOne({
-      where: { id: CategoryId },
+      where: { categoryId: CategoryId },
     });
     if (!category) {
       throw new NotFoundException('Category not found');
@@ -66,6 +66,9 @@ export class ProductsService {
     if (!rest.quantity) {
       missingFields.push('quantity');
     }
+    if (!rest.image) {
+      missingFields.push('image');
+    }
 
     if (missingFields.length > 0) {
       throw new BadRequestException(
@@ -74,23 +77,60 @@ export class ProductsService {
     }
 
     const product = this.productsRepository.create({ ...rest, category });
-    return this.productsRepository.save(product);
-  }
-
-  async findAllProducts(): Promise<Product[]> {
-    return this.productsRepository.find({ relations: ['category'] });
-  }
-
-  async findProductById(id: string): Promise<Product> {
-    const product = await this.productsRepository.findOne({
-      where: { category: { categoryId: id } },
-      relations: ['category'],
+    const createImage = this.productImagesRepository.create({
+      productId: rest.productId, // Ensure this is provided and valid
+      imageUrl: rest.image, // Correct property name for the URLrelationship correctly
     });
-    if (!product) {
-      throw new NotFoundException('Product not found 1');
+
+    const savedProductImage = this.productImagesRepository.save(createImage);
+    if (!savedProductImage) {
+      throw new NotFoundException('Product image not found');
     }
-    return product;
+
+    const savedProduct = await this.productsRepository.save(product);
+    if (!savedProduct) {
+      throw new NotFoundException('Product not found');
+    }
+    return savedProduct;
   }
+
+  async findAllProducts(): Promise<ProductResponse> {
+    // Fetch products with their related category and productImages in one query
+    const products = await this.productsRepository.find({
+      relations: ['category', 'productImages'],
+    });
+
+    const response: ProductResponse = {
+      status: 200,
+      data: products.map((product) => ({
+        id: product.productId,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        sku: product.sku,
+        quantity: product.quantity,
+        categoryId: product.category?.categoryId || null, // Safely access categoryId
+        // Check if the product has images, and get the first one if available
+        image:
+          product.productImages.length > 0
+            ? product.productImages[0].imageUrl
+            : null,
+      })),
+    };
+
+    return response;
+  }
+
+  // async findProductById(id: string): Promise<Product> {
+  //   const product = await this.productsRepository.findOne({
+  //     where: { category: { categoryId: id } },
+  //     relations: ['category'],
+  //   });
+  //   if (!product) {
+  //     throw new NotFoundException('Product not found xxx');
+  //   }
+  //   return product;
+  // }
   async findProductByProductId(id: string): Promise<Product> {
     const product = await this.productsRepository.findOne({
       where: { productId: id },
@@ -101,29 +141,29 @@ export class ProductsService {
     }
     return product;
   }
-  async updateProduct(
-    id: string,
-    updateProductDto: ProductsDto.UpdateProductDto,
-  ): Promise<Product> {
-    const product = await this.findProductById(id);
-    const { categoryId, ...rest } = updateProductDto;
-    if (categoryId) {
-      const category = await this.categoriesRepository.findOne({
-        where: { id: categoryId },
-      });
-      if (!category) {
-        throw new NotFoundException('Category not found');
-      }
-      product.category = category;
-    }
-    Object.assign(product, rest);
-    return this.productsRepository.save(product);
-  }
+  // async updateProduct(
+  //   id: string,
+  //   updateProductDto: ProductsDto.UpdateProductDto,
+  // ): Promise<Product> {
+  //   const product = await this.findProductById(id);
+  //   const { categoryId, ...rest } = updateProductDto;
+  //   if (categoryId) {
+  //     const category = await this.categoriesRepository.findOne({
+  //       where: { id: categoryId },
+  //     });
+  //     if (!category) {
+  //       throw new NotFoundException('Category not found');
+  //     }
+  //     product.category = category;
+  //   }
+  //   Object.assign(product, rest);
+  //   return this.productsRepository.save(product);
+  // }
 
-  async removeProduct(id: string): Promise<void> {
-    const product = await this.findProductById(id);
-    await this.productsRepository.remove(product);
-  }
+  // async removeProduct(id: string): Promise<void> {
+  //   const product = await this.findProductById(id);
+  //   await this.productsRepository.remove(product);
+  // }
 
   async createCategory(
     createCategoryDto: ProductsDto.CreateCategoryDto,
@@ -137,8 +177,17 @@ export class ProductsService {
     return this.categoriesRepository.save(category);
   }
 
-  async findAllCategories(): Promise<Category[]> {
-    return this.categoriesRepository.find({ relations: ['products'] });
+  async findAllCategoriesNew(): Promise<CategoriesResponse> {
+    const categories = await this.categoriesRepository.find();
+
+    const response: CategoriesResponse = {
+      status: 200,
+      data: categories.map((category) => ({
+        id: category.categoryId,
+        name: category.name,
+      })),
+    };
+    return response;
   }
 
   async findCategoryById(id: string): Promise<Category> {

@@ -10,10 +10,10 @@ export declare class CartService {
     private productsService;
     constructor(cartRepository: Repository<Cart>, cartItemRepository: Repository<CartItem>, usersService: UsersService, productsService: ProductsService);
     private findUserById;
-    findOrCreateCart(userId: number): Promise<Cart>;
-    addItem(userId: number, createCartItemDto: CartDto.CreateCartItemDto): Promise<Cart>;
-    updateItem(userId: number, cartItemId: number, updateCartItemDto: CartDto.UpdateCartItemDto): Promise<Cart>;
-    removeItem(userId: number, cartItemId: number): Promise<Cart>;
-    getCartSummary(userId: number): Promise<Cart>;
-    clearCart(userId: number): Promise<void>;
+    findOrCreateCart(userId: string): Promise<Cart>;
+    addItem(userId: string, createCartItemDto: CartDto.CreateCartItemDto): Promise<Cart>;
+    updateItem(userId: string, cartItemId: number, updateCartItemDto: CartDto.UpdateCartItemDto): Promise<Cart>;
+    removeItem(userId: string, cartItemId: number): Promise<Cart>;
+    getCartSummary(userId: string): Promise<Cart>;
+    clearCart(userId: string): Promise<void>;
 }

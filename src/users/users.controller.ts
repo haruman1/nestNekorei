@@ -60,13 +60,9 @@ export class UsersController {
     await this.usersService.remove(req.user.userId);
     return { message: 'User profile successfully deleted' };
   }
-  @UseGuards(JwtAuthGuard)
-  @Post('image/auth')
+
+  @Get('image/auth')
   async ImageKit(@Req() req: Request & { user: JwtPayload }) {
-    const user = await this.usersService.findOneByIdUser(req.user.userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
     return this.usersService.ImageKitAuth();
   }
 

@@ -27,7 +27,7 @@ let CartService = class CartService {
         this.productsService = productsService;
     }
     async findUserById(userId) {
-        const user = await this.usersService.findOneById(userId);
+        const user = await this.usersService.findOneByIdUser(userId);
         if (!user) {
             throw new common_1.NotFoundException('User not found');
         }
@@ -48,7 +48,7 @@ let CartService = class CartService {
     async addItem(userId, createCartItemDto) {
         const cart = await this.findOrCreateCart(userId);
         const { productId, quantity } = createCartItemDto;
-        const product = await this.productsService.findProductById(productId);
+        const product = await this.productsService.findProductByProductId(productId);
         if (!product) {
             throw new common_1.NotFoundException('Product not found');
         }

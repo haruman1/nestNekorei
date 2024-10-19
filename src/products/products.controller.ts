@@ -16,7 +16,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
-import { Category } from './category.entity';
+import { Category } from './entity/category.entity';
 
 @Controller('products')
 @UseGuards(JwtAuthGuard)
@@ -32,7 +32,7 @@ export class ProductsController {
   createProduct(
     @Body()
     body: {
-      categoryId: number;
+      categoryId: string;
     },
     @Body() createProductDto: CreateProductDto,
   ) {
@@ -45,28 +45,28 @@ export class ProductsController {
     );
   }
 
-  @Get('products')
+  @Get()
   findAllProducts() {
     return this.productsService.findAllProducts();
   }
 
-  @Get(':id')
-  findProductById(@Param('id') id: string) {
-    return this.productsService.findProductById(id);
-  }
+  // @Get(':id')
+  // findProductById(@Param('id') id: string) {
+  //   return this.productsService.findProductById(id);
+  // }
 
-  @Patch(':id')
-  updateProduct(
-    @Param('id') id: string,
-    @Body() updateProductDto: UpdateProductDto,
-  ) {
-    return this.productsService.updateProduct(id, updateProductDto);
-  }
+  // @Patch(':id')
+  // updateProduct(
+  //   @Param('id') id: string,
+  //   @Body() updateProductDto: UpdateProductDto,
+  // ) {
+  //   return this.productsService.updateProduct(id, updateProductDto);
+  // }
 
-  @Delete(':id')
-  removeProduct(@Param('id') id: string) {
-    return this.productsService.removeProduct(id);
-  }
+  // @Delete(':id')
+  // removeProduct(@Param('id') id: string) {
+  //   return this.productsService.removeProduct(id);
+  // }
 
   @Post('categories')
   createCategory(@Body() createCategoryDto: CreateCategoryDto) {
@@ -77,8 +77,8 @@ export class ProductsController {
   }
 
   @Get('categories')
-  findAllCategories() {
-    return this.productsService.findAllCategories();
+  findCategoriesAll() {
+    return this.productsService.findAllCategoriesNew();
   }
 
   // @Get('categories/:id')

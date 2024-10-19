@@ -14,7 +14,7 @@ import { CartService } from './cart.service';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
-import { CurrentUser } from '../auth/jwt/current-user.decorator';
+import { JwtPayload } from 'src/auth/jwt/jwt-payload.interface';
 @UseGuards(JwtAuthGuard)
 @Controller('cart')
 export class CartController {
@@ -22,41 +22,43 @@ export class CartController {
 
   @Post('add')
   addItem(
-    @CurrentUser() user: any,
+    @Req() req: Request & { user: JwtPayload },
     @Body() createCartItemDto: CreateCartItemDto,
   ) {
-    const userId = user.id;
-    return this.cartService.addItem(userId, createCartItemDto);
+    return this.cartService.addItem(req.user.userId, createCartItemDto);
   }
 
   @Patch('update/:itemId')
   updateItem(
-    @CurrentUser() user: any,
+    @Req() req: Request & { user: JwtPayload },
     @Param('itemId') itemId: number,
     @Body() updateCartItemDto: UpdateCartItemDto,
   ) {
-    const userId = user.id;
-    return this.cartService.updateItem(userId, itemId, updateCartItemDto);
+    return this.cartService.updateItem(
+      req.user.userId,
+      itemId,
+      updateCartItemDto,
+    );
   }
 
   @Delete('remove/:itemId')
-  removeItem(@CurrentUser() user: any, @Param('itemId') itemId: number) {
-    const userId = user.id;
-    return this.cartService.removeItem(userId, itemId);
+  removeItem(
+    @Req() req: Request & { user: JwtPayload },
+    @Param('itemId') itemId: number,
+  ) {
+    return this.cartService.removeItem(req.user.userId, itemId);
   }
 
   @Get('summary')
-  getCartSummary(@CurrentUser() user: any) {
-    const userId = user.id;
-    return this.cartService.getCartSummary(userId);
+  getCartSummary(@Req() req: Request & { user: JwtPayload }) {
+    return this.cartService.getCartSummary(req.user.userId);
   }
 
   @Post('checkout')
-  async checkout(@CurrentUser() user: any) {
-    const userId = user.id;
-    const cart = await this.cartService.getCartSummary(userId);
+  async checkout(@Req() req: Request & { user: JwtPayload }) {
+    const cart = await this.cartService.getCartSummary(req.user.userId);
     // Integrate the order placement and payment here
-    await this.cartService.clearCart(userId);
+    await this.cartService.clearCart(req.user.userId);
     return { message: 'Checkout successful' };
   }
 }

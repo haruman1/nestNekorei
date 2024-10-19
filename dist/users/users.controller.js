@@ -43,10 +43,6 @@ let UsersController = class UsersController {
         return { message: 'User profile successfully deleted' };
     }
     async ImageKit(req) {
-        const user = await this.usersService.findOneByIdUser(req.user.userId);
-        if (!user) {
-            throw new common_1.NotFoundException('User not found');
-        }
         return this.usersService.ImageKitAuth();
     }
     async konyol(req) {
@@ -99,9 +95,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "deleteProfile", null);
 __decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Post)('image/auth'),
-    openapi.ApiResponse({ status: 201 }),
+    (0, common_1.Get)('image/auth'),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

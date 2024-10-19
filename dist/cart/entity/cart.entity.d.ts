@@ -1,5 +1,5 @@
 import { User } from 'src/users/user.entity';
-import { Product } from 'src/products/product.entity';
+import { Product } from 'src/products/entity/product.entity';
 export declare class Cart {
     id: number;
     user: User;
