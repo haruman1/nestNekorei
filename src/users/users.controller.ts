@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 // import { UsersDto } from './dto';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto';
+import { UpdateUserDto } from './dto';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { Request } from 'express';
 import { AuthService } from '../auth/auth.service';
@@ -50,8 +50,7 @@ export class UsersController {
     @Req() req: Request & { user: JwtPayload },
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    await this.usersService.update(req.user.userId, updateUserDto);
-    return this.usersService.findOneByIdUser(req.user.userId);
+    return await this.usersService.update(req.user.userId, updateUserDto);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -62,8 +61,12 @@ export class UsersController {
   }
 
   @Get('image/auth')
-  async ImageKit(@Req() req: Request & { user: JwtPayload }) {
+  async ImageKit() {
     return this.usersService.ImageKitAuth();
+  }
+  @Get('image/upload')
+  async UploadCare(@Req() req: Request & { user: JwtPayload }) {
+    return this.usersService.UploadcareSignatureCreate();
   }
 
   @UseGuards(JwtAuthGuard)

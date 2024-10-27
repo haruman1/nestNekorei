@@ -21,11 +21,12 @@ export class PaymentService {
     @InjectRepository(PaymentHistory)
     private transactionRepository: Repository<PaymentHistory>,
   ) {
-    this.midtrans = new MidtransClient.Snap({
-      isProduction: false,
-      serverKey: process.env.MIDTRANS_SB_SERVER_KEY,
-      clientKey: process.env.MIDTRANS_SB_CLIENT_KEY,
-    });
+    // this.midtrans = new MidtransClient.Snap({
+    //   isProduction: false,
+    //   serverKey: process.env.MIDTRANS_SB_SERVER_KEY,
+    //   clientKey: process.env.MIDTRANS_SB_CLIENT_KEY,
+    // });
+    // ERROR MALES FIX
   }
 
   async createPayment(orderID: string): Promise<Snap> {

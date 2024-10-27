@@ -9,28 +9,33 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateCategoryDto = void 0;
+exports.CreateHistoryCategoryDto = void 0;
 const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
-class CreateCategoryDto {
+class CreateHistoryCategoryDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { name: { required: true, type: () => String }, categoryId: { required: true, type: () => String }, image: { required: true, type: () => String } };
+        return { categoryId: { required: true, type: () => String }, pesan: { required: true, type: () => Number }, userId: { required: true, type: () => String }, createdAt: { required: true, type: () => Date } };
     }
 }
-exports.CreateCategoryDto = CreateCategoryDto;
+exports.CreateHistoryCategoryDto = CreateHistoryCategoryDto;
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateCategoryDto.prototype, "name", void 0);
+], CreateHistoryCategoryDto.prototype, "categoryId", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateCategoryDto.prototype, "categoryId", void 0);
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreateHistoryCategoryDto.prototype, "pesan", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNumber)(),
     __metadata("design:type", String)
-], CreateCategoryDto.prototype, "image", void 0);
-//# sourceMappingURL=create-category.dto.js.map
+], CreateHistoryCategoryDto.prototype, "userId", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsDate)(),
+    __metadata("design:type", Date)
+], CreateHistoryCategoryDto.prototype, "createdAt", void 0);
+//# sourceMappingURL=create-history-category.dto.js.map

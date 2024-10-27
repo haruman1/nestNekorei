@@ -9,6 +9,7 @@ import {
   UseGuards,
   BadRequestException,
   Query,
+  Req,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -16,7 +17,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
-import { Category } from './entity/category.entity';
+import { JwtPayload } from 'src/auth/jwt/jwt-payload.interface';
 
 @Controller('products')
 @UseGuards(JwtAuthGuard)
@@ -30,6 +31,7 @@ export class ProductsController {
 
   @Post()
   createProduct(
+    @Req() req: Request & { user: JwtPayload },
     @Body()
     body: {
       categoryId: string;
@@ -42,6 +44,7 @@ export class ProductsController {
     return this.productsService.createProduct(
       createProductDto,
       body.categoryId,
+      req.user.userId,
     );
   }
 
@@ -55,13 +58,13 @@ export class ProductsController {
   //   return this.productsService.findProductById(id);
   // }
 
-  // @Patch(':id')
-  // updateProduct(
-  //   @Param('id') id: string,
-  //   @Body() updateProductDto: UpdateProductDto,
-  // ) {
-  //   return this.productsService.updateProduct(id, updateProductDto);
-  // }
+  @Patch(':id')
+  updateProduct(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
+    return this.productsService.updateProduct(id, updateProductDto);
+  }
 
   // @Delete(':id')
   // removeProduct(@Param('id') id: string) {
@@ -69,11 +72,17 @@ export class ProductsController {
   // }
 
   @Post('categories')
-  createCategory(@Body() createCategoryDto: CreateCategoryDto) {
+  createCategory(
+    @Body() createCategoryDto: CreateCategoryDto,
+    @Req() req: Request & { user: JwtPayload },
+  ) {
     if (!createCategoryDto.name) {
       throw new BadRequestException('Please provide a Valid Input');
     }
-    return this.productsService.createCategory(createCategoryDto);
+    return this.productsService.createCategory(
+      createCategoryDto,
+      req.user.userId,
+    );
   }
 
   @Get('categories')

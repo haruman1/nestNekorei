@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = void 0;
+exports.UserHistory = exports.User = void 0;
 const openapi = require("@nestjs/swagger");
 const typeorm_1 = require("typeorm");
 const swagger_1 = require("@nestjs/swagger");
@@ -96,4 +96,29 @@ __decorate([
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)()
 ], User);
+let UserHistory = class UserHistory {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { id: { required: true, type: () => Number }, pesan: { required: true, type: () => String }, userId: { required: true, type: () => String }, createdAt: { required: true, type: () => Date } };
+    }
+};
+exports.UserHistory = UserHistory;
+__decorate([
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
+], UserHistory.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], UserHistory.prototype, "pesan", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], UserHistory.prototype, "userId", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Date)
+], UserHistory.prototype, "createdAt", void 0);
+exports.UserHistory = UserHistory = __decorate([
+    (0, typeorm_1.Entity)()
+], UserHistory);
 //# sourceMappingURL=user.entity.js.map

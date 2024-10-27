@@ -8,19 +8,24 @@ import {
 import * as CryptoJS from 'crypto-js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
-import { UserResponse } from './interface/user-response.interface';
-
-import { UsersDto } from './dto';
+import { User, UserHistory } from './user.entity';
+import {
+  UserEditResponse,
+  UserResponse,
+} from './interface/user-response.interface';
+import { CreateUserDto } from './dto';
+import { UpdateUserDto } from './dto';
 import * as bcrypt from 'bcryptjs';
-
+import { generateSecureSignature } from '@uploadcare/signed-uploads';
 import ImageKit from 'imagekit';
 @Injectable()
 export class UsersService {
   private imagekit: ImageKit;
   constructor(
-    @InjectRepository(User)
+    @InjectRepository(User, 'default')
     private usersRepository: Repository<User>,
+    @InjectRepository(UserHistory, 'backup')
+    private userHistoryRepository: Repository<UserHistory>,
   ) {
     const imageKit = new ImageKit({
       publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
@@ -36,7 +41,7 @@ export class UsersService {
     return randomCode;
   }
 
-  async create(createUserDto: UsersDto.CreateUserDto): Promise<UserResponse> {
+  async create(createUserDto: CreateUserDto): Promise<UserResponse> {
     const { email, name, password, role } = createUserDto;
 
     // Log data yang diterima untuk debugging
@@ -94,6 +99,16 @@ export class UsersService {
   async ImageKitAuth() {
     return this.imagekit.getAuthenticationParameters();
   }
+  async UploadcareSignatureCreate() {
+    // by the expiration date
+    const { secureSignature, secureExpire } = generateSecureSignature(
+      process.env.UPLOADCARE_SECRET_KEYS,
+      {
+        expire: new Date('2025-01-01'), // expire on 2099-01-01
+      },
+    );
+    return { secureSignature, secureExpire };
+  }
   async konyol(userId: string) {
     const user = await this.usersRepository.findOne({
       where: { userId },
@@ -124,17 +139,62 @@ export class UsersService {
 
   async update(
     userId: string,
-    updateUserDto: UsersDto.UpdateUserDto,
-  ): Promise<void> {
-    const { password, profile } = updateUserDto;
-    const hashedPassword = password
-      ? await bcrypt.hash(password, 10)
-      : undefined;
-    await this.usersRepository.update(userId, {
-      ...(password && { password: hashedPassword }),
-      ...(profile && { profile }),
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserEditResponse> {
+    const { password, profile, name } = updateUserDto;
+
+    // Pastikan setidaknya ada satu field yang diisi untuk di-update
+    if (!password || !profile || !name) {
+      throw new BadRequestException(
+        'Please provide at least one field to update',
+      );
+    }
+
+    // Cari user berdasarkan userId
+    const user = await this.usersRepository.findOne({ where: { userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Pengecekan untuk password, pastikan password yang baru berbeda dari yang lama
+    if (password) {
+      if (await bcrypt.compare(password, user.password)) {
+        throw new BadRequestException(
+          'Password cannot be the same as the old password',
+        );
+      }
+      const saltRounds = 16;
+      bcrypt.hash(password, saltRounds);
+    }
+
+    // Pengecekan untuk profile, pastikan profile yang baru berbeda dari yang lama
+    if (profile && profile === user.profile) {
+      throw new BadRequestException(
+        'Image Profile cannot be the same as the old Image Profile',
+      );
+    }
+
+    // Hash password jika diisi
+
+    // Update user, hanya update field yang diisi
+    const updatedata = await this.usersRepository.update(userId, {
+      password: password,
+      profile: profile,
+      name: name,
     });
+
+    const updatedUser = await this.usersRepository.findOne({
+      where: { userId },
+    });
+
+    console.log(updatedUser);
+
+    return {
+      status: 200,
+      message: 'User Updated Successfully',
+    };
   }
+
   async findOneById(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
@@ -150,6 +210,12 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
     return user;
+  }
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.findOneByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
   }
   async remove(id: string): Promise<void> {
     await this.usersRepository.delete(id);

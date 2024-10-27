@@ -10,11 +10,16 @@ export declare class Product {
     quantity: number;
     category: Category;
     orderItems: OrderItem[];
-    productImages: ProductImage[];
 }
 export declare class ProductImage {
     id: number;
     productId: string;
     imageUrl: string;
-    product: Product;
+}
+export declare class ProductHistory {
+    id: number;
+    productId: string;
+    pesan: string;
+    userId: string;
+    createdAt: Date;
 }

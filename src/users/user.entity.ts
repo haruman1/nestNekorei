@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Column, PrimaryGeneratedColumn, OneToMany, Entity } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Order } from 'src/orders/order.entity';
 import { Cart } from 'src/cart/entity/cart.entity';
@@ -66,4 +66,18 @@ export class User {
 
   @OneToMany(() => Cart, (cart) => cart.user)
   carts: Cart[];
+}
+@Entity()
+export class UserHistory {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  pesan: string;
+
+  @Column()
+  userId: string;
+
+  @Column()
+  createdAt: Date;
 }

@@ -17,6 +17,7 @@ const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const products_service_1 = require("./products.service");
 const create_product_dto_1 = require("./dto/create-product.dto");
+const update_product_dto_1 = require("./dto/update-product.dto");
 const create_category_dto_1 = require("./dto/create-category.dto");
 const update_category_dto_1 = require("./dto/update-category.dto");
 const jwt_auth_guard_1 = require("../auth/jwt/jwt-auth.guard");
@@ -24,19 +25,22 @@ let ProductsController = class ProductsController {
     constructor(productsService) {
         this.productsService = productsService;
     }
-    createProduct(body, createProductDto) {
+    createProduct(req, body, createProductDto) {
         createProductDto.productId =
             this.productsService.generateRandomCode('PRDNK');
-        return this.productsService.createProduct(createProductDto, body.categoryId);
+        return this.productsService.createProduct(createProductDto, body.categoryId, req.user.userId);
     }
     findAllProducts() {
         return this.productsService.findAllProducts();
     }
-    createCategory(createCategoryDto) {
+    updateProduct(id, updateProductDto) {
+        return this.productsService.updateProduct(id, updateProductDto);
+    }
+    createCategory(createCategoryDto, req) {
         if (!createCategoryDto.name) {
             throw new common_1.BadRequestException('Please provide a Valid Input');
         }
-        return this.productsService.createCategory(createCategoryDto);
+        return this.productsService.createCategory(createCategoryDto, req.user.userId);
     }
     findCategoriesAll() {
         return this.productsService.findAllCategoriesNew();
@@ -58,10 +62,11 @@ exports.ProductsController = ProductsController;
 __decorate([
     (0, common_1.Post)(),
     openapi.ApiResponse({ status: 201, type: require("./entity/product.entity").Product }),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, create_product_dto_1.CreateProductDto]),
+    __metadata("design:paramtypes", [Object, Object, create_product_dto_1.CreateProductDto]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "createProduct", null);
 __decorate([
@@ -72,11 +77,21 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "findAllProducts", null);
 __decorate([
-    (0, common_1.Post)('categories'),
-    openapi.ApiResponse({ status: 201, type: require("./entity/category.entity").Category }),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Patch)(':id'),
+    openapi.ApiResponse({ status: 200, type: Object }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_category_dto_1.CreateCategoryDto]),
+    __metadata("design:paramtypes", [String, update_product_dto_1.UpdateProductDto]),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "updateProduct", null);
+__decorate([
+    (0, common_1.Post)('categories'),
+    openapi.ApiResponse({ status: 201, type: Object }),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_category_dto_1.CreateCategoryDto, Object]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "createCategory", null);
 __decorate([

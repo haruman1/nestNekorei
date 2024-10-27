@@ -16,8 +16,8 @@ exports.UsersController = void 0;
 const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("./users.service");
-const create_user_dto_1 = require("./dto/create-user.dto");
-const update_user_dto_1 = require("./dto/update-user.dto");
+const dto_1 = require("./dto");
+const dto_2 = require("./dto");
 const jwt_auth_guard_1 = require("../auth/jwt/jwt-auth.guard");
 const auth_service_1 = require("../auth/auth.service");
 let UsersController = class UsersController {
@@ -35,15 +35,17 @@ let UsersController = class UsersController {
         return this.usersService.findOneByIdUser(req.user.userId);
     }
     async updateProfile(req, updateUserDto) {
-        await this.usersService.update(req.user.userId, updateUserDto);
-        return this.usersService.findOneByIdUser(req.user.userId);
+        return await this.usersService.update(req.user.userId, updateUserDto);
     }
     async deleteProfile(req) {
         await this.usersService.remove(req.user.userId);
         return { message: 'User profile successfully deleted' };
     }
-    async ImageKit(req) {
+    async ImageKit() {
         return this.usersService.ImageKitAuth();
+    }
+    async UploadCare(req) {
+        return this.usersService.UploadcareSignatureCreate();
     }
     async konyol(req) {
         return this.usersService.konyol(req.user.userId);
@@ -55,7 +57,7 @@ __decorate([
     openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
+    __metadata("design:paramtypes", [dto_1.CreateUserDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "register", null);
 __decorate([
@@ -78,11 +80,11 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Patch)('profile'),
-    openapi.ApiResponse({ status: 200, type: require("./user.entity").User }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, update_user_dto_1.UpdateUserDto]),
+    __metadata("design:paramtypes", [Object, dto_2.UpdateUserDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateProfile", null);
 __decorate([
@@ -97,11 +99,18 @@ __decorate([
 __decorate([
     (0, common_1.Get)('image/auth'),
     openapi.ApiResponse({ status: 200 }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "ImageKit", null);
+__decorate([
+    (0, common_1.Get)('image/upload'),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], UsersController.prototype, "ImageKit", null);
+], UsersController.prototype, "UploadCare", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('konyol'),

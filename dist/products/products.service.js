@@ -43,54 +43,62 @@ const product_entity_1 = require("./entity/product.entity");
 const category_entity_1 = require("./entity/category.entity");
 const CryptoJS = __importStar(require("crypto-js"));
 let ProductsService = class ProductsService {
-    constructor(productsRepository, categoriesRepository, productImagesRepository) {
+    constructor(productsRepository, categoriesRepository, categoriesHistoryRepository, productImagesRepository, productHistoryRepository) {
         this.productsRepository = productsRepository;
         this.categoriesRepository = categoriesRepository;
+        this.categoriesHistoryRepository = categoriesHistoryRepository;
         this.productImagesRepository = productImagesRepository;
+        this.productHistoryRepository = productHistoryRepository;
     }
     generateRandomCode(name) {
         const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
         const randomCode = name + `-${randomNumber}`;
         return randomCode;
     }
-    async createProduct(createProductDto, CategoryId) {
+    async createProduct(createProductDto, CategoryId, userId) {
         const { categoryId, ...rest } = createProductDto;
         const category = await this.categoriesRepository.findOne({
             where: { categoryId: CategoryId },
         });
         if (!category) {
-            throw new common_1.NotFoundException('Category not found');
+            throw new common_1.BadRequestException('Kategori belum di pilih');
         }
         const missingFields = [];
         if (!CategoryId) {
-            missingFields.push('categoryId');
+            missingFields.push('Kategori ');
         }
         if (!rest.name) {
-            missingFields.push('name');
+            missingFields.push('Nama Produk');
         }
         if (!rest.description) {
-            missingFields.push('description');
+            missingFields.push('Deskripsi produk');
         }
         if (!rest.price) {
-            missingFields.push('price');
+            missingFields.push('Harga produk');
         }
         if (!rest.sku) {
-            missingFields.push('sku');
+            missingFields.push('SKU Produk');
         }
         if (!rest.quantity) {
-            missingFields.push('quantity');
+            missingFields.push('Kuantitas Produk');
         }
         if (!rest.image) {
-            missingFields.push('image');
+            missingFields.push('Foto Produk');
         }
         if (missingFields.length > 0) {
-            throw new common_1.BadRequestException(`The following fields are missing: ${missingFields.join(', ')}.`);
+            throw new common_1.BadRequestException(`Data tidak lengkap: ${missingFields.join(', ')}.`);
         }
         const product = this.productsRepository.create({ ...rest, category });
         const createImage = this.productImagesRepository.create({
-            productId: rest.productId,
+            productId: product.productId,
             imageUrl: rest.image,
         });
+        const ProductCreated = this.productHistoryRepository.save(this.productHistoryRepository.create({
+            productId: rest.productId,
+            pesan: 'Product Berhasil dibuat oleh ' + userId + ' pada ' + new Date(),
+            userId: userId,
+            createdAt: new Date(),
+        }));
         const savedProductImage = this.productImagesRepository.save(createImage);
         if (!savedProductImage) {
             throw new common_1.NotFoundException('Product image not found');
@@ -103,22 +111,31 @@ let ProductsService = class ProductsService {
     }
     async findAllProducts() {
         const products = await this.productsRepository.find({
-            relations: ['category', 'productImages'],
+            relations: ['category'],
+        });
+        const productIds = products.map((product) => product.productId);
+        const productImages = await this.productImagesRepository.find({
+            where: { productId: (0, typeorm_2.In)(productIds) },
+        });
+        const imageMap = new Map();
+        productImages.forEach((image) => {
+            imageMap.set(image.productId, image.imageUrl);
         });
         const response = {
             status: 200,
-            data: products.map((product) => ({
-                id: product.productId,
-                name: product.name,
-                description: product.description,
-                price: product.price,
-                sku: product.sku,
-                quantity: product.quantity,
-                categoryId: product.category?.categoryId || null,
-                image: product.productImages.length > 0
-                    ? product.productImages[0].imageUrl
-                    : null,
-            })),
+            data: products.map((product) => {
+                const { productId, name, description, price, sku, quantity, category } = product;
+                return {
+                    id: productId,
+                    name,
+                    description,
+                    price,
+                    sku,
+                    quantity,
+                    categoryId: category?.categoryId || null,
+                    image: imageMap.get(productId) || null,
+                };
+            }),
         };
         return response;
     }
@@ -128,17 +145,63 @@ let ProductsService = class ProductsService {
             relations: ['category'],
         });
         if (!product) {
-            throw new common_1.NotFoundException('Product not found 2');
+            throw new common_1.NotFoundException('Product not found');
         }
         return product;
     }
-    async createCategory(createCategoryDto) {
+    async updateProduct(id, updateProductDto) {
+        const product = await this.findProductByProductId(id);
+        const Image = await this.productImagesRepository.findOne({
+            where: { productId: id },
+        });
+        const { categoryId, ...rest } = updateProductDto;
+        if (categoryId) {
+            const category = await this.categoriesRepository.findOne({
+                where: { id: categoryId },
+            });
+            if (!category) {
+                throw new common_1.BadRequestException('Category not found');
+            }
+            product.category = category;
+        }
+        Object.assign(product, rest);
+        this.productsRepository.save(product);
+        return {
+            status: 200,
+            message: 'Product updated successfully',
+        };
+    }
+    async createCategory(createCategoryDto, userid) {
         createCategoryDto.categoryId = this.generateRandomCode('CTNEK');
-        if (!createCategoryDto.name || !createCategoryDto.categoryId) {
-            throw new common_1.BadRequestException('Name and categoryId is required');
+        if (!createCategoryDto.name ||
+            !createCategoryDto.categoryId ||
+            !createCategoryDto.image) {
+            throw new common_1.BadRequestException('Name and categoryId and image is required');
+        }
+        const existingCategory = await this.categoriesRepository.findOne({
+            where: { name: createCategoryDto.name },
+        });
+        const history = this.categoriesHistoryRepository.save(this.categoriesHistoryRepository.create({
+            categoryId: createCategoryDto.categoryId,
+            pesan: 'Category Berhasil dibuat oleh ' + userid + ' pada ' + new Date(),
+            userId: userid,
+            createdAt: new Date(),
+        }));
+        if (existingCategory) {
+            throw new common_1.ConflictException('Category already exists');
         }
         const category = this.categoriesRepository.create(createCategoryDto);
-        return this.categoriesRepository.save(category);
+        const savedCategory = await this.categoriesRepository.save(category);
+        return {
+            status: 201,
+            data: [
+                {
+                    id: savedCategory.categoryId,
+                    name: savedCategory.name,
+                    image: savedCategory.image,
+                },
+            ],
+        };
     }
     async findAllCategoriesNew() {
         const categories = await this.categoriesRepository.find();
@@ -147,6 +210,7 @@ let ProductsService = class ProductsService {
             data: categories.map((category) => ({
                 id: category.categoryId,
                 name: category.name,
+                image: category.image,
             })),
         };
         return response;
@@ -157,7 +221,7 @@ let ProductsService = class ProductsService {
             relations: ['products'],
         });
         if (!category) {
-            throw new common_1.NotFoundException('Category not found');
+            throw new common_1.NotFoundException('Category not found 1');
         }
         return category;
     }
@@ -203,10 +267,14 @@ let ProductsService = class ProductsService {
 exports.ProductsService = ProductsService;
 exports.ProductsService = ProductsService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, typeorm_1.InjectRepository)(product_entity_1.Product)),
-    __param(1, (0, typeorm_1.InjectRepository)(category_entity_1.Category)),
-    __param(2, (0, typeorm_1.InjectRepository)(product_entity_1.ProductImage)),
+    __param(0, (0, typeorm_1.InjectRepository)(product_entity_1.Product, 'default')),
+    __param(1, (0, typeorm_1.InjectRepository)(category_entity_1.Category, 'default')),
+    __param(2, (0, typeorm_1.InjectRepository)(category_entity_1.CategoryHistory, 'backup')),
+    __param(3, (0, typeorm_1.InjectRepository)(product_entity_1.ProductImage, 'default')),
+    __param(4, (0, typeorm_1.InjectRepository)(product_entity_1.ProductHistory, 'backup')),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])
 ], ProductsService);

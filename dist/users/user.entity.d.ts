@@ -11,3 +11,9 @@ export declare class User {
     orders: Order[];
     carts: Cart[];
 }
+export declare class UserHistory {
+    id: number;
+    pesan: string;
+    userId: string;
+    createdAt: Date;
+}

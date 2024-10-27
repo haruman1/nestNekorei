@@ -14,7 +14,7 @@ const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class UpdateProductDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { name: { required: false, type: () => String }, description: { required: false, type: () => String }, price: { required: false, type: () => Number }, sku: { required: false, type: () => String }, quantity: { required: false, type: () => Number }, categoryId: { required: false, type: () => Number } };
+        return { name: { required: false, type: () => String }, description: { required: false, type: () => String }, price: { required: false, type: () => Number }, sku: { required: false, type: () => String }, quantity: { required: false, type: () => Number }, categoryId: { required: false, type: () => Number }, image: { required: false, type: () => String } };
     }
 }
 exports.UpdateProductDto = UpdateProductDto;
@@ -48,4 +48,9 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], UpdateProductDto.prototype, "categoryId", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateProductDto.prototype, "image", void 0);
 //# sourceMappingURL=update-product.dto.js.map

@@ -3,9 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
-import { User } from './users/user.entity';
-import { Product, ProductImage } from './products/entity/product.entity';
-import { Category } from './products/entity/category.entity';
+import { User, UserHistory } from './users/user.entity';
+import {
+  Product,
+  ProductHistory,
+  ProductImage,
+} from './products/entity/product.entity';
+import { Category, CategoryHistory } from './products/entity/category.entity';
 import { ConfigModule } from '@nestjs/config';
 import { OrdersModule } from './orders/orders.module';
 import { Order, OrderItem } from './orders/order.entity';
@@ -27,6 +31,7 @@ import { PaymentHistory } from './payment/entity/paymentHistory.entity';
     }),
 
     TypeOrmModule.forRoot({
+      name: 'default',
       type: process.env.DATABASE_TYPE as any,
       // database: 'database.db',
       host: process.env.DATABASE_HOST,
@@ -42,9 +47,19 @@ import { PaymentHistory } from './payment/entity/paymentHistory.entity';
         Category,
         Order,
         OrderItem,
-        PaymentHistory,
         ProductImage,
       ],
+      synchronize: true,
+    }),
+    TypeOrmModule.forRoot({
+      name: 'backup',
+      type: process.env.DATABASE_TYPE_BACKUP as any,
+      host: process.env.DATABASE_HOST_BACKUP,
+      port: parseInt(process.env.DATABASE_PORT_BACKUP), //kalau error hapus
+      username: process.env.DATABASE_USERNAME_BACKUP,
+      password: process.env.DATABASE_PASSWORD_BACKUP,
+      database: process.env.DATABASE_NAME_BACKUP,
+      entities: [ProductHistory, CategoryHistory, PaymentHistory, UserHistory],
       synchronize: true,
     }),
     UsersModule,

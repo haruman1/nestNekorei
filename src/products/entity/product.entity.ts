@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { Category } from './category.entity';
 import { OrderItem } from 'src/orders/order.entity';
@@ -13,8 +14,8 @@ export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  productId: string;
+  @Column({ unique: true })
+  productId: string; // Make productId unique so it can be referenced
 
   @Column()
   name: string;
@@ -40,11 +41,7 @@ export class Product {
   orderItems: OrderItem[];
 
   // One-to-Many relation with ProductImage
-  @OneToMany(() => ProductImage, (productImage) => productImage.product)
-  productImages: ProductImage[];
 }
-
-// ProductImage entity definition
 
 @Entity()
 export class ProductImage {
@@ -52,11 +49,26 @@ export class ProductImage {
   id: number;
 
   @Column()
-  productId: string; // This should match the product's productId
+  productId: string; // Tidak lagi menjadi foreign key
 
   @Column()
-  imageUrl: string; // Correct column name for storing the image URL
+  imageUrl: string;
+}
 
-  @ManyToOne(() => Product, (product) => product.productImages)
-  product: Product; // Correctly reference the Product entity
+@Entity()
+export class ProductHistory {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  productId: string;
+
+  @Column()
+  pesan: string;
+
+  @Column()
+  userId: string;
+
+  @Column()
+  createdAt: Date;
 }

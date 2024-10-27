@@ -7,7 +7,12 @@ import {
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  // const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: ['https://cosparade.xyz', 'http://cosparade.xyz'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
+  });
   const config = new DocumentBuilder()
     .setTitle('Nekorei API')
     .setDescription('The cats API description')
@@ -21,6 +26,6 @@ async function bootstrap() {
   SwaggerModule.setup('swagger', app, document, {
     jsonDocumentUrl: 'swagger/json',
   });
-  await app.listen(3000);
+  await app.listen(process.env.PORT_SERVER);
 }
 bootstrap();

@@ -45,10 +45,12 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./user.entity");
 const bcrypt = __importStar(require("bcryptjs"));
+const signed_uploads_1 = require("@uploadcare/signed-uploads");
 const imagekit_1 = __importDefault(require("imagekit"));
 let UsersService = class UsersService {
-    constructor(usersRepository) {
+    constructor(usersRepository, userHistoryRepository) {
         this.usersRepository = usersRepository;
+        this.userHistoryRepository = userHistoryRepository;
         const imageKit = new imagekit_1.default({
             publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
             privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
@@ -103,6 +105,12 @@ let UsersService = class UsersService {
     async ImageKitAuth() {
         return this.imagekit.getAuthenticationParameters();
     }
+    async UploadcareSignatureCreate() {
+        const { secureSignature, secureExpire } = (0, signed_uploads_1.generateSecureSignature)(process.env.UPLOADCARE_SECRET_KEYS, {
+            expire: new Date('2025-01-01'),
+        });
+        return { secureSignature, secureExpire };
+    }
     async konyol(userId) {
         const user = await this.usersRepository.findOne({
             where: { userId },
@@ -128,14 +136,37 @@ let UsersService = class UsersService {
         return user;
     }
     async update(userId, updateUserDto) {
-        const { password, profile } = updateUserDto;
-        const hashedPassword = password
-            ? await bcrypt.hash(password, 10)
-            : undefined;
-        await this.usersRepository.update(userId, {
-            ...(password && { password: hashedPassword }),
-            ...(profile && { profile }),
+        const { password, profile, name } = updateUserDto;
+        if (!password || !profile || !name) {
+            throw new common_1.BadRequestException('Please provide at least one field to update');
+        }
+        const user = await this.usersRepository.findOne({ where: { userId } });
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        if (password) {
+            if (await bcrypt.compare(password, user.password)) {
+                throw new common_1.BadRequestException('Password cannot be the same as the old password');
+            }
+            const saltRounds = 16;
+            bcrypt.hash(password, saltRounds);
+        }
+        if (profile && profile === user.profile) {
+            throw new common_1.BadRequestException('Image Profile cannot be the same as the old Image Profile');
+        }
+        const updatedata = await this.usersRepository.update(userId, {
+            password: password,
+            profile: profile,
+            name: name,
         });
+        const updatedUser = await this.usersRepository.findOne({
+            where: { userId },
+        });
+        console.log(updatedUser);
+        return {
+            status: 200,
+            message: 'User Updated Successfully',
+        };
     }
     async findOneById(id) {
         const user = await this.usersRepository.findOne({ where: { id } });
@@ -153,6 +184,12 @@ let UsersService = class UsersService {
         }
         return user;
     }
+    async forgotPassword(email) {
+        const user = await this.findOneByEmail(email);
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+    }
     async remove(id) {
         await this.usersRepository.delete(id);
     }
@@ -160,7 +197,9 @@ let UsersService = class UsersService {
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User, 'default')),
+    __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.UserHistory, 'backup')),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

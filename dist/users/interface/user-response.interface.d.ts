@@ -7,3 +7,7 @@ export interface UserResponse {
         name: string;
     };
 }
+export interface UserEditResponse {
+    status: number;
+    message: string;
+}

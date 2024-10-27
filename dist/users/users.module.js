@@ -18,7 +18,11 @@ let UsersModule = class UsersModule {
 exports.UsersModule = UsersModule;
 exports.UsersModule = UsersModule = __decorate([
     (0, common_1.Module)({
-        imports: [(0, common_1.forwardRef)(() => auth_module_1.AuthModule), typeorm_1.TypeOrmModule.forFeature([user_entity_1.User])],
+        imports: [
+            (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
+            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User], 'default'),
+            typeorm_1.TypeOrmModule.forFeature([user_entity_1.UserHistory], 'backup'),
+        ],
         providers: [users_service_1.UsersService],
         controllers: [users_controller_1.UsersController],
         exports: [users_service_1.UsersService],

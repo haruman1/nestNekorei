@@ -12,3 +12,7 @@ export interface ProductResponse {
     status: number;
     data: Product[];
 }
+export interface ResponseBiasa {
+    status: number;
+    message: string;
+}
