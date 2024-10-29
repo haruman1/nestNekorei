@@ -1,0 +1,1 @@
+.fade-in-card{opacity:0;transform:translateY(50px);transition:opacity .5s ease-out,transform .5s ease-out,transform .6s ease-out}.fade-in-card.visible{opacity:1;transform:translateY(0)}

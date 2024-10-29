@@ -1,0 +1,1 @@
+var n=function(e){var t=e.getBoundingClientRect();return Math.floor(t.top)>=0&&Math.floor(t.left)>=0&&Math.floor(t.bottom)<=(window.innerHeight||document.documentElement.clientHeight)&&Math.floor(t.right)<=(window.innerWidth||document.documentElement.clientWidth)};export{n as i};
