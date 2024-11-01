@@ -42,22 +42,7 @@ export class AuthService {
     throw new UnauthorizedException('Invalid credentials');
   }
 
-  /*************  ✨ Codeium Command ⭐  *************/
-  /**
-   * Login user
-   *
-   * @param {string} email
-   * @param {string} password
-   * @returns {Promise<{ access_token: string }>} {
-   *   access_token: string;
-   * }>
-   * @throws {BadRequestException} if email or password is empty
-   * @throws {BadRequestException} if invalid email or password
-   */
-  /******  d0cc5a77-5b2e-407e-bb4d-391f58ee75b3  *******/ async login(
-    email: string,
-    password: string,
-  ) {
+  async login(email: string, password: string) {
     // Validasi input
     if (!email || !password) {
       throw new BadRequestException('Email and password must be provided');
@@ -70,7 +55,8 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Invalid email or password 1');
     }
-
+    const issuedAt = Math.floor(Date.now() / 1000); // 'iat' in seconds
+    const expirationTime = 60 * 60; // Durasi token dalam detik, misalnya 1 jam
     // Buat payload untuk JWT
     const payload = { userId: user.userId, name: user.name, email: user.email };
 

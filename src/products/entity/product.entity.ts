@@ -53,6 +53,9 @@ export class ProductImage {
 
   @Column()
   imageUrl: string;
+
+  @Column()
+  ImageId: string;
 }
 
 @Entity()

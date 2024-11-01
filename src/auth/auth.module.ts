@@ -10,16 +10,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   imports: [
     forwardRef(() => UsersModule),
     PassportModule,
-    // JwtModule.register({
-    //   secret: process.env.JWT_SECRET, // Change this to an environment variable
-    //   signOptions: { expiresIn: '60m' },
-    // }),
+
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'), // Mengambil secret dari .env
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '3h' },
       }),
     }),
   ],

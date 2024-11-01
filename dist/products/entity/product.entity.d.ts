@@ -15,6 +15,7 @@ export declare class ProductImage {
     id: number;
     productId: string;
     imageUrl: string;
+    ImageId: string;
 }
 export declare class ProductHistory {
     id: number;

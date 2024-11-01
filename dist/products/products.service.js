@@ -149,26 +149,55 @@ let ProductsService = class ProductsService {
         }
         return product;
     }
-    async updateProduct(id, updateProductDto) {
-        const product = await this.findProductByProductId(id);
-        const Image = await this.productImagesRepository.findOne({
+    async updateProduct(id, updateProductDto, userId) {
+        const Product = await this.findProductByProductId(id);
+        if (!Product) {
+            return {
+                status: 400,
+                message: 'Produk Tidak ada, Silahkan Edit Produk yang ada',
+            };
+        }
+        const ImageProduct = await this.productImagesRepository.findOne({
             where: { productId: id },
         });
-        const { categoryId, ...rest } = updateProductDto;
-        if (categoryId) {
-            const category = await this.categoriesRepository.findOne({
-                where: { id: categoryId },
-            });
-            if (!category) {
-                throw new common_1.BadRequestException('Category not found');
-            }
-            product.category = category;
+        if (!ImageProduct) {
+            return {
+                status: 400,
+                message: 'Produk belum mempunyai gambar, Silahkan hubungin Haruman!',
+            };
         }
-        Object.assign(product, rest);
-        this.productsRepository.save(product);
+        const CategoryProduct = await this.categoriesRepository.findOne({
+            where: { categoryId: Product.category.categoryId },
+        });
+        if (!CategoryProduct) {
+            return {
+                status: 400,
+                message: 'Kategori tidak ada, silahkan Edit dengan menggunakan kategori yang ada',
+            };
+        }
+        const resultGambar = await this.productImagesRepository.update({ id: ImageProduct.id }, { imageUrl: updateProductDto.image });
+        if (resultGambar.affected === 0) {
+            throw new common_1.BadRequestException('Gambar gagal di update, Silahkan coba lagi!');
+        }
+        const UpdatedProduct = this.productsRepository.merge(Product, updateProductDto);
+        await this.productsRepository.save(UpdatedProduct);
+        await this.productHistoryRepository.save(this.productHistoryRepository.create({
+            productId: Product.productId,
+            pesan: `Product Berhasil diperbarui oleh ${userId} pada ${new Date()}`,
+            userId: userId,
+            createdAt: new Date(),
+        }));
         return {
             status: 200,
-            message: 'Product updated successfully',
+            message: `Produk dengan ID ${id} berhasil diperbarui`,
+        };
+    }
+    async removeProduct(id) {
+        const product = await this.findProductByProductId(id);
+        await this.productsRepository.remove(product);
+        return {
+            status: 200,
+            message: `Produk dengan ID ${id} berhasil dihapus`,
         };
     }
     async createCategory(createCategoryDto, userid) {
@@ -225,14 +254,34 @@ let ProductsService = class ProductsService {
         }
         return category;
     }
-    async updateCategory(id, updateCategoryDto) {
+    async updateCategory(id, updateCategoryDto, userid) {
         const category = await this.findCategoryById(id);
-        Object.assign(category, updateCategoryDto);
-        return this.categoriesRepository.save(category);
+        const UpdateCategori = this.categoriesRepository.merge(category, updateCategoryDto);
+        await this.categoriesRepository.save(UpdateCategori);
+        const history = this.categoriesHistoryRepository.save(this.categoriesHistoryRepository.create({
+            categoryId: id,
+            pesan: 'Category Berhasil dibuat oleh ' + userid + ' pada ' + new Date(),
+            userId: userid,
+            createdAt: new Date(),
+        }));
+        return {
+            status: 200,
+            message: `Kategori dengan ID ${id} berhasil diperbarui`,
+        };
     }
-    async removeCategory(id) {
+    async removeCategory(id, userId) {
         const category = await this.findCategoryById(id);
         await this.categoriesRepository.remove(category);
+        const history = this.categoriesHistoryRepository.save(this.categoriesHistoryRepository.create({
+            categoryId: category.categoryId,
+            pesan: 'Category Berhasil dihapus oleh ' + userId + ' pada ' + new Date(),
+            userId: userId,
+            createdAt: new Date(),
+        }));
+        return {
+            status: 200,
+            message: `Kategori dengan ID ${id} berhasil dihapus`,
+        };
     }
     async searchProducts(query) {
         return this.productsRepository

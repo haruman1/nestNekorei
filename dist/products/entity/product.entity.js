@@ -61,7 +61,7 @@ exports.Product = Product = __decorate([
 ], Product);
 let ProductImage = class ProductImage {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, productId: { required: true, type: () => String }, imageUrl: { required: true, type: () => String } };
+        return { id: { required: true, type: () => Number }, productId: { required: true, type: () => String }, imageUrl: { required: true, type: () => String }, ImageId: { required: true, type: () => String } };
     }
 };
 exports.ProductImage = ProductImage;
@@ -77,6 +77,10 @@ __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], ProductImage.prototype, "imageUrl", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], ProductImage.prototype, "ImageId", void 0);
 exports.ProductImage = ProductImage = __decorate([
     (0, typeorm_1.Entity)()
 ], ProductImage);

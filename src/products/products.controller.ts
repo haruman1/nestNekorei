@@ -62,14 +62,19 @@ export class ProductsController {
   updateProduct(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
+    @Req() req: Request & { user: JwtPayload },
   ) {
-    return this.productsService.updateProduct(id, updateProductDto);
+    return this.productsService.updateProduct(
+      id,
+      updateProductDto,
+      req.user.userId,
+    );
   }
 
-  // @Delete(':id')
-  // removeProduct(@Param('id') id: string) {
-  //   return this.productsService.removeProduct(id);
-  // }
+  @Delete(':id')
+  removeProduct(@Param('id') id: string) {
+    return this.productsService.removeProduct(id);
+  }
 
   @Post('categories')
   createCategory(
@@ -99,13 +104,21 @@ export class ProductsController {
   updateCategory(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
+    @Req() req: Request & { user: JwtPayload },
   ) {
-    return this.productsService.updateCategory(id, updateCategoryDto);
+    return this.productsService.updateCategory(
+      id,
+      updateCategoryDto,
+      req.user.userId,
+    );
   }
 
   @Delete('categories/:id')
-  removeCategory(@Param('id') id: string) {
-    return this.productsService.removeCategory(id);
+  removeCategory(
+    @Param('id') id: string,
+    @Req() req: Request & { user: JwtPayload },
+  ) {
+    return this.productsService.removeCategory(id, req.user.userId);
   }
   @Get('search')
   searchProducts(@Query('query') query: string) {

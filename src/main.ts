@@ -7,8 +7,8 @@ import {
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  // const app = await NestFactory.create(AppModule, { cors: true });
   const app = await NestFactory.create(AppModule);
+
   app.enableCors({
     origin: ['https://cosparade.xyz', 'http://cosparade.xyz'],
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],

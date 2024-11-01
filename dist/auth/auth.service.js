@@ -72,6 +72,8 @@ let AuthService = class AuthService {
         if (!user) {
             throw new common_1.BadRequestException('Invalid email or password 1');
         }
+        const issuedAt = Math.floor(Date.now() / 1000);
+        const expirationTime = 60 * 60;
         const payload = { userId: user.userId, name: user.name, email: user.email };
         return {
             access_token: this.jwtService.sign(payload),

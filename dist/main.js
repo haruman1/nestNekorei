@@ -4,11 +4,7 @@ const core_1 = require("@nestjs/core");
 const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
 async function bootstrap() {
-    const app = await core_1.NestFactory.create(app_module_1.AppModule);
-    app.enableCors({
-        origin: ['https://cosparade.xyz', 'http://cosparade.xyz'],
-        methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
-    });
+    const app = await core_1.NestFactory.create(app_module_1.AppModule, { cors: true });
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Nekorei API')
         .setDescription('The cats API description')

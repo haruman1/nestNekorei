@@ -33,8 +33,11 @@ let ProductsController = class ProductsController {
     findAllProducts() {
         return this.productsService.findAllProducts();
     }
-    updateProduct(id, updateProductDto) {
-        return this.productsService.updateProduct(id, updateProductDto);
+    updateProduct(id, updateProductDto, req) {
+        return this.productsService.updateProduct(id, updateProductDto, req.user.userId);
+    }
+    removeProduct(id) {
+        return this.productsService.removeProduct(id);
     }
     createCategory(createCategoryDto, req) {
         if (!createCategoryDto.name) {
@@ -45,11 +48,11 @@ let ProductsController = class ProductsController {
     findCategoriesAll() {
         return this.productsService.findAllCategoriesNew();
     }
-    updateCategory(id, updateCategoryDto) {
-        return this.productsService.updateCategory(id, updateCategoryDto);
+    updateCategory(id, updateCategoryDto, req) {
+        return this.productsService.updateCategory(id, updateCategoryDto, req.user.userId);
     }
-    removeCategory(id) {
-        return this.productsService.removeCategory(id);
+    removeCategory(id, req) {
+        return this.productsService.removeCategory(id, req.user.userId);
     }
     searchProducts(query) {
         return this.productsService.searchProducts(query);
@@ -81,10 +84,19 @@ __decorate([
     openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_product_dto_1.UpdateProductDto]),
+    __metadata("design:paramtypes", [String, update_product_dto_1.UpdateProductDto, Object]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "updateProduct", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    openapi.ApiResponse({ status: 200, type: Object }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "removeProduct", null);
 __decorate([
     (0, common_1.Post)('categories'),
     openapi.ApiResponse({ status: 201, type: Object }),
@@ -103,19 +115,21 @@ __decorate([
 ], ProductsController.prototype, "findCategoriesAll", null);
 __decorate([
     (0, common_1.Patch)('categories/:id'),
-    openapi.ApiResponse({ status: 200, type: require("./entity/category.entity").Category }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_category_dto_1.UpdateCategoryDto]),
+    __metadata("design:paramtypes", [String, update_category_dto_1.UpdateCategoryDto, Object]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "updateCategory", null);
 __decorate([
     (0, common_1.Delete)('categories/:id'),
-    openapi.ApiResponse({ status: 200 }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "removeCategory", null);
 __decorate([

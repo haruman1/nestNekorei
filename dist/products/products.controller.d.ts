@@ -13,13 +13,20 @@ export declare class ProductsController {
         categoryId: string;
     }, createProductDto: CreateProductDto): Promise<import("./entity").Product>;
     findAllProducts(): Promise<import("./interface").ProductResponse>;
-    updateProduct(id: string, updateProductDto: UpdateProductDto): Promise<import("./interface/Product.interface").ResponseBiasa>;
+    updateProduct(id: string, updateProductDto: UpdateProductDto, req: Request & {
+        user: JwtPayload;
+    }): Promise<import("./interface").ResponseBiasa>;
+    removeProduct(id: string): Promise<import("./interface").ResponseBiasa>;
     createCategory(createCategoryDto: CreateCategoryDto, req: Request & {
         user: JwtPayload;
     }): Promise<import("./interface").CategoriesResponse>;
     findCategoriesAll(): Promise<import("./interface").CategoriesResponse>;
-    updateCategory(id: string, updateCategoryDto: UpdateCategoryDto): Promise<import("./entity").Category>;
-    removeCategory(id: string): Promise<void>;
+    updateCategory(id: string, updateCategoryDto: UpdateCategoryDto, req: Request & {
+        user: JwtPayload;
+    }): Promise<import("./interface").ResponseBiasa>;
+    removeCategory(id: string, req: Request & {
+        user: JwtPayload;
+    }): Promise<import("./interface").ResponseBiasa>;
     searchProducts(query: string): Promise<import("./entity").Product[]>;
     filterProducts(categoryId?: number, minPrice?: number, maxPrice?: number, minRating?: number): Promise<import("./entity").Product[]>;
 }
