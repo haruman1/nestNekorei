@@ -32,4 +32,8 @@ export class CreateProductDto {
   @IsNotEmpty()
   @IsString()
   image: string;
+
+  @IsNotEmpty()
+  @IsString()
+  imageId: string;
 }

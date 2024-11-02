@@ -34,6 +34,9 @@ let UsersController = class UsersController {
     async getProfile(req) {
         return this.usersService.findOneByIdUser(req.user.userId);
     }
+    async getPhotoProfile(req) {
+        return this.usersService.foto(req.user.userId);
+    }
     async updateProfile(req, updateUserDto) {
         return await this.usersService.update(req.user.userId, updateUserDto);
     }
@@ -77,6 +80,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getProfile", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('photo'),
+    openapi.ApiResponse({ status: 200, type: Object }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getPhotoProfile", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Patch)('profile'),

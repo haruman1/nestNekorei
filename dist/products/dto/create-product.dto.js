@@ -14,7 +14,7 @@ const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class CreateProductDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { name: { required: true, type: () => String }, description: { required: true, type: () => String }, productId: { required: true, type: () => String }, price: { required: true, type: () => Number }, sku: { required: true, type: () => String }, quantity: { required: true, type: () => Number }, categoryId: { required: true, type: () => Number }, image: { required: true, type: () => String } };
+        return { name: { required: true, type: () => String }, description: { required: true, type: () => String }, productId: { required: true, type: () => String }, price: { required: true, type: () => Number }, sku: { required: true, type: () => String }, quantity: { required: true, type: () => Number }, categoryId: { required: true, type: () => Number }, image: { required: true, type: () => String }, imageId: { required: true, type: () => String } };
     }
 }
 exports.CreateProductDto = CreateProductDto;
@@ -58,4 +58,9 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateProductDto.prototype, "image", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateProductDto.prototype, "imageId", void 0);
 //# sourceMappingURL=create-product.dto.js.map

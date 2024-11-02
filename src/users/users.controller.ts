@@ -43,6 +43,11 @@ export class UsersController {
   async getProfile(@Req() req: Request & { user: JwtPayload }) {
     return this.usersService.findOneByIdUser(req.user.userId);
   }
+  @UseGuards(JwtAuthGuard)
+  @Get('photo')
+  async getPhotoProfile(@Req() req: Request & { user: JwtPayload }) {
+    return this.usersService.foto(req.user.userId);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Patch('profile')

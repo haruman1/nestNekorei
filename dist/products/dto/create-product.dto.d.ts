@@ -7,4 +7,5 @@ export declare class CreateProductDto {
     quantity: number;
     categoryId: number;
     image: string;
+    imageId: string;
 }

@@ -63,6 +63,18 @@ let UsersService = class UsersService {
         const randomCode = `NK${randomNumber}`;
         return randomCode;
     }
+    async foto(userId) {
+        const user = await this.usersRepository.findOne({
+            where: { userId: userId },
+        });
+        if (!user) {
+            throw new common_1.NotFoundException('Sedang error, silahkan coba lagi');
+        }
+        return {
+            status: 200,
+            message: user.profile,
+        };
+    }
     async create(createUserDto) {
         const { email, name, password, role } = createUserDto;
         console.log('Data yang diterima:', createUserDto);

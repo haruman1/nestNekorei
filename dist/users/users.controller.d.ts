@@ -18,6 +18,9 @@ export declare class UsersController {
     getProfile(req: Request & {
         user: JwtPayload;
     }): Promise<import("./user.entity").User>;
+    getPhotoProfile(req: Request & {
+        user: JwtPayload;
+    }): Promise<import("./interface/user-response.interface").UserEditResponse>;
     updateProfile(req: Request & {
         user: JwtPayload;
     }, updateUserDto: UpdateUserDto): Promise<import("./interface/user-response.interface").UserEditResponse>;

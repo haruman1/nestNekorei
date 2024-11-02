@@ -40,7 +40,19 @@ export class UsersService {
     const randomCode = `NK${randomNumber}`; // Gabungkan "NK" dengan angka acak
     return randomCode;
   }
+  async foto(userId: string): Promise<UserEditResponse> {
+    const user = await this.usersRepository.findOne({
+      where: { userId: userId },
+    });
+    if (!user) {
+      throw new NotFoundException('Sedang error, silahkan coba lagi');
+    }
 
+    return {
+      status: 200,
+      message: user.profile,
+    };
+  }
   async create(createUserDto: CreateUserDto): Promise<UserResponse> {
     const { email, name, password, role } = createUserDto;
 

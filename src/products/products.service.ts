@@ -89,11 +89,18 @@ export class ProductsService {
     const createImage = this.productImagesRepository.create({
       productId: product.productId, // Ensure this is provided and valid
       imageUrl: rest.image,
+      ImageId: rest.imageId,
     });
     const ProductCreated = this.productHistoryRepository.save(
       this.productHistoryRepository.create({
         productId: rest.productId,
-        pesan: 'Product Berhasil dibuat oleh ' + userId + ' pada ' + new Date(),
+        pesan:
+          'Product Berhasil dibuat oleh ' +
+          userId +
+          ' pada ' +
+          new Date() +
+          ' dengan image id : ' +
+          rest.imageId,
         userId: userId,
         createdAt: new Date(),
       }),

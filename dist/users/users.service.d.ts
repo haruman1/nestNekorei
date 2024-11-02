@@ -9,6 +9,7 @@ export declare class UsersService {
     private imagekit;
     constructor(usersRepository: Repository<User>, userHistoryRepository: Repository<UserHistory>);
     generateRandomCode(): string;
+    foto(userId: string): Promise<UserEditResponse>;
     create(createUserDto: CreateUserDto): Promise<UserResponse>;
     ImageKitAuth(): Promise<{
         token: string;

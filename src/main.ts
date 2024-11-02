@@ -7,12 +7,14 @@ import {
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  app.enableCors({
-    origin: ['https://cosparade.xyz', 'http://cosparade.xyz'],
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
+  const app = await NestFactory.create(AppModule, {
+    cors: true,
   });
+
+  // app.enableCors({
+  //   origin: ['https://cosparade.xyz', 'http://cosparade.xyz'],
+  //   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
+  // });
   const config = new DocumentBuilder()
     .setTitle('Nekorei API')
     .setDescription('The cats API description')
