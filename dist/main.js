@@ -21,10 +21,22 @@ async function bootstrap() {
         app.enableCors();
         swagger_1.SwaggerModule.setup('swagger', app, document, {
             jsonDocumentUrl: 'swagger/json',
+            customfavIcon: 'https://placecats.com/300/200',
+            customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
+            customJs: [
+                'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.js',
+            ],
         });
     }
-    swagger_1.SwaggerModule.setup('api', app, document, {
+    swagger_1.SwaggerModule.setup('docs', app, document, {
         jsonDocumentUrl: 'swagger/json',
+        customfavIcon: 'https://placecats.com/300/200',
+        customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
+        customJs: [
+            'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.js',
+        ],
     });
     app.enableCors({
         origin: ['https://demo-1.haruman.me', 'https://demo-1.haruman.me'],
