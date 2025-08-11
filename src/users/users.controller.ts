@@ -17,7 +17,12 @@ import { UpdateUserDto } from './dto';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { Request } from 'express';
 import { AuthService } from '../auth/auth.service';
-
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { JwtPayload } from '../auth/jwt/jwt-payload.interface';
 
 @Controller('users')
@@ -72,11 +77,5 @@ export class UsersController {
   @Get('image/upload')
   async UploadCare(@Req() req: Request & { user: JwtPayload }) {
     return this.usersService.UploadcareSignatureCreate();
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('konyol')
-  async konyol(@Req() req: Request & { user: JwtPayload }) {
-    return this.usersService.konyol(req.user.userId);
   }
 }

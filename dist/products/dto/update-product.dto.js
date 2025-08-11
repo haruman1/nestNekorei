@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateProductDto = void 0;
 const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class UpdateProductDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { name: { required: false, type: () => String }, description: { required: false, type: () => String }, price: { required: false, type: () => Number }, sku: { required: false, type: () => String }, quantity: { required: false, type: () => Number }, categoryId: { required: false, type: () => Number }, image: { required: false, type: () => String } };
@@ -19,36 +20,71 @@ class UpdateProductDto {
 }
 exports.UpdateProductDto = UpdateProductDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Name of the product',
+        example: 'Cat Toy',
+        required: false,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateProductDto.prototype, "name", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Description of the product',
+        example: 'A fun toy for cats',
+        required: false,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateProductDto.prototype, "description", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Unique identifier for the product',
+        example: '12345',
+        required: false,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], UpdateProductDto.prototype, "price", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'SKU (Stock Keeping Unit) of the product',
+        example: 'SKU12345',
+        required: false,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateProductDto.prototype, "sku", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Quantity of the product available',
+        example: 100,
+        required: false,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], UpdateProductDto.prototype, "quantity", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Category ID of the product',
+        example: 1,
+        required: false,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], UpdateProductDto.prototype, "categoryId", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Image URL of the product',
+        example: 'https://example.com/image.jpg',
+        required: false,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)

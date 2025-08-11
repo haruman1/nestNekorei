@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateCartItemDto = void 0;
 const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class UpdateCartItemDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { quantity: { required: true, type: () => Number } };
@@ -19,6 +20,10 @@ class UpdateCartItemDto {
 }
 exports.UpdateCartItemDto = UpdateCartItemDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Quantity of the product to be updated in the cart',
+        example: 3,
+    }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)

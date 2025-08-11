@@ -40,9 +40,4 @@ export declare class UsersController {
         secureSignature: string;
         secureExpire: string;
     }>;
-    konyol(req: Request & {
-        user: JwtPayload;
-    }): Promise<{
-        message: string;
-    }>;
 }

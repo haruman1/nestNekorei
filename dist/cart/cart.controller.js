@@ -19,6 +19,7 @@ const cart_service_1 = require("./cart.service");
 const create_cart_item_dto_1 = require("./dto/create-cart-item.dto");
 const update_cart_item_dto_1 = require("./dto/update-cart-item.dto");
 const jwt_auth_guard_1 = require("../auth/jwt/jwt-auth.guard");
+const swagger_1 = require("@nestjs/swagger");
 let CartController = class CartController {
     constructor(cartService) {
         this.cartService = cartService;
@@ -43,6 +44,34 @@ let CartController = class CartController {
 };
 exports.CartController = CartController;
 __decorate([
+    (0, swagger_1.ApiTags)('Cart'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Add an item to the cart' }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Item added to the cart successfully.',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Bad Request - Invalid input data',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing token',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Product not found',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 409,
+        description: 'Conflict - Item already exists in the cart',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 500,
+        description: 'Internal Server Error',
+    }),
+    (0, swagger_1.ApiBody)({ type: create_cart_item_dto_1.CreateCartItemDto }),
     (0, common_1.Post)('add'),
     openapi.ApiResponse({ status: 201, type: require("./entity/cart.entity").Cart }),
     __param(0, (0, common_1.Req)()),
@@ -52,6 +81,30 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], CartController.prototype, "addItem", null);
 __decorate([
+    (0, swagger_1.ApiTags)('Cart'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Update an item in the cart' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Item updated successfully.',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Bad Request - Invalid input data',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing token',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Item not found in the cart',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 500,
+        description: 'Internal Server Error',
+    }),
+    (0, swagger_1.ApiBody)({ type: update_cart_item_dto_1.UpdateCartItemDto }),
     (0, common_1.Patch)('update/:itemId'),
     openapi.ApiResponse({ status: 200, type: require("./entity/cart.entity").Cart }),
     __param(0, (0, common_1.Req)()),
@@ -62,6 +115,30 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], CartController.prototype, "updateItem", null);
 __decorate([
+    (0, swagger_1.ApiTags)('Cart'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Remove an item from the cart' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Item removed from the cart successfully.',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Bad Request - Invalid input data',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing token',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Item not found in the cart',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 500,
+        description: 'Internal Server Error',
+    }),
+    (0, swagger_1.ApiBody)({ type: Number }),
     (0, common_1.Delete)('remove/:itemId'),
     openapi.ApiResponse({ status: 200, type: require("./entity/cart.entity").Cart }),
     __param(0, (0, common_1.Req)()),
@@ -71,6 +148,25 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], CartController.prototype, "removeItem", null);
 __decorate([
+    (0, swagger_1.ApiTags)('Cart'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get total price of all items in the cart' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'List of all items in the cart.',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing token',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Cart not found',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 500,
+        description: 'Internal Server Error',
+    }),
     (0, common_1.Get)('summary'),
     openapi.ApiResponse({ status: 200, type: require("./entity/cart.entity").Cart }),
     __param(0, (0, common_1.Req)()),
@@ -79,6 +175,26 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], CartController.prototype, "getCartSummary", null);
 __decorate([
+    (0, swagger_1.ApiTags)('Cart'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Checkout the cart' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Checkout successful, cart cleared.',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or missing token',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Cart not found',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 500,
+        description: 'Internal Server Error',
+    }),
+    (0, swagger_1.ApiBody)({ type: Number }),
     (0, common_1.Post)('checkout'),
     openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Req)()),

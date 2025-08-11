@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateCartItemDto = void 0;
 const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class CreateCartItemDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { productId: { required: true, type: () => String }, quantity: { required: true, type: () => Number } };
@@ -19,11 +20,19 @@ class CreateCartItemDto {
 }
 exports.CreateCartItemDto = CreateCartItemDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'ID of the product to be added to the cart',
+        example: '12345',
+    }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateCartItemDto.prototype, "productId", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Quantity of the product to be added to the cart',
+        example: 2,
+    }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)

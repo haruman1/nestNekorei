@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateUserDto = void 0;
 const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class UpdateUserDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { userId: { required: true, type: () => String }, password: { required: false, type: () => String, minLength: 6 }, profile: { required: false, type: () => String }, name: { required: false, type: () => String }, role: { required: false, type: () => String } };
@@ -19,27 +20,47 @@ class UpdateUserDto {
 }
 exports.UpdateUserDto = UpdateUserDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Update Unique identifier for the user',
+        example: 1,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "userId", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Update Email address of the user',
+        example: 'johndoe@example.com',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(6),
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "password", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Update Profile information of the user',
+        example: 'https://example.com/profile.jpg',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "profile", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Update Name of the user',
+        example: 'John Doe',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "name", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'Update Role of the user',
+        example: 'customer or admin',
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)

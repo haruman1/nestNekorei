@@ -9,10 +9,10 @@ export declare class ProductsController {
     constructor(productsService: ProductsService);
     createProduct(req: Request & {
         user: JwtPayload;
-    }, body: {
-        categoryId: string;
     }, createProductDto: CreateProductDto): Promise<import("./entity").Product>;
     findAllProducts(): Promise<import("./interface").ProductResponse>;
+    searchProducts(query: string): Promise<import("./entity").Product[]>;
+    filterProducts(categoryId?: number, minPrice?: number, maxPrice?: number, minRating?: number): Promise<import("./entity").Product[]>;
     updateProduct(id: string, updateProductDto: UpdateProductDto, req: Request & {
         user: JwtPayload;
     }): Promise<import("./interface").ResponseBiasa>;
@@ -27,6 +27,4 @@ export declare class ProductsController {
     removeCategory(id: string, req: Request & {
         user: JwtPayload;
     }): Promise<import("./interface").ResponseBiasa>;
-    searchProducts(query: string): Promise<import("./entity").Product[]>;
-    filterProducts(categoryId?: number, minPrice?: number, maxPrice?: number, minRating?: number): Promise<import("./entity").Product[]>;
 }

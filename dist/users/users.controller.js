@@ -50,9 +50,6 @@ let UsersController = class UsersController {
     async UploadCare(req) {
         return this.usersService.UploadcareSignatureCreate();
     }
-    async konyol(req) {
-        return this.usersService.konyol(req.user.userId);
-    }
 };
 exports.UsersController = UsersController;
 __decorate([
@@ -123,15 +120,6 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "UploadCare", null);
-__decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Post)('konyol'),
-    openapi.ApiResponse({ status: 201 }),
-    __param(0, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], UsersController.prototype, "konyol", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService,
