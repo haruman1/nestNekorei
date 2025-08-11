@@ -14,19 +14,15 @@
     },
     {
       "src": "/swagger/swagger-ui.css",
-      "dest": "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css"
+      "dest": "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.27.1/swagger-ui.min.js"
     },
     {
       "src": "/swagger/swagger-ui-bundle.js",
-      "dest": "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js"
+      "dest": "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.27.1/swagger-ui-bundle.min.js"
     },
     {
       "src": "/swagger/swagger-ui-standalone-preset.js",
-      "dest": "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.js"
-    },
-    {
-      "src": "/swagger/swagger-ui-init.js",
-      "dest": "app.js"
+      "dest": "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.27.1/swagger-ui-standalone-preset.min.js"
     }
   ]
 }
