@@ -23,7 +23,7 @@ import { InvoicesModule } from './invoices/invoices.module';
 import { CartModule } from './cart/cart.module';
 import { Cart, CartItem } from './cart/entity/cart.entity';
 import { PaymentHistory } from './payment/entity/paymentHistory.entity';
-
+import { SwaggerController } from './swagger.controller';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -71,6 +71,6 @@ import { PaymentHistory } from './payment/entity/paymentHistory.entity';
     CartModule,
   ],
   providers: [PaymentService, InvoicesService],
-  controllers: [PaymentController, InvoicesController],
+  controllers: [PaymentController, InvoicesController, SwaggerController],
 })
 export class AppModule {}
