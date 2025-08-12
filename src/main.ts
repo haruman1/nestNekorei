@@ -38,22 +38,19 @@ async function bootstrap() {
     const swaggerJson = JSON.stringify(document, null, 2);
     writeFileSync(pathToSwaggerJson, swaggerJson);
     console.log(`Swagger JSON file written to: '/swagger-static/swagger.json'`);
+  } else {
+    SwaggerModule.setup('docs', app, document, {
+      jsonDocumentUrl: 'swagger/json',
+      customfavIcon: 'https://placecats.com/300/200',
+    });
+    app.enableCors({
+      origin: ['https://demo-1.haruman.me', 'https://demo-1.haruman.me'],
+      methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
+    });
   }
-  SwaggerModule.setup('docs', app, document, {
-    jsonDocumentUrl: 'swagger/json',
-    customfavIcon: 'https://placecats.com/300/200',
-  });
-  app.enableCors({
-    origin: ['https://demo-1.haruman.me', 'https://demo-1.haruman.me'],
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
-  });
   app.getHttpAdapter().get('/swagger-json', (req, res) => {
     res.json(document);
   });
-  // app.enableCors({
-  //   origin: ['https://cosparade.xyz', 'http://cosparade.xyz'],
-  //   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
-  // });
 
   await app.listen(process.env.PORT_SERVER);
 }
