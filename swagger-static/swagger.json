@@ -1,0 +1,1605 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/payment/create": {
+      "post": {
+        "operationId": "createPayment",
+        "summary": "Membuat sesi pembayaran untuk sebuah pesanan",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createPaymentHitory"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Berhasil membuat sesi pembayaran (misal: redirect URL atau token Snap Midtrans)."
+          },
+          "401": {
+            "description": "Tidak terautentikasi."
+          },
+          "404": {
+            "description": "Order ID tidak ditemukan."
+          }
+        },
+        "tags": [
+          "Payment"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/payment/history": {
+      "post": {
+        "operationId": "PaymentTransaction",
+        "summary": "Endpoint untuk menerima notifikasi/webhook dari payment gateway",
+        "description": "Endpoint ini tidak memerlukan otentikasi karena diakses oleh server payment gateway (misal: Midtrans).",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Payload notifikasi dari payment gateway.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/"
+              },
+              "examples": {
+                "success": {
+                  "summary": "Contoh notifikasi sukses",
+                  "value": {
+                    "transaction_time": "2023-10-27 14:00:00",
+                    "transaction_status": "settlement",
+                    "order_id": "ORD-20231027-001",
+                    "payment_type": "qris",
+                    "gross_amount": "50000.00"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notifikasi berhasil diterima dan diproses."
+          },
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payment"
+        ]
+      }
+    },
+    "/swagger": {
+      "get": {
+        "operationId": "getSwaggerUI",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/users/register": {
+      "post": {
+        "operationId": "register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/login": {
+      "post": {
+        "operationId": "login",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/users/profile": {
+      "get": {
+        "operationId": "getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateProfile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/users/photo": {
+      "get": {
+        "operationId": "getPhotoProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/image/auth": {
+      "get": {
+        "operationId": "ImageKit",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/users/image/upload": {
+      "get": {
+        "operationId": "UploadCare",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/products": {
+      "post": {
+        "operationId": "createProduct",
+        "summary": "Membuat produk baru",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Produk berhasil dibuat."
+          },
+          "400": {
+            "description": "Input tidak valid."
+          },
+          "401": {
+            "description": "Tidak terautentikasi."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Products"
+        ]
+      },
+      "get": {
+        "operationId": "findAllProducts",
+        "summary": "Mendapatkan semua daftar produk",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Berhasil mengambil data produk."
+          },
+          "401": {
+            "description": "Tidak terautentikasi."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/products/search": {
+      "get": {
+        "operationId": "searchProducts",
+        "summary": "Mencari produk berdasarkan kata kunci",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "description": "Kata kunci untuk pencarian produk",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hasil pencarian produk."
+          },
+          "401": {
+            "description": "Tidak terautentikasi."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/products/filter": {
+      "get": {
+        "operationId": "filterProducts",
+        "summary": "Filter produk berdasarkan kriteria",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "description": "Filter berdasarkan ID kategori",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "minPrice",
+            "required": false,
+            "in": "query",
+            "description": "Harga minimum",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxPrice",
+            "required": false,
+            "in": "query",
+            "description": "Harga maksimum",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "minRating",
+            "required": false,
+            "in": "query",
+            "description": "Rating minimum (1-5)",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hasil filter produk."
+          },
+          "401": {
+            "description": "Tidak terautentikasi."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/products/{id}": {
+      "patch": {
+        "operationId": "updateProduct",
+        "summary": "Memperbarui data produk berdasarkan ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID unik produk",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Produk berhasil diperbarui."
+          },
+          "401": {
+            "description": "Tidak terautentikasi."
+          },
+          "404": {
+            "description": "Produk tidak ditemukan."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Products"
+        ]
+      },
+      "delete": {
+        "operationId": "removeProduct",
+        "summary": "Menghapus produk berdasarkan ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID unik produk",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Produk berhasil dihapus."
+          },
+          "401": {
+            "description": "Tidak terautentikasi."
+          },
+          "404": {
+            "description": "Produk tidak ditemukan."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/products/categories": {
+      "post": {
+        "operationId": "createCategory",
+        "summary": "Membuat kategori produk baru",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Kategori berhasil dibuat."
+          },
+          "400": {
+            "description": "Input tidak valid."
+          },
+          "401": {
+            "description": "Tidak terautentikasi."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Categories"
+        ]
+      },
+      "get": {
+        "operationId": "findCategoriesAll",
+        "summary": "Mendapatkan semua daftar kategori",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Berhasil mengambil data kategori."
+          },
+          "401": {
+            "description": "Tidak terautentikasi."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Categories"
+        ]
+      }
+    },
+    "/products/categories/{id}": {
+      "patch": {
+        "operationId": "updateCategory",
+        "summary": "Memperbarui kategori berdasarkan ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID unik kategori",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kategori berhasil diperbarui."
+          },
+          "401": {
+            "description": "Tidak terautentikasi."
+          },
+          "404": {
+            "description": "Kategori tidak ditemukan."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Categories"
+        ]
+      },
+      "delete": {
+        "operationId": "removeCategory",
+        "summary": "Menghapus kategori berdasarkan ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID unik kategori",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Kategori berhasil dihapus."
+          },
+          "401": {
+            "description": "Tidak terautentikasi."
+          },
+          "404": {
+            "description": "Kategori tidak ditemukan."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Categories"
+        ]
+      }
+    },
+    "/orders": {
+      "post": {
+        "operationId": "createOrder",
+        "summary": "Create a new order",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order created successfully."
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Orders"
+        ]
+      },
+      "get": {
+        "operationId": "findAllOrders",
+        "summary": "Get all orders",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of all orders."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "operationId": "findOrderById",
+        "summary": "Get order by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order found."
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "Order not found."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Orders"
+        ]
+      },
+      "delete": {
+        "operationId": "removeOrder",
+        "summary": "Delete an order",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order deleted successfully."
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "Order not found."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
+    "/orders/{id}/status": {
+      "patch": {
+        "operationId": "updateOrderStatus",
+        "summary": "Update order status",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrderStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order status updated successfully."
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "Order not found."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
+    "/cart/add": {
+      "post": {
+        "operationId": "addItem",
+        "summary": "Add an item to the cart",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCartItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Item added to the cart successfully."
+          },
+          "400": {
+            "description": "Bad Request - Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "Product not found"
+          },
+          "409": {
+            "description": "Conflict - Item already exists in the cart"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/cart/update/{itemId}": {
+      "patch": {
+        "operationId": "updateItem",
+        "summary": "Update an item in the cart",
+        "parameters": [
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCartItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item updated successfully."
+          },
+          "400": {
+            "description": "Bad Request - Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "Item not found in the cart"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/cart/remove/{itemId}": {
+      "delete": {
+        "operationId": "removeItem",
+        "summary": "Remove an item from the cart",
+        "parameters": [
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item removed from the cart successfully."
+          },
+          "400": {
+            "description": "Bad Request - Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "Item not found in the cart"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/cart/summary": {
+      "get": {
+        "operationId": "getCartSummary",
+        "summary": "Get total price of all items in the cart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of all items in the cart."
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "Cart not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/cart/checkout": {
+      "post": {
+        "operationId": "checkout",
+        "summary": "Checkout the cart",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Checkout successful, cart cleared."
+          },
+          "201": {
+            "description": ""
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "Cart not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Cart"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Nekorei API",
+    "description": "The cats API description",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "http://localhost:3001"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "createPaymentHitory": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "description": "Order ID associated with the transaction",
+            "example": "order_12345"
+          },
+          "transaction_Id": {
+            "type": "string",
+            "description": "Payment method used for the transaction",
+            "example": "credit_card"
+          },
+          "transaction_status": {
+            "type": "string",
+            "description": "Payment Status of the transaction",
+            "example": "success|failed|pending"
+          },
+          "gross_amount": {
+            "type": "string",
+            "description": "Gross amount of the transaction",
+            "example": "100000"
+          }
+        },
+        "required": [
+          "orderId",
+          "transaction_Id",
+          "transaction_status",
+          "gross_amount"
+        ]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Unique identifier for the user",
+            "example": 1
+          },
+          "userId": {
+            "type": "string",
+            "description": "User ID",
+            "example": "A512"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the user",
+            "example": "johndoe@example.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the user",
+            "example": "John Doe"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "description": "Password for the user account",
+            "example": "securepassword123"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role of the user",
+            "example": "customer or admin"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "email",
+          "name",
+          "password",
+          "role"
+        ]
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Product"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "categoryId",
+          "name",
+          "image",
+          "products"
+        ]
+      },
+      "OrderItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          },
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "price": {
+            "type": "number"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Order"
+          }
+        },
+        "required": [
+          "id",
+          "product",
+          "name",
+          "quantity",
+          "price",
+          "order"
+        ]
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "orderItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItem"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "productId",
+          "name",
+          "description",
+          "price",
+          "sku",
+          "quantity",
+          "category",
+          "orderItems"
+        ]
+      },
+      "CartItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "cart": {
+            "$ref": "#/components/schemas/Cart"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          },
+          "quantity": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "cart",
+          "product",
+          "quantity"
+        ]
+      },
+      "Cart": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CartItem"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "user",
+          "items"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "example": "NKXXXX"
+          },
+          "email": {
+            "type": "string",
+            "example": "johndoe@example.com",
+            "description": "isi dengan email",
+            "title": "Email User"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "isi dengan nama anda",
+            "title": "Nama User"
+          },
+          "password": {
+            "type": "string",
+            "example": "******",
+            "description": "isi dengan password",
+            "title": "Password User"
+          },
+          "role": {
+            "type": "string",
+            "example": "admin or customer",
+            "description": "isi dengan role anda"
+          },
+          "profile": {
+            "type": "string",
+            "example": "profile.jpg",
+            "description": "isi dengan profile anda",
+            "title": "Profile User"
+          },
+          "id": {
+            "type": "number"
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            }
+          },
+          "carts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Cart"
+            }
+          }
+        },
+        "required": [
+          "userId",
+          "email",
+          "name",
+          "password",
+          "role",
+          "profile",
+          "id",
+          "orders",
+          "carts"
+        ]
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "status": {
+            "type": "string"
+          },
+          "total": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItem"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "orderId",
+          "user",
+          "status",
+          "total",
+          "createdAt",
+          "updatedAt",
+          "items"
+        ]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "Update Unique identifier for the user",
+            "example": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "description": "Update Email address of the user",
+            "example": "johndoe@example.com"
+          },
+          "profile": {
+            "type": "string",
+            "description": "Update Profile information of the user",
+            "example": "https://example.com/profile.jpg"
+          },
+          "name": {
+            "type": "string",
+            "description": "Update Name of the user",
+            "example": "John Doe"
+          },
+          "role": {
+            "type": "string",
+            "description": "Update Role of the user",
+            "example": "customer or admin"
+          }
+        },
+        "required": [
+          "userId"
+        ]
+      },
+      "CreateProductDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the product",
+            "example": "Cat Toy"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the product",
+            "example": "A fun toy for cats"
+          },
+          "productId": {
+            "type": "string",
+            "description": "Unique identifier for the product",
+            "example": "12345"
+          },
+          "price": {
+            "type": "number",
+            "description": "Price of the product",
+            "example": 19.99
+          },
+          "sku": {
+            "type": "string",
+            "description": "SKU (Stock Keeping Unit) of the product",
+            "example": "SKU12345"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "Quantity of the product available",
+            "example": 100
+          },
+          "categoryId": {
+            "type": "number",
+            "description": "Category ID of the product",
+            "example": 1
+          },
+          "image": {
+            "type": "string",
+            "description": "Image URL of the product",
+            "example": "https://example.com/image.jpg"
+          },
+          "imageId": {
+            "type": "string",
+            "description": "Image ID of the product",
+            "example": "image12345"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "productId",
+          "price",
+          "sku",
+          "quantity",
+          "categoryId",
+          "image",
+          "imageId"
+        ]
+      },
+      "UpdateProductDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the product",
+            "example": "Cat Toy"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the product",
+            "example": "A fun toy for cats"
+          },
+          "price": {
+            "type": "number",
+            "description": "Unique identifier for the product",
+            "example": "12345"
+          },
+          "sku": {
+            "type": "string",
+            "description": "SKU (Stock Keeping Unit) of the product",
+            "example": "SKU12345"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "Quantity of the product available",
+            "example": 100
+          },
+          "categoryId": {
+            "type": "number",
+            "description": "Category ID of the product",
+            "example": 1
+          },
+          "image": {
+            "type": "string",
+            "description": "Image URL of the product",
+            "example": "https://example.com/image.jpg"
+          }
+        }
+      },
+      "CreateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the category",
+            "example": "Toys"
+          },
+          "categoryId": {
+            "type": "string",
+            "description": "Category ID",
+            "example": "cat123"
+          },
+          "image": {
+            "type": "string",
+            "description": "Description of image for the category",
+            "example": "Image category for toys"
+          }
+        },
+        "required": [
+          "name",
+          "categoryId",
+          "image"
+        ]
+      },
+      "UpdateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          }
+        }
+      },
+      "OrderItemDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "object"
+          },
+          "quantity": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ]
+      },
+      "CreateOrderDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItemDto"
+            }
+          }
+        },
+        "required": [
+          "userId",
+          "items"
+        ]
+      },
+      "UpdateOrderStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "CreateCartItemDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "ID of the product to be added to the cart",
+            "example": "12345"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "Quantity of the product to be added to the cart",
+            "example": 2
+          }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ]
+      },
+      "UpdateCartItemDto": {
+        "type": "object",
+        "properties": {
+          "quantity": {
+            "type": "number",
+            "description": "Quantity of the product to be updated in the cart",
+            "example": 3
+          }
+        },
+        "required": [
+          "quantity"
+        ]
+      }
+    }
+  }
+}

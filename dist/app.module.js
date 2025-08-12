@@ -18,6 +18,7 @@ const category_entity_1 = require("./products/entity/category.entity");
 const config_1 = require("@nestjs/config");
 const orders_module_1 = require("./orders/orders.module");
 const order_entity_1 = require("./orders/order.entity");
+const serve_static_1 = require("@nestjs/serve-static");
 const payment_service_1 = require("./payment/payment.service");
 const payment_controller_1 = require("./payment/payment.controller");
 const payment_module_1 = require("./payment/payment.module");
@@ -28,6 +29,7 @@ const cart_module_1 = require("./cart/cart.module");
 const cart_entity_1 = require("./cart/entity/cart.entity");
 const paymentHistory_entity_1 = require("./payment/entity/paymentHistory.entity");
 const swagger_controller_1 = require("./swagger.controller");
+const path_1 = require("path");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -36,6 +38,10 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
+            }),
+            serve_static_1.ServeStaticModule.forRoot({
+                rootPath: (0, path_1.join)(__dirname, '..', 'swagger-static'),
+                serveRoot: process.env.CHECK_DASAR === 'development' ? '/' : '/swagger',
             }),
             typeorm_1.TypeOrmModule.forRoot({
                 name: 'default',

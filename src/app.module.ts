@@ -13,7 +13,7 @@ import { Category, CategoryHistory } from './products/entity/category.entity';
 import { ConfigModule } from '@nestjs/config';
 import { OrdersModule } from './orders/orders.module';
 import { Order, OrderItem } from './orders/order.entity';
-
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { PaymentService } from './payment/payment.service';
 import { PaymentController } from './payment/payment.controller';
 import { PaymentModule } from './payment/payment.module';
@@ -24,10 +24,15 @@ import { CartModule } from './cart/cart.module';
 import { Cart, CartItem } from './cart/entity/cart.entity';
 import { PaymentHistory } from './payment/entity/paymentHistory.entity';
 import { SwaggerController } from './swagger.controller';
+import { join } from 'path';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'swagger-static'),
+      serveRoot: process.env.CHECK_DASAR === 'development' ? '/' : '/swagger',
     }),
 
     TypeOrmModule.forRoot({
