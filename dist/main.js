@@ -27,14 +27,16 @@ async function bootstrap() {
         (0, fs_1.writeFileSync)(pathToSwaggerJson, swaggerJson);
         console.log(`Swagger JSON file written to: '/swagger-static/swagger.json'`);
     }
-    swagger_1.SwaggerModule.setup('docs', app, document, {
-        jsonDocumentUrl: 'swagger/json',
-        customfavIcon: 'https://placecats.com/300/200',
-    });
-    app.enableCors({
-        origin: ['https://demo-1.haruman.me', 'https://demo-1.haruman.me'],
-        methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
-    });
+    else {
+        swagger_1.SwaggerModule.setup('docs', app, document, {
+            jsonDocumentUrl: 'swagger/json',
+            customfavIcon: 'https://placecats.com/300/200',
+        });
+        app.enableCors({
+            origin: ['https://demo-1.haruman.me', 'https://demo-1.haruman.me'],
+            methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
+        });
+    }
     app.getHttpAdapter().get('/swagger-json', (req, res) => {
         res.json(document);
     });

@@ -24,7 +24,7 @@ import { CartModule } from './cart/cart.module';
 import { Cart, CartItem } from './cart/entity/cart.entity';
 import { PaymentHistory } from './payment/entity/paymentHistory.entity';
 import { SwaggerController } from './swagger.controller';
-import { join } from 'path';
+import path, { join } from 'path';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -39,11 +39,9 @@ import { join } from 'path';
       name: 'default',
       type: process.env.DATABASE_TYPE as any,
       // database: 'database.db',
-      host: process.env.DATABASE_HOST,
-      port: parseInt(process.env.DATABASE_PORT), //kalau error hapus
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
+      database: path.resolve(
+        process.env.DATABASE_PATH || './data/database.sqlite',
+      ),
       entities: [
         Cart,
         CartItem,
@@ -59,11 +57,9 @@ import { join } from 'path';
     TypeOrmModule.forRoot({
       name: 'backup',
       type: process.env.DATABASE_TYPE_BACKUP as any,
-      host: process.env.DATABASE_HOST_BACKUP,
-      port: parseInt(process.env.DATABASE_PORT_BACKUP), //kalau error hapus
-      username: process.env.DATABASE_USERNAME_BACKUP,
-      password: process.env.DATABASE_PASSWORD_BACKUP,
-      database: process.env.DATABASE_NAME_BACKUP,
+      database: path.resolve(
+        process.env.DATABASE_PATH_BACKUP || './data/backup.sqlite',
+      ),
       entities: [ProductHistory, CategoryHistory, PaymentHistory, UserHistory],
       synchronize: true,
     }),
