@@ -51,16 +51,20 @@ const order_entity_1 = require("./orders/order.entity");
 const cart_entity_1 = require("./cart/entity/cart.entity");
 const paymentHistory_entity_1 = require("./payment/entity/paymentHistory.entity");
 function initDbFile(fileName) {
-    let baseDir = process.env.CHECK_DASAR === 'production'
-        ? '/tmp'
-        : path.join(process.cwd(), 'data');
+    const isVercel = !!process.env.VERCEL;
+    let baseDir = isVercel ? '/tmp' : path.join(process.cwd(), 'data');
     const dbPath = path.join(baseDir, fileName);
     if (!fs.existsSync(baseDir)) {
         fs.mkdirSync(baseDir, { recursive: true });
     }
-    if (!fs.existsSync(dbPath)) {
-        fs.writeFileSync(dbPath, '');
-        console.log(`🗄️ SQLite file dibuat: ${dbPath}`);
+    try {
+        if (!fs.existsSync(dbPath)) {
+            fs.writeFileSync(dbPath, '');
+            console.log(`🗄️ SQLite file dibuat: ${dbPath}`);
+        }
+    }
+    catch (err) {
+        console.warn(`⚠️ Tidak bisa menulis file ${dbPath}, hanya read-only.`, err.message);
     }
     return dbPath;
 }

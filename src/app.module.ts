@@ -29,23 +29,31 @@ import { SwaggerController } from './swagger.controller';
 import { join } from 'path';
 
 function initDbFile(fileName: string): string {
-  let baseDir =
-    process.env.CHECK_DASAR === 'production'
-      ? '/tmp'
-      : path.join(process.cwd(), 'data');
-
+  const isVercel = !!process.env.VERCEL; // detect kalau di vercel
+  let baseDir = isVercel ? '/tmp' : path.join(process.cwd(), 'data');
   const dbPath = path.join(baseDir, fileName);
 
+  // pastikan folder ada
   if (!fs.existsSync(baseDir)) {
     fs.mkdirSync(baseDir, { recursive: true });
   }
-  if (!fs.existsSync(dbPath)) {
-    fs.writeFileSync(dbPath, '');
-    console.log(`🗄️ SQLite file dibuat: ${dbPath}`);
+
+  // hanya bikin file kalau foldernya writable
+  try {
+    if (!fs.existsSync(dbPath)) {
+      fs.writeFileSync(dbPath, '');
+      console.log(`🗄️ SQLite file dibuat: ${dbPath}`);
+    }
+  } catch (err) {
+    console.warn(
+      `⚠️ Tidak bisa menulis file ${dbPath}, hanya read-only.`,
+      err.message,
+    );
   }
 
   return dbPath;
 }
+
 @Module({
   imports: [
     // Database utama
