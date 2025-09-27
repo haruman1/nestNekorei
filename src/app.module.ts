@@ -56,9 +56,9 @@ import { join } from 'path';
       ],
       synchronize: true,
       extra: {
-        connectionLimit: 2, // ⬅️ kurangi supaya gak tembus limit hosting
+        connectionLimit: 1, // ⬅️ kurangi supaya gak tembus limit hosting
       },
-      poolSize: 2,
+      poolSize: 1,
     }),
     TypeOrmModule.forRoot({
       name: 'backup',
@@ -71,9 +71,9 @@ import { join } from 'path';
       entities: [ProductHistory, CategoryHistory, PaymentHistory, UserHistory],
       synchronize: true,
       extra: {
-        connectionLimit: 2, // ⬅️ kurangi supaya gak tembus limit hosting
+        connectionLimit: 1, // ⬅️ kurangi supaya gak tembus limit hosting
       },
-      poolSize: 2,
+      poolSize: 1,
     }),
     UsersModule,
     AuthModule,
