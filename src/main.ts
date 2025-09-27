@@ -37,15 +37,12 @@ async function bootstrap(): Promise<Application> {
     SwaggerModule.setup('docs', app, document);
   } else {
     // Vercel → serve swagger-static dari dist
-    app.use(
-      '/swagger-static',
-      express.static(join(__dirname, 'swagger-static')),
-    );
 
     SwaggerModule.setup('docs', app, document, {
       swaggerOptions: {
         url: 'swagger-static/swagger.json', // ini ambil langsung dari app
       },
+      customfavIcon: 'https://placecats.com/300/200',
       customCssUrl: ['https://unpkg.com/swagger-ui-dist/swagger-ui.css'],
       customJs: [
         'https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js',
