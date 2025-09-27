@@ -9,6 +9,7 @@ import {
   ProductHistory,
   ProductImage,
 } from './products/entity/product.entity';
+import * as path from 'path';
 import { Category, CategoryHistory } from './products/entity/category.entity';
 import { ConfigModule } from '@nestjs/config';
 import { OrdersModule } from './orders/orders.module';
@@ -27,23 +28,13 @@ import { SwaggerController } from './swagger.controller';
 import { join } from 'path';
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'swagger-static'),
-      serveRoot: process.env.CHECK_DASAR === 'development' ? '/' : '/swagger',
-    }),
-
+    // Database utama
     TypeOrmModule.forRoot({
       name: 'default',
       type: process.env.DATABASE_TYPE as any,
-      // database: 'database.db',
-      host: process.env.DATABASE_HOST,
-      port: parseInt(process.env.DATABASE_PORT), //kalau error hapus
-      username: process.env.DATABASE_USERNAME,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
+      database: path.resolve(
+        process.env.DATABASE_PATH || './data/database.sqlite',
+      ),
       entities: [
         Cart,
         CartItem,
@@ -55,26 +46,19 @@ import { join } from 'path';
         ProductImage,
       ],
       synchronize: true,
-      extra: {
-        connectionLimit: 1, // ⬅️ kurangi supaya gak tembus limit hosting
-      },
-      poolSize: 1,
     }),
+
+    // Database backup
     TypeOrmModule.forRoot({
       name: 'backup',
       type: process.env.DATABASE_TYPE_BACKUP as any,
-      host: process.env.DATABASE_HOST_BACKUP,
-      port: parseInt(process.env.DATABASE_PORT_BACKUP), //kalau error hapus
-      username: process.env.DATABASE_USERNAME_BACKUP,
-      password: process.env.DATABASE_PASSWORD_BACKUP,
-      database: process.env.DATABASE_NAME_BACKUP,
+      database: path.resolve(
+        process.env.DATABASE_PATH_BACKUP || './data/backup.sqlite',
+      ),
       entities: [ProductHistory, CategoryHistory, PaymentHistory, UserHistory],
       synchronize: true,
-      extra: {
-        connectionLimit: 1, // ⬅️ kurangi supaya gak tembus limit hosting
-      },
-      poolSize: 1,
     }),
+
     UsersModule,
     AuthModule,
     ProductsModule,
