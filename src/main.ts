@@ -44,7 +44,7 @@ async function bootstrap(): Promise<Application> {
 
     SwaggerModule.setup('docs', app, document, {
       swaggerOptions: {
-        url: '/swagger-json', // ini ambil langsung dari app
+        url: 'swagger-static/swagger.json', // ini ambil langsung dari app
       },
       customCssUrl: ['https://unpkg.com/swagger-ui-dist/swagger-ui.css'],
       customJs: [

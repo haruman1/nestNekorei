@@ -32,7 +32,7 @@ async function bootstrap() {
         app.use('/swagger-static', express_1.default.static((0, path_1.join)(__dirname, 'swagger-static')));
         swagger_1.SwaggerModule.setup('docs', app, document, {
             swaggerOptions: {
-                url: '/swagger-json',
+                url: 'swagger-static/swagger.json',
             },
             customCssUrl: ['https://unpkg.com/swagger-ui-dist/swagger-ui.css'],
             customJs: [
