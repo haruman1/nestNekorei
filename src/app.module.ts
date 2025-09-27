@@ -10,6 +10,7 @@ import {
   ProductImage,
 } from './products/entity/product.entity';
 import * as path from 'path';
+import * as fs from 'fs';
 import { Category, CategoryHistory } from './products/entity/category.entity';
 import { ConfigModule } from '@nestjs/config';
 import { OrdersModule } from './orders/orders.module';
@@ -31,10 +32,8 @@ import { join } from 'path';
     // Database utama
     TypeOrmModule.forRoot({
       name: 'default',
-      type: process.env.DATABASE_TYPE as any,
-      database: path.resolve(
-        process.env.DATABASE_PATH || './data/database.sqlite',
-      ),
+      type: 'sqlite',
+      database: initDbFile('database.sqlite'),
       entities: [
         Cart,
         CartItem,
@@ -51,23 +50,39 @@ import { join } from 'path';
     // Database backup
     TypeOrmModule.forRoot({
       name: 'backup',
-      type: process.env.DATABASE_TYPE_BACKUP as any,
-      database: path.resolve(
-        process.env.DATABASE_PATH_BACKUP || './data/backup.sqlite',
-      ),
+      type: 'sqlite',
+      database: initDbFile('backup.sqlite'),
       entities: [ProductHistory, CategoryHistory, PaymentHistory, UserHistory],
       synchronize: true,
     }),
-
-    UsersModule,
-    AuthModule,
-    ProductsModule,
-    OrdersModule,
-    PaymentModule,
-    InvoicesModule,
-    CartModule,
   ],
-  providers: [PaymentService, InvoicesService],
-  controllers: [PaymentController, InvoicesController, SwaggerController],
 })
 export class AppModule {}
+
+// 📦 Helper function
+function initDbFile(fileName: string): string {
+  let baseDir: string;
+
+  if (process.env.CHECK_DASAR === 'production') {
+    // ✅ Serverless / Lambda (ephemeral)
+    baseDir = '/tmp';
+  } else {
+    // ✅ Development (persisten di lokal)
+    baseDir = path.resolve(__dirname, '../data');
+  }
+
+  if (!fs.existsSync(baseDir)) {
+    fs.mkdirSync(baseDir, { recursive: true });
+  }
+
+  const dbPath = path.join(baseDir, fileName);
+
+  if (!fs.existsSync(dbPath)) {
+    fs.writeFileSync(dbPath, '');
+    console.log(`🗄️ SQLite file dibuat: ${dbPath}`);
+  } else {
+    console.log(`✅ SQLite file ditemukan: ${dbPath}`);
+  }
+
+  return dbPath;
+}
