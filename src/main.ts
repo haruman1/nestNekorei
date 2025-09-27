@@ -7,7 +7,8 @@ import {
 import { AppModule } from './app.module';
 import express, { Application } from 'express';
 import { join } from 'path';
-
+import * as fs from 'fs';
+import * as path from 'path';
 let server: any;
 
 async function bootstrap(): Promise<Application> {
@@ -33,14 +34,13 @@ async function bootstrap(): Promise<Application> {
   const isVercel = !!process.env.VERCEL;
 
   if (!isVercel) {
-    // Local → SwaggerUI langsung
+    // Local → Swagger UI normal
     SwaggerModule.setup('docs', app, document);
   } else {
-    // Vercel → serve swagger-static dari dist
-
+    // Vercel → Swagger UI pointing ke file statis
     SwaggerModule.setup('docs', app, document, {
       swaggerOptions: {
-        url: 'swagger-static/swagger.json', // ini ambil langsung dari app
+        url: '/swagger-static/swagger.json', // perhatikan: dia ambil dari /public/swagger-static
       },
       customfavIcon: 'https://placecats.com/300/200',
       customCssUrl: ['https://unpkg.com/swagger-ui-dist/swagger-ui.css'],
@@ -52,10 +52,6 @@ async function bootstrap(): Promise<Application> {
 
     app.enableCors();
   }
-
-  app.getHttpAdapter().get('/swagger-json', (req, res) => {
-    res.json(document);
-  });
 
   // ❌ di Vercel jangan pakai listen()
   await app.init();

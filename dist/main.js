@@ -1,14 +1,9 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = handler;
 const core_1 = require("@nestjs/core");
 const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
-const express_1 = __importDefault(require("express"));
-const path_1 = require("path");
 let server;
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
@@ -29,11 +24,11 @@ async function bootstrap() {
         swagger_1.SwaggerModule.setup('docs', app, document);
     }
     else {
-        app.use('/swagger-static', express_1.default.static((0, path_1.join)(__dirname, 'swagger-static')));
         swagger_1.SwaggerModule.setup('docs', app, document, {
             swaggerOptions: {
-                url: 'swagger-static/swagger.json',
+                url: '/swagger-static/swagger.json',
             },
+            customfavIcon: 'https://placecats.com/300/200',
             customCssUrl: ['https://unpkg.com/swagger-ui-dist/swagger-ui.css'],
             customJs: [
                 'https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js',
@@ -42,9 +37,6 @@ async function bootstrap() {
         });
         app.enableCors();
     }
-    app.getHttpAdapter().get('/swagger-json', (req, res) => {
-        res.json(document);
-    });
     await app.init();
     return app.getHttpAdapter().getInstance();
 }
