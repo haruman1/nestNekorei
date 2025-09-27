@@ -55,6 +55,10 @@ import { join } from 'path';
         ProductImage,
       ],
       synchronize: true,
+      extra: {
+        connectionLimit: 2, // ⬅️ kurangi supaya gak tembus limit hosting
+      },
+      poolSize: 2,
     }),
     TypeOrmModule.forRoot({
       name: 'backup',
@@ -66,6 +70,10 @@ import { join } from 'path';
       database: process.env.DATABASE_NAME_BACKUP,
       entities: [ProductHistory, CategoryHistory, PaymentHistory, UserHistory],
       synchronize: true,
+      extra: {
+        connectionLimit: 2, // ⬅️ kurangi supaya gak tembus limit hosting
+      },
+      poolSize: 2,
     }),
     UsersModule,
     AuthModule,
