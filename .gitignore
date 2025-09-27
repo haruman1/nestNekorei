@@ -3,9 +3,8 @@
 /node_modules
 /build
 # database
-/data
-./data/*.sqlite
-/data/*.sqlite
+
+
 # Logs
 logs
 *.log
