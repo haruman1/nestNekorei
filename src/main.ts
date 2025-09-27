@@ -5,10 +5,7 @@ import {
   SwaggerDocumentOptions,
 } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { resolve } from 'path';
-import { writeFileSync } from 'fs';
-import serverlessExpress from '@vendia/serverless-express';
-import express, { Application } from 'express'; // ⬅️ tambahkan
+import express, { Application } from 'express';
 import { join } from 'path';
 
 let server: any;
@@ -36,10 +33,10 @@ async function bootstrap(): Promise<Application> {
   const isVercel = !!process.env.VERCEL;
 
   if (!isVercel) {
-    // local → generate swagger.json seperti biasa
+    // Local → SwaggerUI langsung
     SwaggerModule.setup('docs', app, document);
   } else {
-    // production (vercel) → serve swagger-static dari dist
+    // Vercel → serve swagger-static dari dist
     app.use(
       '/swagger-static',
       express.static(join(__dirname, 'swagger-static')),
@@ -50,25 +47,23 @@ async function bootstrap(): Promise<Application> {
       customfavIcon: 'https://placecats.com/300/200',
     });
 
-    app.enableCors({
-      origin: ['https://demo-1.haruman.me'],
-      methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
-    });
+    app.enableCors();
   }
 
   app.getHttpAdapter().get('/swagger-json', (req, res) => {
     res.json(document);
   });
 
-  // ❌ jangan listen di Vercel
+  // ❌ di Vercel jangan pakai listen()
   await app.init();
-  return app.getHttpAdapter().getInstance() as Application; // ⬅️ fix TS
+  return app.getHttpAdapter().getInstance() as Application;
 }
 
 export default async function handler(req, res) {
   if (!server) {
     const expressApp = await bootstrap();
-    server = serverlessExpress({ app: expressApp });
+    // langsung jalankan Express tanpa serverless-express
+    server = (req, res) => expressApp(req, res);
   }
   return server(req, res);
 }
