@@ -32,15 +32,16 @@ async function bootstrap(): Promise<Application> {
 
   const document = SwaggerModule.createDocument(app, config, options);
 
-  if (process.env.CHECK_DASAR === 'development') {
-    // DEV MODE → generate swagger.json di local
+  const isVercel = !!process.env.VERCEL;
+
+  if (!isVercel) {
+    // Local/dev → generate swagger.json
     app.enableCors();
     const pathToSwaggerStaticFolder = resolve(process.cwd(), 'swagger-static');
     const pathToSwaggerJson = resolve(
       pathToSwaggerStaticFolder,
       'swagger.json',
     );
-
     try {
       writeFileSync(pathToSwaggerJson, JSON.stringify(document, null, 2));
       console.log(`✅ Swagger JSON ditulis ke: ${pathToSwaggerJson}`);
@@ -50,7 +51,7 @@ async function bootstrap(): Promise<Application> {
 
     SwaggerModule.setup('docs', app, document);
   } else {
-    // PROD MODE (Vercel) → JANGAN tulis file, cukup serve swagger.json yang sudah ada
+    // Vercel → jangan generate file (read-only fs), hanya serve swagger
     SwaggerModule.setup('docs', app, document, {
       jsonDocumentUrl: '/swagger-static/swagger.json',
       customfavIcon: 'https://placecats.com/300/200',
