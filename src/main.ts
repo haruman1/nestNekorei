@@ -36,13 +36,13 @@ async function bootstrap(): Promise<Application> {
   const isVercel = !!process.env.VERCEL;
 
   if (!isVercel) {
-    // Local → generate swagger.json
+    // local → generate swagger.json seperti biasa
     SwaggerModule.setup('docs', app, document);
   } else {
-    // Vercel → pakai file statis swagger.json yang ada di folder root swagger-static
+    // production (vercel) → serve swagger-static dari dist
     app.use(
       '/swagger-static',
-      express.static(join(process.cwd(), 'swagger-static')),
+      express.static(join(__dirname, 'swagger-static')),
     );
 
     SwaggerModule.setup('docs', app, document, {

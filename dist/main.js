@@ -30,7 +30,7 @@ async function bootstrap() {
         swagger_1.SwaggerModule.setup('docs', app, document);
     }
     else {
-        app.use('/swagger-static', express_1.default.static((0, path_1.join)(process.cwd(), 'swagger-static')));
+        app.use('/swagger-static', express_1.default.static((0, path_1.join)(__dirname, 'swagger-static')));
         swagger_1.SwaggerModule.setup('docs', app, document, {
             jsonDocumentUrl: '/swagger-static/swagger.json',
             customfavIcon: 'https://placecats.com/300/200',
