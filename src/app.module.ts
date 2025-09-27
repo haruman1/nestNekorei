@@ -27,6 +27,22 @@ import { Cart, CartItem } from './cart/entity/cart.entity';
 import { PaymentHistory } from './payment/entity/paymentHistory.entity';
 import { SwaggerController } from './swagger.controller';
 import { join } from 'path';
+
+function initDbFile(fileName: string): string {
+  const isVercel = !!process.env.VERCEL; // detect kalau running di Vercel
+  let baseDir = isVercel ? '/tmp' : path.join(process.cwd(), 'data');
+  const dbPath = path.join(baseDir, fileName);
+
+  if (!fs.existsSync(baseDir)) {
+    fs.mkdirSync(baseDir, { recursive: true });
+  }
+  if (!fs.existsSync(dbPath)) {
+    fs.writeFileSync(dbPath, '');
+    console.log(`🗄️ SQLite file dibuat: ${dbPath}`);
+  }
+
+  return dbPath;
+}
 @Module({
   imports: [
     // Database utama
@@ -60,29 +76,3 @@ import { join } from 'path';
 export class AppModule {}
 
 // 📦 Helper function
-function initDbFile(fileName: string): string {
-  let baseDir: string;
-
-  if (process.env.CHECK_DASAR === 'production') {
-    // ✅ Serverless / Lambda (ephemeral)
-    baseDir = '/tmp';
-  } else {
-    // ✅ Development (persisten di lokal)
-    baseDir = path.resolve(__dirname, '../data');
-  }
-
-  if (!fs.existsSync(baseDir)) {
-    fs.mkdirSync(baseDir, { recursive: true });
-  }
-
-  const dbPath = path.join(baseDir, fileName);
-
-  if (!fs.existsSync(dbPath)) {
-    fs.writeFileSync(dbPath, '');
-    console.log(`🗄️ SQLite file dibuat: ${dbPath}`);
-  } else {
-    console.log(`✅ SQLite file ditemukan: ${dbPath}`);
-  }
-
-  return dbPath;
-}
