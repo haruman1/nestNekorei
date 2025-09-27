@@ -39,9 +39,6 @@ async function bootstrap(): Promise<Application> {
   } else {
     // Vercel → Swagger UI pointing ke file statis
     SwaggerModule.setup('docs', app, document, {
-      swaggerOptions: {
-        url: '/swagger-static/swagger.json', // perhatikan: dia ambil dari /public/swagger-static
-      },
       customfavIcon: 'https://placecats.com/300/200',
       customCssUrl: ['https://unpkg.com/swagger-ui-dist/swagger-ui.css'],
       customJs: [
@@ -52,6 +49,16 @@ async function bootstrap(): Promise<Application> {
 
     app.enableCors();
   }
+
+  const swaggerDocument = JSON.parse(
+    fs.readFileSync(
+      path.join(__dirname, '/swagger-static/swagger.json'),
+      'utf8',
+    ),
+  );
+  app.getHttpAdapter().get('/swagger-json', (req, res) => {
+    res.json(swaggerDocument);
+  });
 
   // ❌ di Vercel jangan pakai listen()
   await app.init();
