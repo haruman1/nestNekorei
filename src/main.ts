@@ -33,21 +33,29 @@ async function bootstrap(): Promise<Application> {
   const document = SwaggerModule.createDocument(app, config, options);
 
   if (process.env.CHECK_DASAR === 'development') {
+    // DEV MODE → generate swagger.json di local
     app.enableCors();
     const pathToSwaggerStaticFolder = resolve(process.cwd(), 'swagger-static');
-
     const pathToSwaggerJson = resolve(
       pathToSwaggerStaticFolder,
       'swagger.json',
     );
-    const swaggerJson = JSON.stringify(document, null, 2);
-    writeFileSync(pathToSwaggerJson, swaggerJson);
-    console.log(`Swagger JSON file written to: '/swagger-static/swagger.json'`);
+
+    try {
+      writeFileSync(pathToSwaggerJson, JSON.stringify(document, null, 2));
+      console.log(`✅ Swagger JSON ditulis ke: ${pathToSwaggerJson}`);
+    } catch (err) {
+      console.warn(`⚠️ Tidak bisa menulis swagger.json: ${err.message}`);
+    }
+
+    SwaggerModule.setup('docs', app, document);
   } else {
+    // PROD MODE (Vercel) → JANGAN tulis file, cukup serve swagger.json yang sudah ada
     SwaggerModule.setup('docs', app, document, {
-      jsonDocumentUrl: 'swagger/json',
+      jsonDocumentUrl: '/swagger-static/swagger.json',
       customfavIcon: 'https://placecats.com/300/200',
     });
+
     app.enableCors({
       origin: ['https://demo-1.haruman.me'],
       methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
