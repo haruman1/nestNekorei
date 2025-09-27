@@ -2,8 +2,7 @@
 
 /node_modules
 /build
-# .gitignore
-/data/*.sqlite
+
 
 # Logs
 logs
