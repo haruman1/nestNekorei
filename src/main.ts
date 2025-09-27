@@ -39,7 +39,9 @@ async function bootstrap(): Promise<Application> {
   } else {
     // Vercel → Swagger UI pointing ke file statis
     SwaggerModule.setup('docs', app, document, {
-      swaggerUrl: './swagger-static/swagger.json',
+      swaggerOptions: {
+        url: '/swagger-static/swagger.json', // perhatikan: dia ambil dari /public/swagger-static
+      },
       customfavIcon: 'https://placecats.com/300/200',
       customCssUrl: ['https://unpkg.com/swagger-ui-dist/swagger-ui.css'],
       customJs: [
@@ -49,18 +51,19 @@ async function bootstrap(): Promise<Application> {
     });
 
     app.enableCors();
-  }
 
-  // ❌ di Vercel jangan pakai listen()
-  await app.init();
-  return app.getHttpAdapter().getInstance() as Application;
-}
+    const swaggerDocument = JSON.parse(
+      fs.readFileSync(
+        path.join(__dirname, '/swagger-static/swagger.json'),
+        'utf8',
+      ),
+    );
+    app.getHttpAdapter().get('/swagger-json', (req, res) => {
+      res.json(swaggerDocument);
+    });
 
-export default async function handler(req, res) {
-  if (!server) {
-    const expressApp = await bootstrap();
-    // langsung jalankan Express tanpa serverless-express
-    server = (req, res) => expressApp(req, res);
+    // ❌ di Vercel jangan pakai listen()
+    await app.init();
+    return app.getHttpAdapter().getInstance() as Application;
   }
-  return server(req, res);
 }
