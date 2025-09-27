@@ -9,6 +9,7 @@ import { resolve } from 'path';
 import { writeFileSync } from 'fs';
 import serverlessExpress from '@vendia/serverless-express';
 import express, { Application } from 'express'; // ⬅️ tambahkan
+import { join } from 'path';
 
 let server: any;
 
@@ -35,23 +36,15 @@ async function bootstrap(): Promise<Application> {
   const isVercel = !!process.env.VERCEL;
 
   if (!isVercel) {
-    // Local/dev → generate swagger.json
-    app.enableCors();
-    const pathToSwaggerStaticFolder = resolve(process.cwd(), 'swagger-static');
-    const pathToSwaggerJson = resolve(
-      pathToSwaggerStaticFolder,
-      'swagger.json',
-    );
-    try {
-      writeFileSync(pathToSwaggerJson, JSON.stringify(document, null, 2));
-      console.log(`✅ Swagger JSON ditulis ke: ${pathToSwaggerJson}`);
-    } catch (err) {
-      console.warn(`⚠️ Tidak bisa menulis swagger.json: ${err.message}`);
-    }
-
+    // Local → generate swagger.json
     SwaggerModule.setup('docs', app, document);
   } else {
-    // Vercel → jangan generate file (read-only fs), hanya serve swagger
+    // Vercel → pakai file statis swagger.json yang ada di folder root swagger-static
+    app.use(
+      '/swagger-static',
+      express.static(join(process.cwd(), 'swagger-static')),
+    );
+
     SwaggerModule.setup('docs', app, document, {
       jsonDocumentUrl: '/swagger-static/swagger.json',
       customfavIcon: 'https://placecats.com/300/200',

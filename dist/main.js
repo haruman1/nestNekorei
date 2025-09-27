@@ -7,9 +7,9 @@ exports.default = handler;
 const core_1 = require("@nestjs/core");
 const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
-const path_1 = require("path");
-const fs_1 = require("fs");
 const serverless_express_1 = __importDefault(require("@vendia/serverless-express"));
+const express_1 = __importDefault(require("express"));
+const path_1 = require("path");
 let server;
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
@@ -25,17 +25,14 @@ async function bootstrap() {
         operationIdFactory: (controllerKey, methodKey) => methodKey,
     };
     const document = swagger_1.SwaggerModule.createDocument(app, config, options);
-    if (process.env.CHECK_DASAR === 'development') {
-        app.enableCors();
-        const pathToSwaggerStaticFolder = (0, path_1.resolve)(process.cwd(), 'swagger-static');
-        const pathToSwaggerJson = (0, path_1.resolve)(pathToSwaggerStaticFolder, 'swagger.json');
-        const swaggerJson = JSON.stringify(document, null, 2);
-        (0, fs_1.writeFileSync)(pathToSwaggerJson, swaggerJson);
-        console.log(`Swagger JSON file written to: '/swagger-static/swagger.json'`);
+    const isVercel = !!process.env.VERCEL;
+    if (!isVercel) {
+        swagger_1.SwaggerModule.setup('docs', app, document);
     }
     else {
+        app.use('/swagger-static', express_1.default.static((0, path_1.join)(process.cwd(), 'swagger-static')));
         swagger_1.SwaggerModule.setup('docs', app, document, {
-            jsonDocumentUrl: 'swagger/json',
+            jsonDocumentUrl: '/swagger-static/swagger.json',
             customfavIcon: 'https://placecats.com/300/200',
         });
         app.enableCors({
