@@ -43,10 +43,12 @@ async function bootstrap(): Promise<Application> {
     );
 
     SwaggerModule.setup('docs', app, document, {
-      jsonDocumentUrl: '/swagger-static/swagger.json',
       customfavIcon: 'https://placecats.com/300/200',
-      customCssUrl: 'https://unpkg.com/swagger-ui-dist/swagger-ui.css',
-      customJs: 'https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js',
+      customCssUrl: ['https://unpkg.com/swagger-ui-dist/swagger-ui.css'],
+      customJs: [
+        'https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js',
+        'https://unpkg.com/swagger-ui-dist/swagger-ui-standalone-preset.js',
+      ],
     });
 
     app.enableCors();
