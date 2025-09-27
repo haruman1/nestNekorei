@@ -29,8 +29,11 @@ import { SwaggerController } from './swagger.controller';
 import { join } from 'path';
 
 function initDbFile(fileName: string): string {
-  const isVercel = !!process.env.VERCEL; // detect kalau running di Vercel
-  let baseDir = isVercel ? '/tmp' : path.join(process.cwd(), 'data');
+  let baseDir =
+    process.env.CHECK_DASAR === 'production'
+      ? '/tmp'
+      : path.join(process.cwd(), 'data');
+
   const dbPath = path.join(baseDir, fileName);
 
   if (!fs.existsSync(baseDir)) {
