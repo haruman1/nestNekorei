@@ -33,6 +33,8 @@ async function bootstrap() {
         swagger_1.SwaggerModule.setup('docs', app, document, {
             jsonDocumentUrl: '/swagger-static/swagger.json',
             customfavIcon: 'https://placecats.com/300/200',
+            customCssUrl: 'https://unpkg.com/swagger-ui-dist/swagger-ui.css',
+            customJs: 'https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js',
         });
         app.enableCors();
     }
