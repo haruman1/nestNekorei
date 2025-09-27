@@ -39,6 +39,7 @@ async function bootstrap(): Promise<Application> {
   } else {
     // Vercel → Swagger UI pointing ke file statis
     SwaggerModule.setup('docs', app, document, {
+      swaggerOptions: { url: '/swagger-json' },
       customfavIcon: 'https://placecats.com/300/200',
       customCssUrl: ['https://unpkg.com/swagger-ui-dist/swagger-ui.css'],
       customJs: [

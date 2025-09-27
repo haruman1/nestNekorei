@@ -60,6 +60,7 @@ async function bootstrap() {
     }
     else {
         swagger_1.SwaggerModule.setup('docs', app, document, {
+            swaggerOptions: { url: '/swagger-json' },
             customfavIcon: 'https://placecats.com/300/200',
             customCssUrl: ['https://unpkg.com/swagger-ui-dist/swagger-ui.css'],
             customJs: [
