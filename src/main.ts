@@ -9,7 +9,7 @@ import express, { Application } from 'express';
 
 import * as fs from 'fs';
 import * as path from 'path';
-
+let server: any;
 async function bootstrap(): Promise<Application> {
   const app = await NestFactory.create(AppModule);
 
@@ -66,4 +66,11 @@ async function bootstrap(): Promise<Application> {
     return app.getHttpAdapter().getInstance() as Application;
   }
 }
-bootstrap();
+export default async function handler(req, res) {
+  if (!server) {
+    const expressApp = await bootstrap();
+    // langsung jalankan Express tanpa serverless-express
+    server = (req, res) => expressApp(req, res);
+  }
+  return server(req, res);
+}

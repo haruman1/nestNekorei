@@ -33,11 +33,13 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = handler;
 const core_1 = require("@nestjs/core");
 const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+let server;
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     const config = new swagger_1.DocumentBuilder()
@@ -77,5 +79,11 @@ async function bootstrap() {
         return app.getHttpAdapter().getInstance();
     }
 }
-bootstrap();
+async function handler(req, res) {
+    if (!server) {
+        const expressApp = await bootstrap();
+        server = (req, res) => expressApp(req, res);
+    }
+    return server(req, res);
+}
 //# sourceMappingURL=main.js.map
