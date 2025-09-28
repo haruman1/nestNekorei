@@ -9,7 +9,7 @@ import express, { Application } from 'express';
 import { join } from 'path';
 import * as fs from 'fs';
 import * as path from 'path';
-let server: any;
+const server = express();
 import { ExpressAdapter } from '@nestjs/platform-express';
 async function bootstrap(): Promise<Application> {
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
