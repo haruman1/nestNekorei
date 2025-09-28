@@ -39,8 +39,9 @@ const app_module_1 = require("./app.module");
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 let server;
+const platform_express_1 = require("@nestjs/platform-express");
 async function bootstrap() {
-    const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    const app = await core_1.NestFactory.create(app_module_1.AppModule, new platform_express_1.ExpressAdapter(server));
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Nekorei API')
         .setDescription('The cats API description')
@@ -78,4 +79,6 @@ async function bootstrap() {
         return app.getHttpAdapter().getInstance();
     }
 }
+bootstrap();
+exports.default = server;
 //# sourceMappingURL=main.js.map

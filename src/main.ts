@@ -10,9 +10,9 @@ import { join } from 'path';
 import * as fs from 'fs';
 import * as path from 'path';
 let server: any;
-
+import { ExpressAdapter } from '@nestjs/platform-express';
 async function bootstrap(): Promise<Application> {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
   const config = new DocumentBuilder()
     .setTitle('Nekorei API')
@@ -67,3 +67,5 @@ async function bootstrap(): Promise<Application> {
     return app.getHttpAdapter().getInstance() as Application;
   }
 }
+bootstrap();
+export default server; // 🔥 penting untuk Vercel
