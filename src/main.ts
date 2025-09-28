@@ -6,13 +6,12 @@ import {
 } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import express, { Application } from 'express';
-import { join } from 'path';
+
 import * as fs from 'fs';
 import * as path from 'path';
-const server = express();
-import { ExpressAdapter } from '@nestjs/platform-express';
+
 async function bootstrap(): Promise<Application> {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+  const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
     .setTitle('Nekorei API')
@@ -68,4 +67,3 @@ async function bootstrap(): Promise<Application> {
   }
 }
 bootstrap();
-export default server; // 🔥 penting untuk Vercel
