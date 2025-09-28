@@ -9,8 +9,6 @@ import {
   ProductHistory,
   ProductImage,
 } from './products/entity/product.entity';
-import * as path from 'path';
-import * as fs from 'fs';
 import { Category, CategoryHistory } from './products/entity/category.entity';
 import { ConfigModule } from '@nestjs/config';
 import { OrdersModule } from './orders/orders.module';
@@ -27,40 +25,25 @@ import { Cart, CartItem } from './cart/entity/cart.entity';
 import { PaymentHistory } from './payment/entity/paymentHistory.entity';
 import { SwaggerController } from './swagger.controller';
 import { join } from 'path';
-
-function initDbFile(fileName: string): string {
-  const isVercel = !!process.env.VERCEL; // detect kalau di vercel
-  let baseDir = isVercel ? '/tmp' : path.join(process.cwd(), 'data');
-  const dbPath = path.join(baseDir, fileName);
-
-  // pastikan folder ada
-  if (!fs.existsSync(baseDir)) {
-    fs.mkdirSync(baseDir, { recursive: true });
-  }
-
-  // hanya bikin file kalau foldernya writable
-  try {
-    if (!fs.existsSync(dbPath)) {
-      fs.writeFileSync(dbPath, '');
-      console.log(`🗄️ SQLite file dibuat: ${dbPath}`);
-    }
-  } catch (err) {
-    console.warn(
-      `⚠️ Tidak bisa menulis file ${dbPath}, hanya read-only.`,
-      err.message,
-    );
-  }
-
-  return dbPath;
-}
-
 @Module({
   imports: [
-    // Database utama
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'swagger-static'),
+      serveRoot: process.env.CHECK_DASAR === 'development' ? '/' : '/swagger',
+    }),
+
     TypeOrmModule.forRoot({
       name: 'default',
-      type: 'sqlite',
-      database: initDbFile('database.sqlite'),
+      type: process.env.DATABASE_TYPE as any,
+      // database: 'database.db',
+      host: process.env.DATABASE_HOST,
+      port: parseInt(process.env.DATABASE_PORT), //kalau error hapus
+      username: process.env.DATABASE_USERNAME,
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE_NAME,
       entities: [
         Cart,
         CartItem,
@@ -72,18 +55,33 @@ function initDbFile(fileName: string): string {
         ProductImage,
       ],
       synchronize: true,
+      extra: {
+        connectionLimit: 2, // 🔥 batasi maksimal 2 koneksi
+      },
     }),
-
-    // Database backup
     TypeOrmModule.forRoot({
       name: 'backup',
-      type: 'sqlite',
-      database: initDbFile('backup.sqlite'),
+      type: process.env.DATABASE_TYPE_BACKUP as any,
+      host: process.env.DATABASE_HOST_BACKUP,
+      port: parseInt(process.env.DATABASE_PORT_BACKUP), //kalau error hapus
+      username: process.env.DATABASE_USERNAME_BACKUP,
+      password: process.env.DATABASE_PASSWORD_BACKUP,
+      database: process.env.DATABASE_NAME_BACKUP,
       entities: [ProductHistory, CategoryHistory, PaymentHistory, UserHistory],
       synchronize: true,
+      extra: {
+        connectionLimit: 2, // 🔥 batasi maksimal 2 koneksi
+      },
     }),
+    UsersModule,
+    AuthModule,
+    ProductsModule,
+    OrdersModule,
+    PaymentModule,
+    InvoicesModule,
+    CartModule,
   ],
+  providers: [PaymentService, InvoicesService],
+  controllers: [PaymentController, InvoicesController, SwaggerController],
 })
 export class AppModule {}
-
-// 📦 Helper function
