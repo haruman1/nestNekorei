@@ -48,7 +48,7 @@ let CartService = class CartService {
     async addCartItem(userId, createCartItemDto) {
         const cart = await this.findOrCreateCart(userId);
         const { productId, quantity } = createCartItemDto;
-        const product = await this.productsService.findProductById(productId);
+        const product = await this.productsService.findProductByProductId(productId);
         if (!product) {
             throw new common_1.NotFoundException('Product not found');
         }

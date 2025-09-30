@@ -69,7 +69,8 @@ export class CartService {
     const { productId, quantity } = createCartItemDto;
 
     // cek product
-    const product = await this.productsService.findProductById(productId);
+    const product =
+      await this.productsService.findProductByProductId(productId);
     if (!product) {
       throw new NotFoundException('Product not found');
     }
