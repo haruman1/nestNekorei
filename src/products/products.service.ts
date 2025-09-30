@@ -2,236 +2,276 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  Req,
   ConflictException,
+  Inject,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
-import { Product, ProductHistory, ProductImage } from './entity/product.entity';
-import { Category, CategoryHistory } from './entity/category.entity';
-import { ProductsDto } from './dto';
-import { ProductResponse } from './interface';
 import * as CryptoJS from 'crypto-js';
-import { CategoriesResponse, ResponseBiasa } from './interface';
-import { CategoriesData } from './interface/categories.interface';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ServerlessMysql } from 'serverless-mysql';
+import { ProductsDto } from './dto';
+import {
+  Product,
+  ProductResponse,
+  CategoriesData,
+  CategoriesResponse,
+} from './entity';
+import { v4 as uuidv4 } from 'uuid';
 
+import { EditEntity } from 'src/Entity/edit.entity';
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectRepository(Product, 'default')
-    private productsRepository: Repository<Product>,
-    @InjectRepository(Category, 'default')
-    private categoriesRepository: Repository<Category>,
-    @InjectRepository(CategoryHistory, 'backup')
-    private categoriesHistoryRepository: Repository<CategoryHistory>,
-    @InjectRepository(ProductImage, 'default')
-    private productImagesRepository: Repository<ProductImage>,
-    @InjectRepository(ProductHistory, 'backup')
-    private productHistoryRepository: Repository<ProductHistory>,
+    @Inject('DEFAULT_DB') private readonly defaultDb: ServerlessMysql,
+    @Inject('BACKUP_DB') private readonly backupDb: ServerlessMysql,
   ) {}
-  generateRandomCode(name: string): string {
-    const randomNumber = CryptoJS.lib.WordArray.random(4).toString(); // Menghasilkan angka acak (4 byte)
-    const randomCode = name + `-${randomNumber}`; // Gabungkan "NK" dengan angka acak
-    return randomCode;
+
+  private generateRandomCode(prefix: string): string {
+    const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
+    return `${prefix}-${randomNumber}`;
   }
-  /**
-   * Creates a new product.
-   *
-   * @param createProductDto the data used to create the product
-   * @returns the created product
-   */
+
+  // -----------------------------
+  // CREATE PRODUCT
+  // -----------------------------
   async createProduct(
     createProductDto: ProductsDto.CreateProductDto,
     CategoryId: string,
     userId: string,
   ): Promise<Product> {
-    const { categoryId, ...rest } = createProductDto;
-    const category = await this.categoriesRepository.findOne({
-      where: { categoryId: CategoryId },
-    });
+    const {
+      productId,
+      name,
+      description,
+      price,
+      sku,
+      quantity,
+      image,
+      imageId,
+      // categoryId is provided via CategoryId param
+    } = createProductDto;
+
+    // 1) cek kategori
+    const [category] = await this.defaultDb.query<any[]>(
+      'SELECT * FROM category WHERE categoryId = ? LIMIT 1',
+      [CategoryId],
+    );
     if (!category) {
-      throw new BadRequestException('Kategori belum di pilih');
-    }
-    const missingFields: string[] = [];
-    if (!CategoryId) {
-      missingFields.push('Kategori ');
-    }
-    if (!rest.name) {
-      missingFields.push('Nama Produk');
+      throw new BadRequestException('Kategori belum dipilih / tidak ditemukan');
     }
 
-    if (!rest.description) {
-      missingFields.push('Deskripsi produk');
+    // 2) cek productId unik
+    const [existing] = await this.defaultDb.query<any[]>(
+      'SELECT productId FROM product WHERE productId = ? LIMIT 1',
+      [productId],
+    );
+    if (existing) {
+      throw new ConflictException('Product ID sudah ada');
     }
 
-    if (!rest.price) {
-      missingFields.push('Harga produk');
-    }
-
-    if (!rest.sku) {
-      missingFields.push('SKU Produk');
-    }
-    if (!rest.quantity) {
-      missingFields.push('Kuantitas Produk');
-    }
-    if (!rest.image) {
-      missingFields.push('Foto Produk');
-    }
-
-    if (missingFields.length > 0) {
-      throw new BadRequestException(
-        `Data tidak lengkap: ${missingFields.join(', ')}.`,
-      );
-    }
-
-    const product = this.productsRepository.create({ ...rest, category });
-    const createImage = this.productImagesRepository.create({
-      productId: product.productId, // Ensure this is provided and valid
-      imageUrl: rest.image,
-      ImageId: rest.imageId,
-    });
-    const ProductCreated = this.productHistoryRepository.save(
-      this.productHistoryRepository.create({
-        productId: rest.productId,
-        pesan:
-          'Product Berhasil dibuat oleh ' +
-          userId +
-          ' pada ' +
-          new Date() +
-          ' dengan image id : ' +
-          rest.imageId,
-        userId: userId,
-        createdAt: new Date(),
-      }),
+    // 3) insert product
+    await this.defaultDb.query(
+      `INSERT INTO product
+       (productId, name, description, price, sku, quantity, categoryId, createdAt, updatedAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [productId, name, description, price, sku, quantity, CategoryId],
     );
 
-    const savedProductImage = this.productImagesRepository.save(createImage);
-    if (!savedProductImage) {
-      throw new NotFoundException('Product image not found');
-    }
+    // 4) insert product image
+    const imgId = imageId || this.generateRandomCode('IMG');
+    await this.defaultDb.query(
+      `INSERT INTO product_image (ImageId, productId, imageUrl, createdAt)
+       VALUES (?, ?, ?, NOW())`,
+      [imgId, productId, image],
+    );
 
-    const savedProduct = await this.productsRepository.save(product);
-    if (!savedProduct) {
-      throw new NotFoundException('Product not found');
-    }
-    return savedProduct;
-  }
+    // 5) insert history di backup DB
+    await this.backupDb.query(
+      `INSERT INTO product_history (productId, pesan, userId, createdAt)
+       VALUES (?, ?, ?, NOW())`,
+      [
+        productId,
+        `Product dibuat oleh ${userId} pada ${new Date().toISOString()} dengan imageId ${imgId}`,
+        userId,
+      ],
+    );
 
-  async findAllProducts(): Promise<ProductResponse> {
-    // Fetch products with their related category in one query
-    const products = await this.productsRepository.find({
-      relations: ['category'],
-    });
-
-    // Fetch all product images related to the product IDs from the products list
-    const productIds = products.map((product) => product.productId);
-    const productImages = await this.productImagesRepository.find({
-      where: { productId: In(productIds) }, // Using In to get all images related to these product IDs
-    });
-
-    // Create a map to link productId with their corresponding images
-    const imageMap = new Map<string, string>();
-    productImages.forEach((image) => {
-      imageMap.set(image.productId, image.imageUrl); // Add productId and imageUrl to the map
-    });
-
-    // Prepare the response
-    const response: ProductResponse = {
-      status: 200,
-      data: products.map((product) => {
-        const { productId, name, description, price, sku, quantity, category } =
-          product;
-
-        return {
-          id: productId,
-          name,
-          description,
-          price,
-          sku,
-          quantity,
-          categoryId: category?.categoryId || null, // Safely access categoryId
-          image: imageMap.get(productId) || null, // Get image from the map or return null if not found
-        };
-      }),
+    // 6) return product object (sesuai interface Product)
+    const product: Product = {
+      id: productId,
+      name,
+      description,
+      price,
+      sku,
+      quantity,
+      categoryId: CategoryId,
+      image,
     };
 
-    return response;
-  }
-
-  async findProductByProductId(id: string): Promise<Product> {
-    const product = await this.productsRepository.findOne({
-      where: { productId: id },
-      relations: ['category'],
-    });
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
     return product;
   }
+
+  // -----------------------------
+  // FIND ALL PRODUCTS
+  // -----------------------------
+  async findAllProducts(): Promise<ProductResponse> {
+    // ambil product + category + satu image (ambil pertama)
+    const rows = await this.defaultDb.query<any[]>(
+      `SELECT p.productId, p.name, p.description, p.price, p.sku, p.quantity,
+              p.categoryId, i.imageUrl
+       FROM product p
+       LEFT JOIN (
+         SELECT productId, imageUrl
+         FROM product_image
+         GROUP BY productId
+       ) i ON i.productId = p.productId`,
+    );
+
+    const data: Product[] = rows.map((r) => ({
+      id: r.productId,
+      productId: r.productId,
+      name: r.name,
+      description: r.description,
+      price: Number(r.price),
+      sku: r.sku,
+      quantity: Number(r.quantity),
+      categoryId: r.categoryId || null,
+      image: r.imageUrl || null,
+    }));
+
+    return {
+      status: 200,
+      data,
+    };
+  }
+
+  // -----------------------------
+  // FIND PRODUCT BY ID
+  // -----------------------------
+  async findProductByProductId(id: string): Promise<Product> {
+    const [row] = await this.defaultDb.query<any[]>(
+      `SELECT p.productId, p.name, p.description, p.price, p.sku, p.quantity,
+              p.categoryId, i.imageUrl
+       FROM product p
+       LEFT JOIN (
+         SELECT productId, imageUrl
+         FROM product_image
+         WHERE productId = ?
+         LIMIT 1
+       ) i ON i.productId = p.productId
+       WHERE p.productId = ?
+       LIMIT 1`,
+      [id, id],
+    );
+
+    if (!row) {
+      throw new NotFoundException('Product not found');
+    }
+
+    const product: Product = {
+      id: row.productId,
+      name: row.name,
+      description: row.description,
+      price: Number(row.price),
+      sku: row.sku,
+      quantity: Number(row.quantity),
+      categoryId: row.categoryId || null,
+      image: row.imageUrl || null,
+    };
+    return product;
+  }
+
+  // -----------------------------
+  // UPDATE PRODUCT
+  // -----------------------------
   async updateProduct(
     id: string,
     updateProductDto: ProductsDto.UpdateProductDto,
     userId: string,
-  ): Promise<ResponseBiasa> {
-    // Cek keberadaan produk
-    const Product = await this.findProductByProductId(id);
-    if (!Product) {
-      return {
-        status: 400,
-        message: 'Produk Tidak ada, Silahkan Edit Produk yang ada',
-      };
+  ): Promise<EditEntity> {
+    // cek produk ada
+    const product = await this.findProductByProductId(id);
+    if (!product) {
+      throw new BadRequestException('Produk tidak ditemukan');
     }
 
-    // Cek keberadaan gambar produk
-    const ImageProduct = await this.productImagesRepository.findOne({
-      where: { productId: id },
-    });
-    if (!ImageProduct) {
-      return {
-        status: 400,
-        message: 'Produk belum mempunyai gambar, Silahkan hubungin Haruman!',
-      };
-    }
-
-    // Cek keberadaan kategori produk
-    const CategoryProduct = await this.categoriesRepository.findOne({
-      where: { categoryId: Product.category.categoryId },
-    });
-    if (!CategoryProduct) {
-      return {
-        status: 400,
-        message:
-          'Kategori tidak ada, silahkan Edit dengan menggunakan kategori yang ada',
-      };
-    }
-
-    // Update gambar produk dengan ID gambar
-    const resultGambar = await this.productImagesRepository.update(
-      { id: ImageProduct.id },
-      { imageUrl: updateProductDto.image },
-    );
-    if (resultGambar.affected === 0) {
-      throw new BadRequestException(
-        'Gambar gagal di update, Silahkan coba lagi!',
+    // cek kategori tujuan (jika dikirim)
+    if (updateProductDto.categoryId) {
+      const [cat] = await this.defaultDb.query<any[]>(
+        'SELECT * FROM category WHERE categoryId = ? LIMIT 1',
+        [updateProductDto.categoryId],
       );
+      if (!cat) {
+        return {
+          status: 400,
+          message: 'Kategori tidak ada, gunakan kategori yang tersedia',
+        };
+      }
     }
 
-    // Merge dan simpan produk yang diupdate
-    const UpdatedProduct = this.productsRepository.merge(
-      Product,
-      updateProductDto,
-    );
-    await this.productsRepository.save(UpdatedProduct);
+    // update product fields
+    const fields: string[] = [];
+    const values: any[] = [];
 
-    // Simpan riwayat perubahan produk
-    await this.productHistoryRepository.save(
-      this.productHistoryRepository.create({
-        productId: Product.productId,
-        pesan: `Product Berhasil diperbarui oleh ${userId} pada ${new Date()}`,
-        userId: userId,
-        createdAt: new Date(),
-      }),
+    if (updateProductDto.name !== undefined) {
+      fields.push('name = ?');
+      values.push(updateProductDto.name);
+    }
+    if (updateProductDto.description !== undefined) {
+      fields.push('description = ?');
+      values.push(updateProductDto.description);
+    }
+    if (updateProductDto.price !== undefined) {
+      fields.push('price = ?');
+      values.push(updateProductDto.price);
+    }
+    if (updateProductDto.sku !== undefined) {
+      fields.push('sku = ?');
+      values.push(updateProductDto.sku);
+    }
+    if (updateProductDto.quantity !== undefined) {
+      fields.push('quantity = ?');
+      values.push(updateProductDto.quantity);
+    }
+    if (updateProductDto.categoryId !== undefined) {
+      fields.push('categoryId = ?');
+      values.push(updateProductDto.categoryId);
+    }
+
+    if (fields.length > 0) {
+      const sql = `UPDATE product SET ${fields.join(', ')}, updatedAt = NOW() WHERE productId = ?`;
+      values.push(id);
+      await this.defaultDb.query(sql, values);
+    }
+
+    // update image jika ada
+    if (updateProductDto.image) {
+      // cek ada image record
+      const [img] = await this.defaultDb.query<any[]>(
+        'SELECT * FROM product_image WHERE productId = ? LIMIT 1',
+        [id],
+      );
+      if (img) {
+        await this.defaultDb.query(
+          'UPDATE product_image SET imageUrl = ?, updatedAt = NOW() WHERE productId = ?',
+          [updateProductDto.image, id],
+        );
+      } else {
+        // insert baru
+        const newImgId = uuidv4() || this.generateRandomCode('IMG');
+        await this.defaultDb.query(
+          'INSERT INTO product_image (ImageId, productId, imageUrl, createdAt) VALUES (?, ?, ?, NOW())',
+          [newImgId, id, updateProductDto.image],
+        );
+      }
+    }
+
+    // simpan history di backup
+    await this.backupDb.query(
+      'INSERT INTO product_history (productId, pesan, userId, createdAt) VALUES (?, ?, ?, NOW())',
+      [
+        id,
+        `Product diperbarui oleh ${userId} pada ${new Date().toISOString()}`,
+        userId,
+      ],
     );
 
     return {
@@ -240,121 +280,194 @@ export class ProductsService {
     };
   }
 
-  async removeProduct(id: string): Promise<ResponseBiasa> {
-    const product = await this.findProductByProductId(id);
-    await this.productsRepository.remove(product);
-    return {
-      status: 200,
-      message: `Produk dengan ID ${id} berhasil dihapus`,
-    };
+  // -----------------------------
+  // REMOVE PRODUCT
+  // -----------------------------
+  async removeProduct(id: string): Promise<EditEntity> {
+    // cek product ada
+    const [prod] = await this.defaultDb.query<any[]>(
+      'SELECT * FROM product WHERE productId = ? LIMIT 1',
+      [id],
+    );
+    if (!prod) {
+      throw new NotFoundException('Product not found');
+    }
+
+    // hapus gambar terkait
+    await this.defaultDb.query(
+      'DELETE FROM product_image WHERE productId = ?',
+      [id],
+    );
+
+    // hapus product
+    await this.defaultDb.query('DELETE FROM product WHERE productId = ?', [id]);
+
+    // simpan history di backup
+    await this.backupDb.query(
+      'INSERT INTO product_history (productId, pesan, userId, createdAt) VALUES (?, ?, ?, NOW())',
+      [id, `Product dihapus pada ${new Date().toISOString()}`, 'system'],
+    );
+
+    return { status: 200, message: `Produk dengan ID ${id} berhasil dihapus` };
   }
 
+  // -----------------------------
+  // CATEGORY: CREATE
+  // -----------------------------
   async createCategory(
     createCategoryDto: ProductsDto.CreateCategoryDto,
     userid: string,
   ): Promise<CategoriesResponse> {
+    // generate id
     createCategoryDto.categoryId = this.generateRandomCode('CTNEK');
+
     if (
       !createCategoryDto.name ||
       !createCategoryDto.categoryId ||
       !createCategoryDto.image
     ) {
-      throw new BadRequestException(
-        'Name and categoryId and image is required',
-      );
+      throw new BadRequestException('Name, categoryId and image are required');
     }
 
-    const existingCategory = await this.categoriesRepository.findOne({
-      where: { name: createCategoryDto.name },
-    });
-    const history = this.categoriesHistoryRepository.save(
-      this.categoriesHistoryRepository.create({
-        categoryId: createCategoryDto.categoryId,
-        pesan:
-          'Category Berhasil dibuat oleh ' + userid + ' pada ' + new Date(),
-        userId: userid,
-        createdAt: new Date(),
-      }),
+    // cek existing
+    const [existing] = await this.defaultDb.query<any[]>(
+      'SELECT * FROM category WHERE name = ? LIMIT 1',
+      [createCategoryDto.name],
     );
-    if (existingCategory) {
+    if (existing) {
       throw new ConflictException('Category already exists');
     }
-    const category = this.categoriesRepository.create(createCategoryDto);
-    const savedCategory = await this.categoriesRepository.save(category);
+
+    // insert category
+    await this.defaultDb.query(
+      'INSERT INTO category (categoryId, name, image, createdAt, updatedAt) VALUES (?, ?, ?, NOW(), NOW())',
+      [
+        createCategoryDto.categoryId,
+        createCategoryDto.name,
+        createCategoryDto.image,
+      ],
+    );
+
+    // simpan history di backup
+    await this.backupDb.query(
+      'INSERT INTO category_history (categoryId, pesan, userId, createdAt) VALUES (?, ?, ?, NOW())',
+      [
+        createCategoryDto.categoryId,
+        `Category dibuat oleh ${userid} pada ${new Date().toISOString()}`,
+        userid,
+      ],
+    );
+
     return {
       status: 201,
       data: [
         {
-          id: savedCategory.categoryId,
-          name: savedCategory.name,
-          image: savedCategory.image,
+          id: createCategoryDto.categoryId,
+          name: createCategoryDto.name,
+          image: createCategoryDto.image,
         },
       ],
     };
   }
 
+  // -----------------------------
+  // CATEGORY: FIND ALL
+  // -----------------------------
   async findAllCategoriesNew(): Promise<CategoriesResponse> {
-    const categories = await this.categoriesRepository.find();
-
-    const response: CategoriesResponse = {
-      status: 200,
-      data: categories.map((category) => ({
-        id: category.categoryId,
-        name: category.name,
-        image: category.image,
-      })),
-    };
-    return response;
+    const rows = await this.defaultDb.query<any[]>(
+      'SELECT * FROM category ORDER BY name ASC',
+    );
+    const data: CategoriesData[] = rows.map((r) => ({
+      id: r.categoryId,
+      name: r.name,
+      image: r.image,
+    }));
+    return { status: 200, data };
   }
 
-  async findCategoryById(id: string): Promise<Category> {
-    const category = await this.categoriesRepository.findOne({
-      where: { categoryId: id },
-      relations: ['products'],
-    });
-    if (!category) {
-      throw new NotFoundException('Category not found 1');
+  // -----------------------------
+  // CATEGORY: FIND BY ID
+  // -----------------------------
+  async findCategoryById(id: string): Promise<CategoriesData> {
+    const [row] = await this.defaultDb.query<any[]>(
+      'SELECT * FROM category WHERE categoryId = ? LIMIT 1',
+      [id],
+    );
+    if (!row) {
+      throw new NotFoundException('Category not found');
     }
-    return category;
+    return { id: row.categoryId, name: row.name, image: row.image };
   }
 
+  // -----------------------------
+  // CATEGORY: UPDATE
+  // -----------------------------
   async updateCategory(
     id: string,
     updateCategoryDto: ProductsDto.UpdateCategoryDto,
     userid: string,
-  ): Promise<ResponseBiasa> {
-    const category = await this.findCategoryById(id);
-    const UpdateCategori = this.categoriesRepository.merge(
-      category,
-      updateCategoryDto,
+  ): Promise<EditEntity> {
+    const [existing] = await this.defaultDb.query<any[]>(
+      'SELECT * FROM category WHERE categoryId = ? LIMIT 1',
+      [id],
     );
-    await this.categoriesRepository.save(UpdateCategori);
-    const history = this.categoriesHistoryRepository.save(
-      this.categoriesHistoryRepository.create({
-        categoryId: id,
-        pesan:
-          'Category Berhasil dibuat oleh ' + userid + ' pada ' + new Date(),
-        userId: userid,
-        createdAt: new Date(),
-      }),
+    if (!existing) {
+      throw new NotFoundException('Category not found');
+    }
+
+    // update
+    await this.defaultDb.query(
+      'UPDATE category SET name = ?, image = ?, updatedAt = NOW() WHERE categoryId = ?',
+      [
+        updateCategoryDto.name || existing.name,
+        updateCategoryDto.image || existing.image,
+        id,
+      ],
     );
+
+    // history
+    await this.backupDb.query(
+      'INSERT INTO category_history (categoryId, pesan, userId, createdAt) VALUES (?, ?, ?, NOW())',
+      [
+        id,
+        `Category diperbarui oleh ${userid} pada ${new Date().toISOString()}`,
+        userid,
+      ],
+    );
+
     return {
       status: 200,
       message: `Kategori dengan ID ${id} berhasil diperbarui`,
     };
   }
 
-  async removeCategory(id: string, userId: string): Promise<ResponseBiasa> {
-    const category = await this.findCategoryById(id);
-    await this.categoriesRepository.remove(category);
-    const history = this.categoriesHistoryRepository.save(
-      this.categoriesHistoryRepository.create({
-        categoryId: category.categoryId,
-        pesan:
-          'Category Berhasil dihapus oleh ' + userId + ' pada ' + new Date(),
-        userId: userId,
-        createdAt: new Date(),
-      }),
+  // -----------------------------
+  // CATEGORY: REMOVE
+  // -----------------------------
+  async removeCategory(id: string, userId: string): Promise<EditEntity> {
+    const [existing] = await this.defaultDb.query<any[]>(
+      'SELECT * FROM category WHERE categoryId = ? LIMIT 1',
+      [id],
+    );
+    if (!existing) {
+      throw new NotFoundException('Category not found');
+    }
+
+    // Optional: cek produk di kategori tersebut (jika mau block delete)
+    // const related = await this.defaultDb.query<any[]>('SELECT COUNT(*) as cnt FROM product WHERE categoryId = ?', [id]);
+    // if (related[0]?.cnt > 0) { throw new BadRequestException('Category has products'); }
+
+    await this.defaultDb.query('DELETE FROM category WHERE categoryId = ?', [
+      id,
+    ]);
+
+    await this.backupDb.query(
+      'INSERT INTO category_history (categoryId, pesan, userId, createdAt) VALUES (?, ?, ?, NOW())',
+      [
+        id,
+        `Category dihapus oleh ${userId} pada ${new Date().toISOString()}`,
+        userId,
+      ],
     );
 
     return {
@@ -362,47 +475,72 @@ export class ProductsService {
       message: `Kategori dengan ID ${id} berhasil dihapus`,
     };
   }
+
+  // -----------------------------
+  // SEARCH PRODUCTS
+  // -----------------------------
   async searchProducts(query: string): Promise<Product[]> {
-    return this.productsRepository
-      .createQueryBuilder('product')
-      .where('product.name LIKE :query', { query: `%${query}%` })
-      .orWhere('product.description LIKE :query', { query: `%${query}%` })
-      .getMany();
+    const rows = await this.defaultDb.query<any[]>(
+      'SELECT p.productId, p.name, p.description, p.price, p.sku, p.quantity, i.imageUrl FROM product p LEFT JOIN product_image i ON p.productId = i.productId WHERE p.name LIKE ? OR p.description LIKE ?',
+      [`%${query}%`, `%${query}%`],
+    );
+    return rows.map((r) => ({
+      id: r.productId,
+      productId: r.productId,
+      name: r.name,
+      description: r.description,
+      price: Number(r.price),
+      sku: r.sku,
+      quantity: Number(r.quantity),
+      categoryId: r.categoryId || null,
+      image: r.imageUrl || null,
+    }));
   }
 
+  // -----------------------------
+  // FILTER PRODUCTS
+  // -----------------------------
   async filterProducts(
-    categoryId?: number,
+    categoryId?: string,
     minPrice?: number,
     maxPrice?: number,
     minRating?: number,
+    maxRating?: number,
   ): Promise<Product[]> {
-    let queryBuilder = this.productsRepository.createQueryBuilder('product');
+    let sql = `SELECT p.productId, p.name, p.description, p.price, p.sku, p.quantity, i.imageUrl FROM product p LEFT JOIN product_image i ON p.productId = i.productId WHERE 1=1`;
+    const params: any[] = [];
 
     if (categoryId) {
-      queryBuilder = queryBuilder.andWhere(
-        'product.category.id = :categoryId',
-        { categoryId },
-      );
+      sql += ' AND p.categoryId = ?';
+      params.push(categoryId);
     }
-
-    if (minPrice) {
-      queryBuilder = queryBuilder.andWhere('product.price >= :minPrice', {
-        minPrice,
-      });
+    if (minPrice !== undefined) {
+      sql += ' AND p.price >= ?';
+      params.push(minPrice);
     }
-
-    if (maxPrice) {
-      queryBuilder = queryBuilder.andWhere('product.price <= :maxPrice', {
-        maxPrice,
-      });
+    if (maxPrice !== undefined) {
+      sql += ' AND p.price <= ?';
+      params.push(maxPrice);
     }
-
-    if (minRating) {
-      queryBuilder = queryBuilder.andWhere('product.rating >= :minRating', {
-        minRating,
-      });
+    if (minRating !== undefined) {
+      sql += ' AND p.rating >= ?';
+      params.push(minRating);
     }
-
-    return queryBuilder.getMany();
+    if (maxRating !== undefined) {
+      sql += ' AND p.rating <= ?';
+      params.push(maxRating);
+    }
+    const rows = await this.defaultDb.query<any[]>(sql, params);
+    return rows.map((r) => ({
+      id: r.productId,
+      productId: r.productId,
+      name: r.name,
+      description: r.description,
+      price: Number(r.price),
+      sku: r.sku,
+      quantity: Number(r.quantity),
+      categoryId: r.categoryId || null,
+      image: r.imageUrl || null,
+    }));
   }
 }

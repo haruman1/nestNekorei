@@ -1,14 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Order } from '../orders/order.entity';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Order } from '../orders/entity/order.entity';
+
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class InvoicesService {
-  constructor(
-    @InjectRepository(Order)
-    private ordersRepository: Repository<Order>,
-  ) {}
+  constructor() {}
   async generateHeader(doc: any) {
     doc
       .image('logo.png', 50, 45, { width: 50 })

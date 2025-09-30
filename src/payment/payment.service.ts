@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Order } from '../orders/order.entity';
+import { Order } from '../orders/entity/order.entity';
 
 import * as MidtransClient from 'midtrans-client';
 import { Snap } from 'midtrans-client';

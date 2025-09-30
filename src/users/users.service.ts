@@ -1,235 +1,188 @@
 import {
-  BadRequestException,
-  forwardRef,
   Injectable,
+  BadRequestException,
   NotFoundException,
   Inject,
+  ConflictException,
 } from '@nestjs/common';
 import * as CryptoJS from 'crypto-js';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User, UserHistory } from './user.entity';
-import {
-  UserEditResponse,
-  UserResponse,
-} from './interface/user-response.interface';
-import { CreateUserDto } from './dto';
-import { UpdateUserDto } from './dto';
 import * as bcrypt from 'bcryptjs';
 import { generateSecureSignature } from '@uploadcare/signed-uploads';
 import ImageKit from 'imagekit';
+// import { queryDefault, queryBackup } from '../database/mysql.provider';
+import { UsersDto } from './dto';
+import { UserEntity } from './entity';
+import { ServerlessMysql } from 'serverless-mysql';
+import { queryDefault } from 'src/database/mysql.provider';
+import { EditEntity } from 'src/Entity/edit.entity';
+
 @Injectable()
 export class UsersService {
   private imagekit: ImageKit;
+  /**
+   * Constructor for UsersService class
+   *
+   * @param {string} process.env.IMAGEKIT_PUBLIC_KEY - Public key for ImageKit
+   * @param {string} process.env.IMAGEKIT_PRIVATE_KEY - Private key for ImageKit
+   * @param {string} process.env.IMAGEKIT_URL_ENDPOINT - URL endpoint for ImageKit
+   *
+   * @param UserEntity - Entity representing a user
+   * @param UserHistoryEntity - Entity representing user history
+   */
   constructor(
-    @InjectRepository(User, 'default')
-    private usersRepository: Repository<User>,
-    @InjectRepository(UserHistory, 'backup')
-    private userHistoryRepository: Repository<UserHistory>,
+    @Inject('DEFAULT_DB') private readonly defaultDb: ServerlessMysql,
+    @Inject('BACKUP_DB') private readonly backupDb: ServerlessMysql,
   ) {
-    const imageKit = new ImageKit({
+    this.imagekit = new ImageKit({
       publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
       privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
       urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
     });
-    this.imagekit = imageKit;
   }
 
   generateRandomCode(): string {
-    const randomNumber = CryptoJS.lib.WordArray.random(4).toString(); // Menghasilkan angka acak (4 byte)
-    const randomCode = `NK${randomNumber}`; // Gabungkan "NK" dengan angka acak
-    return randomCode;
+    const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
+    return `NK${randomNumber}`;
   }
-  async foto(userId: string): Promise<UserEditResponse> {
-    const user = await this.usersRepository.findOne({
-      where: { userId: userId },
-    });
-    if (!user) {
-      throw new NotFoundException('Sedang error, silahkan coba lagi');
-    }
 
-    return {
-      status: 200,
-      message: user.profile,
-    };
-  }
-  async create(createUserDto: CreateUserDto): Promise<UserResponse> {
-    const { email, name, password, role } = createUserDto;
-
-    // Log data yang diterima untuk debugging
-    console.log('Data yang diterima:', createUserDto);
-
-    // Validasi: pastikan semua field diisi
-    if (!email || !password || !role) {
-      throw new BadRequestException(
-        'Maaf, data ada yang kosong. Silahkan lengkapi kembali.',
-      );
-    }
-
-    // Cek apakah email sudah terdaftar
-    const existingUserByEmail = await this.usersRepository.findOne({
-      where: { email },
-    });
-
-    if (existingUserByEmail) {
-      throw new BadRequestException('Email already exists');
-    }
-
-    // Cek apakah username sudah terdaftar (misalnya username adalah email)
-
-    const saltRounds = 10;
+  async create(createUserDto: UsersDto.CreateUserDto): Promise<UserEntity> {
     try {
-      // Hash password sebelum menyimpan ke database
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
-      const UserID = this.generateRandomCode();
-      // Buat user baru
-      const user = this.usersRepository.create({
-        userId: UserID,
-        email,
-        name,
-        password: hashedPassword,
-        role,
-      });
-      await this.usersRepository.save(user);
-      // Simpan user ke database
-      const response: UserResponse = {
-        status: 200,
-        data: 'User created successfully',
-        dataUser: {
-          id: user.userId,
-          email: user.email,
-          name: user.name,
-        },
-      };
-      return response;
-    } catch (err) {
-      // Lempar error jika terjadi kesalahan dalam proses pembuatan user
-      throw new BadRequestException('Error creating user: ' + err.message);
+      const result = (await this.defaultDb.query(
+        'INSERT INTO user (userId, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
+        [
+          this.generateRandomCode(),
+          createUserDto.email,
+          createUserDto.password,
+          createUserDto.name,
+          createUserDto.role,
+        ],
+      )) as { insertId: string };
+      const insertHistory = await this.backupDb.query(
+        'INSERT INTO user_history (pesan, userId, createdAt) VALUES (?, ?, ?)',
+        [
+          `User created with ID: ${createUserDto.userId} and Name: ${createUserDto.name}`,
+          createUserDto.userId,
+          new Date(),
+        ],
+      );
+      const userId = result.insertId;
+      return await this.findOneByIdUser(userId);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new ConflictException('User ID or Email already exists');
+      }
+      throw error;
     }
   }
+  async update(
+    userId: string,
+    updateUserDto: UsersDto.UpdateUserDto,
+  ): Promise<EditEntity> {
+    const [user] = await queryDefault<any>(
+      'SELECT * FROM user WHERE userId = ?',
+      [userId],
+    );
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
+    let newPassword = user.password;
+    if (
+      updateUserDto.password &&
+      !(await bcrypt.compare(updateUserDto.password, user.password))
+    ) {
+      newPassword = await bcrypt.hash(updateUserDto.password, 16);
+    }
+
+    await queryDefault(
+      'UPDATE user SET password = ?, profile = ?, name = ? WHERE userId = ?',
+      [
+        newPassword,
+        updateUserDto.profile || user.profile,
+        updateUserDto.name || user.name,
+        userId,
+      ],
+    );
+
+    return { status: 200, message: `User Updated ${userId} Successfully` };
+  }
+  async remove(id_user: string): Promise<EditEntity> {
+    await this.findOneByIdUser(id_user);
+    await queryDefault('DELETE FROM user WHERE userId = ?', [id_user]);
+    await queryDefault('DELETE FROM user_history WHERE userId = ?', [id_user]);
+    return { status: 200, message: `User Deleted ${id_user} Successfully` };
+  }
   async ImageKitAuth() {
     return this.imagekit.getAuthenticationParameters();
   }
+
   async UploadcareSignatureCreate() {
-    // by the expiration date
     const { secureSignature, secureExpire } = generateSecureSignature(
       process.env.UPLOADCARE_SECRET_KEYS,
-      {
-        expire: new Date('2025-01-01'), // expire on 2099-01-01
-      },
+      { expire: new Date('2025-01-01') },
     );
     return { secureSignature, secureExpire };
   }
-  async konyol(userId: string) {
-    const user = await this.usersRepository.findOne({
-      where: { userId },
-    });
+  async foto(userId: string): Promise<EditEntity> {
+    const [user] = await this.defaultDb.query<any>(
+      'SELECT profile FROM user WHERE userId = ?',
+      [userId],
+    );
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Sedang error, silahkan coba lagi');
     }
-    return {
-      message: 'yah, konyol',
-    };
+    return { status: 200, message: user.profile };
   }
-  async findOneByEmail(email: string): Promise<User> {
+  async findOneByEmail(email: string): Promise<any> {
     if (!email) {
-      throw new BadRequestException('Email must be provided222');
+      throw new BadRequestException('Email must be provided');
     }
 
-    const user = await this.usersRepository.findOne({
-      where: { email },
-    });
-
-    if (!user) {
-      console.log('User tidak ditemukan');
-      throw new NotFoundException('User not found');
-    }
-
-    return user;
-  }
-
-  async update(
-    userId: string,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UserEditResponse> {
-    const { password, profile, name } = updateUserDto;
-
-    // Pastikan setidaknya ada satu field yang diisi untuk di-update
-    if (!password || !profile || !name) {
-      throw new BadRequestException(
-        'Please provide at least one field to update',
-      );
-    }
-
-    // Cari user berdasarkan userId
-    const user = await this.usersRepository.findOne({ where: { userId } });
+    const [user] = await queryDefault<any>(
+      'SELECT * FROM user WHERE email = ?',
+      [email],
+    );
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
-    // Pengecekan untuk password, pastikan password yang baru berbeda dari yang lama
-    if (password) {
-      if (await bcrypt.compare(password, user.password)) {
-        throw new BadRequestException(
-          'Password cannot be the same as the old password',
-        );
-      }
-      const saltRounds = 16;
-      bcrypt.hash(password, saltRounds);
-    }
-
-    // Pengecekan untuk profile, pastikan profile yang baru berbeda dari yang lama
-    if (profile && profile === user.profile) {
-      throw new BadRequestException(
-        'Image Profile cannot be the same as the old Image Profile',
-      );
-    }
-
-    // Hash password jika diisi
-
-    // Update user, hanya update field yang diisi
-    const updatedata = await this.usersRepository.update(userId, {
-      password: password,
-      profile: profile,
-      name: name,
-    });
-
-    const updatedUser = await this.usersRepository.findOne({
-      where: { userId },
-    });
-
-    console.log(updatedUser);
-
     return {
       status: 200,
-      message: 'User Updated Successfully',
+      data: 'User found',
+      dataUser: {
+        id: user.userId,
+        email: user.email,
+        name: user.name,
+        password: user.password,
+      },
     };
   }
 
-  async findOneById(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+  async findOneById(id: number) {
+    const [user] = await queryDefault<any>('SELECT * FROM user WHERE id = ?', [
+      id,
+    ]);
+    if (!user) throw new NotFoundException('User not found');
     return user;
   }
-  async findOneByIdUser(id: string): Promise<User> {
-    const user = await this.usersRepository.findOne({
-      where: { userId: id },
-    });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+
+  async findOneByIdUser(id: string) {
+    const [user] = await queryDefault<any>(
+      'SELECT * FROM user WHERE userId = ?',
+      [id],
+    );
+    if (!user) throw new NotFoundException('User not found');
     return user;
   }
-  async forgotPassword(email: string): Promise<void> {
+
+  async forgotPassword(email: string) {
     const user = await this.findOneByEmail(email);
     if (!user) {
       throw new NotFoundException('User not found');
     }
-  }
-  async remove(id: string): Promise<void> {
-    await this.usersRepository.delete(id);
+
+    return {
+      message: 'If that email is registered, you will receive a reset link',
+    };
+    // bisa tambahin logic kirim email reset password
   }
 }

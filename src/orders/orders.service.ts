@@ -1,130 +1,162 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  forwardRef,
-  Inject,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Order, OrderItem } from './order.entity';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { OrdersDto } from './dto';
-import { UsersService } from '../users/users.service';
-import { ProductsService } from '../products/products.service';
-import { User } from 'src/users/user.entity';
 import * as CryptoJS from 'crypto-js';
-import { OrderResponse } from './interface/order.interface';
+import { ServerlessMysql } from 'serverless-mysql';
+import { OrderEntity } from './entity';
+
 @Injectable()
 export class OrdersService {
   constructor(
-    @InjectRepository(Order)
-    private ordersRepository: Repository<Order>,
-
-    @InjectRepository(OrderItem)
-    private orderItemsRepository: Repository<OrderItem>,
-
-    @Inject(forwardRef(() => UsersService))
-    private usersService: UsersService,
-
-    @Inject(forwardRef(() => ProductsService))
-    private productsService: ProductsService,
+    @Inject('DEFAULT_DB') private readonly defaultDb: ServerlessMysql,
+    @Inject('BACKUP_DB') private readonly backupDb: ServerlessMysql,
   ) {}
-  generateRandomCode(): string {
-    const randomNumber = CryptoJS.lib.WordArray.random(4).toString(); // Menghasilkan angka acak (4 byte)
-    const randomCode = `Nekorei-${randomNumber}`; // Gabungkan "NK" dengan angka acak
-    return randomCode;
+
+  private generateRandomCode(): string {
+    const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
+    return `Nekorei-${randomNumber}`;
   }
+
   async createOrder(
     createOrderDto: OrdersDto.CreateOrderDto,
-  ): Promise<OrderResponse> {
+  ): Promise<OrderEntity> {
     const { userId, items } = createOrderDto;
 
-    const user = await this.usersService.findOneByIdUser(userId);
+    // Check user
+    const [user] = await this.defaultDb.query<any[]>(
+      'SELECT * FROM user WHERE userId = ?',
+      [userId],
+    );
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const orderItems: OrderItem[] = [];
+    const orderCode = this.generateRandomCode();
     let total = 0;
 
+    // Insert order
+    const result: any = await this.defaultDb.query(
+      'INSERT INTO `order` (orderId, userId, status, total, createdAt, updatedAt) VALUES (?, ?, ?, ?, NOW(), NOW())',
+      [orderCode, userId, 'placed', 0],
+    );
+    const orderId = result.insertId;
+
+    // Insert items
+    const insertedItems: Array<{
+      id: number;
+      productId: string;
+      name: string;
+      quantity: number;
+      price: number;
+    }> = [];
     for (const item of items) {
-      const product = await this.productsService.findProductByProductId(
-        item.productId.toString(),
+      const [product] = await this.defaultDb.query<any[]>(
+        'SELECT * FROM product WHERE productId = ?',
+        [item.productId],
       );
       if (!product) {
         throw new NotFoundException(
           `Product with ID ${item.productId} not found`,
         );
       }
-      const orderItem = this.orderItemsRepository.create({
-        product: {
-          id: product.id,
-        },
-        name: product.name,
 
+      const price = product.price * item.quantity;
+      total += price;
+
+      const itemResult: any = await this.defaultDb.query(
+        'INSERT INTO order_item (orderId, productId, name, quantity, price) VALUES (?, ?, ?, ?, ?)',
+        [orderId, product.productId, product.name, item.quantity, price],
+      );
+
+      insertedItems.push({
+        id: itemResult.insertId,
+        productId: product.productId,
+        name: product.name,
         quantity: item.quantity,
-        price: product.price * item.quantity,
+        price,
       });
-      orderItems.push(orderItem);
-      total += orderItem.price;
     }
 
-    const order = this.ordersRepository.create({
-      user,
-      orderId: this.generateRandomCode(),
-      status: 'placed',
-      total,
-      items: orderItems,
-    });
+    // Update total
+    await this.defaultDb.query(
+      'UPDATE `order` SET total = ?, updatedAt = NOW() WHERE id = ?',
+      [total, orderId],
+    );
 
-    await this.ordersRepository.save(order);
-    const ResponseOrder: OrderResponse = {
-      id: order.orderId,
-      userId: order.user.userId,
+    // Ambil order final
+    const [order] = await this.defaultDb.query<any[]>(
+      'SELECT * FROM `order` WHERE id = ?',
+      [orderId],
+    );
+
+    return {
+      id: String(order.id),
+      userId: order.userId,
       total: order.total,
       status: order.status,
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
-      items: [
-        {
-          id: order.items[0].id,
-          productId: order.items[0].product.productId,
-          name: order.items[0].name,
-          quantity: order.items[0].quantity,
-          price: order.items[0].price,
-        },
-      ],
+      items: insertedItems,
     };
-    return ResponseOrder;
   }
 
-  async findAllOrders(): Promise<Order[]> {
-    return this.ordersRepository.find({
-      relations: ['user', 'items', 'items.product'],
-    });
+  async findAllOrders(): Promise<OrderEntity[]> {
+    const orders: any[] = await this.defaultDb.query('SELECT * FROM `order`');
+    const results: OrderEntity[] = [];
+
+    for (const order of orders) {
+      const items = await this.defaultDb.query<any[]>(
+        'SELECT * FROM order_item WHERE orderId = ?',
+        [order.id],
+      );
+
+      results.push({
+        id: String(order.id),
+        userId: order.userId,
+        total: order.total,
+        status: order.status,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        items,
+      });
+    }
+
+    return results;
   }
 
-  async findOrderById(id: number): Promise<Order> {
-    const order = await this.ordersRepository.findOne({
-      where: { id },
-      relations: ['user', 'items', 'items.product'],
-    });
+  async findOrderById(id: number): Promise<OrderEntity> {
+    const [order] = await this.defaultDb.query<any[]>(
+      'SELECT * FROM `order` WHERE id = ?',
+      [id],
+    );
     if (!order) {
       throw new NotFoundException('Order not found');
     }
-    return order;
+
+    const items = await this.defaultDb.query<any[]>(
+      'SELECT * FROM order_item WHERE orderId = ?',
+      [id],
+    );
+
+    return {
+      id: String(order.id),
+      userId: order.userId,
+      total: order.total,
+      status: order.status,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+      items,
+    };
   }
 
   async updateOrderStatus(
     id: number,
     updateOrderStatusDto: OrdersDto.UpdateOrderStatusDto,
-  ): Promise<Order> {
-    const order = await this.findOrderById(id);
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
-    order.status = updateOrderStatusDto.status;
-    return this.ordersRepository.save(order);
+  ): Promise<OrderEntity> {
+    await this.defaultDb.query(
+      'UPDATE `order` SET status = ?, updatedAt = NOW() WHERE id = ?',
+      [updateOrderStatusDto.status, id],
+    );
+    return this.findOrderById(id);
   }
 
   async removeOrder(id: number): Promise<void> {
@@ -132,6 +164,9 @@ export class OrdersService {
     if (!order) {
       throw new NotFoundException('Order not found');
     }
-    await this.ordersRepository.remove(order);
+    await this.defaultDb.query('DELETE FROM order_item WHERE orderId = ?', [
+      id,
+    ]);
+    await this.defaultDb.query('DELETE FROM `order` WHERE id = ?', [id]);
   }
 }

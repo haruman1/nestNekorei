@@ -259,7 +259,7 @@ export class ProductsController {
     @Query('minRating') minRating?: number,
   ) {
     return this.productsService.filterProducts(
-      categoryId,
+      categoryId !== undefined ? String(categoryId) : undefined,
       minPrice,
       maxPrice,
       minRating,
