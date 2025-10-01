@@ -54,7 +54,7 @@ let UsersController = class UsersController {
 exports.UsersController = UsersController;
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Create a new user' }),
-    (0, swagger_1.ApiBody)({ type: dto_1.UsersDto.CreateUserDto }),
+    (0, swagger_1.ApiBody)({ type: dto_1.CreateUserDto }),
     (0, swagger_1.ApiCreatedResponse)({
         description: 'The user has been successfully created.',
         schema: {
@@ -75,7 +75,7 @@ __decorate([
     openapi.ApiResponse({ status: common_1.HttpStatus.CREATED, type: require("./entity/user.entity").UserEntity }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dto_1.UsersDto.CreateUserDto]),
+    __metadata("design:paramtypes", [dto_1.CreateUserDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "register", null);
 __decorate([
@@ -155,7 +155,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Update user profile' }),
-    (0, swagger_1.ApiBody)({ type: dto_1.UsersDto.UpdateUserDto }),
+    (0, swagger_1.ApiBody)({ type: dto_1.UpdateUserDto }),
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: 'The user profile has been successfully updated.',
@@ -176,7 +176,7 @@ __decorate([
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, dto_1.UsersDto.UpdateUserDto]),
+    __metadata("design:paramtypes", [Object, dto_1.UpdateUserDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateProfile", null);
 __decorate([

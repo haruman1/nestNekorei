@@ -10,8 +10,8 @@ import { OrdersModule } from './orders/orders.module';
 
 import { ServeStaticModule } from '@nestjs/serve-static';
 
-import { PaymentController } from './payment/payment.controller';
-import { PaymentModule } from './payment/payment.module';
+// import { PaymentController } from './payment/payment.controller';
+// import { PaymentModule } from './payment/payment.module';
 
 import { InvoicesController } from './invoices/invoices.controller';
 import { InvoicesModule } from './invoices/invoices.module';
@@ -31,7 +31,7 @@ import { defaultDB, backupDB } from './database/mysql.provider';
     UsersModule,
     ProductsModule,
     OrdersModule,
-    PaymentModule,
+
     InvoicesModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'swagger-static'),
@@ -43,10 +43,6 @@ import { defaultDB, backupDB } from './database/mysql.provider';
     { provide: 'BACKUP_DB', useValue: backupDB },
   ],
   exports: ['DEFAULT_DB', 'BACKUP_DB'],
-  controllers: [PaymentController, InvoicesController, SwaggerController],
+  controllers: [InvoicesController, SwaggerController],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(SecurityMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}

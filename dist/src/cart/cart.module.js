@@ -12,12 +12,17 @@ const cart_service_1 = require("./cart.service");
 const cart_controller_1 = require("./cart.controller");
 const users_module_1 = require("../users/users.module");
 const products_module_1 = require("../products/products.module");
+const database_module_1 = require("../database/database.module");
 let CartModule = class CartModule {
 };
 exports.CartModule = CartModule;
 exports.CartModule = CartModule = __decorate([
     (0, common_1.Module)({
-        imports: [(0, common_1.forwardRef)(() => users_module_1.UsersModule), products_module_1.ProductsModule],
+        imports: [
+            (0, common_1.forwardRef)(() => users_module_1.UsersModule),
+            (0, common_1.forwardRef)(() => products_module_1.ProductsModule),
+            database_module_1.DatabaseModule,
+        ],
         providers: [cart_service_1.CartService],
         controllers: [cart_controller_1.CartController],
         exports: [cart_service_1.CartService],

@@ -9,20 +9,20 @@ exports.queryBackup = queryBackup;
 const serverless_mysql_1 = __importDefault(require("serverless-mysql"));
 exports.defaultDB = (0, serverless_mysql_1.default)({
     config: {
-        host: process.env.DATABASE_HOST,
-        user: process.env.DATABASE_USERNAME,
-        password: process.env.DATABASE_PASSWORD,
-        database: process.env.DATABASE_NAME,
-        port: Number(process.env.DATABASE_PORT) || 3306,
+        host: '8pwsg0.h.filess.io',
+        user: 'Utama_promisedat',
+        password: '0c5b6938573de6c660ff96edd1433f071704023b',
+        database: 'Utama_promisedat',
+        port: parseInt('61002'),
     },
 });
 exports.backupDB = (0, serverless_mysql_1.default)({
     config: {
-        host: process.env.BACKUP_DATABASE_HOST,
-        user: process.env.BACKUP_DATABASE_USERNAME,
-        password: process.env.BACKUP_DATABASE_PASSWORD,
-        database: process.env.BACKUP_DATABASE_NAME,
-        port: Number(process.env.BACKUP_DATABASE_PORT) || 3306,
+        host: '38bv0z.h.filess.io',
+        user: 'backup_lookfound',
+        password: 'b657728869218a17e63b2bbf8641cf6068fc4b13',
+        database: 'backup_lookfound',
+        port: parseInt('61002'),
     },
 });
 async function queryDefault(sql, values = []) {
@@ -31,7 +31,7 @@ async function queryDefault(sql, values = []) {
         return results;
     }
     finally {
-        await exports.defaultDB.end();
+        exports.defaultDB.quit();
     }
 }
 async function queryBackup(sql, values = []) {
@@ -40,7 +40,7 @@ async function queryBackup(sql, values = []) {
         return results;
     }
     finally {
-        await exports.backupDB.end();
+        exports.backupDB.quit();
     }
 }
 //# sourceMappingURL=mysql.provider.js.map

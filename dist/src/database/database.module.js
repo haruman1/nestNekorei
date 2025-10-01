@@ -6,21 +6,25 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UsersModule = void 0;
+exports.DatabaseModule = void 0;
 const common_1 = require("@nestjs/common");
-const users_service_1 = require("./users.service");
-const users_controller_1 = require("./users.controller");
-const auth_module_1 = require("../auth/auth.module");
-const database_module_1 = require("../database/database.module");
-let UsersModule = class UsersModule {
+const mysql_provider_1 = require("./mysql.provider");
+let DatabaseModule = class DatabaseModule {
 };
-exports.UsersModule = UsersModule;
-exports.UsersModule = UsersModule = __decorate([
+exports.DatabaseModule = DatabaseModule;
+exports.DatabaseModule = DatabaseModule = __decorate([
     (0, common_1.Module)({
-        imports: [(0, common_1.forwardRef)(() => auth_module_1.AuthModule), database_module_1.DatabaseModule],
-        providers: [users_service_1.UsersService],
-        controllers: [users_controller_1.UsersController],
-        exports: [users_service_1.UsersService],
+        providers: [
+            {
+                provide: 'DEFAULT_DB',
+                useValue: mysql_provider_1.defaultDB,
+            },
+            {
+                provide: 'BACKUP_DB',
+                useValue: mysql_provider_1.backupDB,
+            },
+        ],
+        exports: ['DEFAULT_DB', 'BACKUP_DB'],
     })
-], UsersModule);
-//# sourceMappingURL=users.module.js.map
+], DatabaseModule);
+//# sourceMappingURL=database.module.js.map

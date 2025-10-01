@@ -1,5 +1,5 @@
 import { UsersService } from './users.service';
-import { UsersDto } from './dto';
+import { CreateUserDto, UpdateUserDto } from './dto';
 import { Request } from 'express';
 import { AuthService } from '../auth/auth.service';
 import { JwtPayload } from '../auth/jwt/jwt-payload.interface';
@@ -7,7 +7,7 @@ export declare class UsersController {
     private readonly usersService;
     private readonly authService;
     constructor(usersService: UsersService, authService: AuthService);
-    register(createUserDto: UsersDto.CreateUserDto): Promise<import("./entity").UserEntity>;
+    register(createUserDto: CreateUserDto): Promise<import("./entity").UserEntity>;
     login(body: {
         email: string;
         password: string;
@@ -22,7 +22,7 @@ export declare class UsersController {
     }): Promise<import("../Entity/edit.entity").EditEntity>;
     updateProfile(req: Request & {
         user: JwtPayload;
-    }, updateUserDto: UsersDto.UpdateUserDto): Promise<import("../Entity/edit.entity").EditEntity>;
+    }, updateUserDto: UpdateUserDto): Promise<import("../Entity/edit.entity").EditEntity>;
     deleteProfile(req: Request & {
         user: JwtPayload;
     }): Promise<{

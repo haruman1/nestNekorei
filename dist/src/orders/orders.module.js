@@ -12,6 +12,7 @@ const orders_service_1 = require("./orders.service");
 const orders_controller_1 = require("./orders.controller");
 const users_module_1 = require("../users/users.module");
 const products_module_1 = require("../products/products.module");
+const database_module_1 = require("../database/database.module");
 let OrdersModule = class OrdersModule {
 };
 exports.OrdersModule = OrdersModule;
@@ -20,6 +21,7 @@ exports.OrdersModule = OrdersModule = __decorate([
         imports: [
             (0, common_1.forwardRef)(() => users_module_1.UsersModule),
             products_module_1.ProductsModule,
+            database_module_1.DatabaseModule,
         ],
         providers: [orders_service_1.OrdersService],
         controllers: [orders_controller_1.OrdersController],

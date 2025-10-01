@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 // import { UsersDto } from './dto';
-import { UsersDto } from './dto';
+import { CreateUserDto, UpdateUserDto } from './dto';
 
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { Request } from 'express';
@@ -38,7 +38,7 @@ export class UsersController {
     private readonly authService: AuthService,
   ) {}
   @ApiOperation({ summary: 'Create a new user' })
-  @ApiBody({ type: UsersDto.CreateUserDto })
+  @ApiBody({ type: CreateUserDto })
   @ApiCreatedResponse({
     description: 'The user has been successfully created.',
     schema: {
@@ -57,7 +57,7 @@ export class UsersController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   //masih salah validasi, harusnya email itu email. tapi huruf biasa tetap masuk
-  async register(@Body() createUserDto: UsersDto.CreateUserDto) {
+  async register(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.create(createUserDto);
   }
   @ApiOperation({ summary: 'User login' })
@@ -125,7 +125,7 @@ export class UsersController {
   }
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update user profile' })
-  @ApiBody({ type: UsersDto.UpdateUserDto })
+  @ApiBody({ type: UpdateUserDto })
   @ApiResponse({
     status: 200,
     description: 'The user profile has been successfully updated.',
@@ -144,7 +144,7 @@ export class UsersController {
   @Patch('profile')
   async updateProfile(
     @Req() req: Request & { user: JwtPayload },
-    @Body() updateUserDto: UsersDto.UpdateUserDto,
+    @Body() updateUserDto: UpdateUserDto,
   ) {
     return await this.usersService.update(req.user.userId, updateUserDto);
   }

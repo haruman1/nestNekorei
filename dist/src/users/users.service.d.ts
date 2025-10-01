@@ -1,15 +1,12 @@
-import { UsersDto } from './dto';
+import { CreateUserDto, UpdateUserDto } from './dto';
 import { UserEntity } from './entity';
-import { ServerlessMysql } from 'serverless-mysql';
 import { EditEntity } from 'src/Entity/edit.entity';
 export declare class UsersService {
-    private readonly defaultDb;
-    private readonly backupDb;
     private imagekit;
-    constructor(defaultDb: ServerlessMysql, backupDb: ServerlessMysql);
+    constructor();
     generateRandomCode(): string;
-    create(createUserDto: UsersDto.CreateUserDto): Promise<UserEntity>;
-    update(userId: string, updateUserDto: UsersDto.UpdateUserDto): Promise<EditEntity>;
+    create(createUserDto: CreateUserDto): Promise<UserEntity>;
+    update(userId: string, updateUserDto: UpdateUserDto): Promise<EditEntity>;
     remove(id_user: string): Promise<EditEntity>;
     ImageKitAuth(): Promise<{
         token: string;

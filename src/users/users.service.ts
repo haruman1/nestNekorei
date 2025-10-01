@@ -10,10 +10,14 @@ import * as bcrypt from 'bcryptjs';
 import { generateSecureSignature } from '@uploadcare/signed-uploads';
 import ImageKit from 'imagekit';
 // import { queryDefault, queryBackup } from '../database/mysql.provider';
-import { UsersDto } from './dto';
+import { CreateUserDto, UpdateUserDto } from './dto';
 import { UserEntity } from './entity';
-import { ServerlessMysql } from 'serverless-mysql';
-import { queryDefault } from 'src/database/mysql.provider';
+
+import {
+  queryDefault,
+  queryBackup,
+  backupDB,
+} from 'src/database/mysql.provider';
 import { EditEntity } from 'src/Entity/edit.entity';
 
 @Injectable()
@@ -29,10 +33,8 @@ export class UsersService {
    * @param UserEntity - Entity representing a user
    * @param UserHistoryEntity - Entity representing user history
    */
-  constructor(
-    @Inject('DEFAULT_DB') private readonly defaultDb: ServerlessMysql,
-    @Inject('BACKUP_DB') private readonly backupDb: ServerlessMysql,
-  ) {
+  constructor() {
+    // @Inject('BACKUP_DB') private readonly backupDb: ServerlessMysql, // @Inject('DEFAULT_DB') private readonly defaultDb: ServerlessMysql,
     this.imagekit = new ImageKit({
       publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
       privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
@@ -45,9 +47,9 @@ export class UsersService {
     return `NK${randomNumber}`;
   }
 
-  async create(createUserDto: UsersDto.CreateUserDto): Promise<UserEntity> {
+  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     try {
-      const result = (await this.defaultDb.query(
+      const result = (await queryDefault(
         'INSERT INTO user (userId, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
         [
           this.generateRandomCode(),
@@ -57,7 +59,7 @@ export class UsersService {
           createUserDto.role,
         ],
       )) as { insertId: string };
-      const insertHistory = await this.backupDb.query(
+      const insertHistory = await queryBackup(
         'INSERT INTO user_history (pesan, userId, createdAt) VALUES (?, ?, ?)',
         [
           `User created with ID: ${createUserDto.userId} and Name: ${createUserDto.name}`,
@@ -76,7 +78,7 @@ export class UsersService {
   }
   async update(
     userId: string,
-    updateUserDto: UsersDto.UpdateUserDto,
+    updateUserDto: UpdateUserDto,
   ): Promise<EditEntity> {
     const [user] = await queryDefault<any>(
       'SELECT * FROM user WHERE userId = ?',
@@ -124,7 +126,7 @@ export class UsersService {
     return { secureSignature, secureExpire };
   }
   async foto(userId: string): Promise<EditEntity> {
-    const [user] = await this.defaultDb.query<any>(
+    const [user] = await queryDefault(
       'SELECT profile FROM user WHERE userId = ?',
       [userId],
     );

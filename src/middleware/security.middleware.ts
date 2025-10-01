@@ -3,7 +3,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 
 @Injectable()
 export class SecurityMiddleware implements NestMiddleware {
-  private allowedOrigins: string[];
+  private readonly allowedOrigins: string[];
   private readonly logger = new Logger(SecurityMiddleware.name);
 
   constructor() {
@@ -15,7 +15,7 @@ export class SecurityMiddleware implements NestMiddleware {
   use(req: FastifyRequest, res: FastifyReply, next: () => void) {
     const origin = req.headers.origin;
 
-    // ✅ CORS dengan whitelist
+    // ✅ Handle CORS whitelist
     if (origin && this.allowedOrigins.includes(origin)) {
       res.header('Access-Control-Allow-Origin', origin);
       res.header('Vary', 'Origin');
@@ -34,7 +34,7 @@ export class SecurityMiddleware implements NestMiddleware {
       }
     }
 
-    // ✅ CSP header
+    // ✅ Content-Security-Policy
     const csp = [
       `default-src ${process.env.CSP_DEFAULT_SRC || "'self'"}`,
       `script-src ${process.env.CSP_SCRIPT_SRC || "'self'"}`,
@@ -45,7 +45,7 @@ export class SecurityMiddleware implements NestMiddleware {
 
     res.header('Content-Security-Policy', csp);
 
-    // ✅ OPTIONS preflight
+    // ✅ Preflight OPTIONS
     if (req.method === 'OPTIONS') {
       res.status(204).send();
       return;
