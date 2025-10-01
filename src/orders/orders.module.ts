@@ -5,7 +5,7 @@ import { UsersModule } from 'src/users/users.module';
 import { ProductsModule } from 'src/products/products.module';
 
 import { PaymentHistory } from 'src/payment/entity/paymentHistory.entity';
-import { DatabaseModule } from 'src/database/database.module';
+import { DatabaseModule } from '../database/database.module';
 
 @Module({
   imports: [

@@ -5,9 +5,10 @@ import {
 } from '@nestjs/platform-fastify';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from '../src/app.module';
-
+import fastifyCors from '@fastify/cors';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Logger } from '@nestjs/common';
 
 let server: any;
 
@@ -16,7 +17,7 @@ async function bootstrap(): Promise<NestFastifyApplication> {
     AppModule,
     new FastifyAdapter(),
   );
-
+  const logger = new Logger('Bootstrap');
   const config = new DocumentBuilder()
     .setTitle('Nekorei API')
     .setDescription('The cats API description')
@@ -42,7 +43,23 @@ async function bootstrap(): Promise<NestFastifyApplication> {
   app.getHttpAdapter().get('/swagger-json', async (req, reply) => {
     return reply.send(swaggerDocument);
   });
+  await app.register(fastifyCors, {
+    origin: (origin, cb) => {
+      const allowed = process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+        : [];
 
+      if (!origin || allowed.includes(origin)) {
+        cb(null, true);
+      } else {
+        logger.warn(`🚨 Blocked request from unauthorized origin: ${origin}`);
+        cb(new Error('Not allowed by CORS'), false);
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  });
   await app.init();
   await app.getHttpAdapter().getInstance().ready();
   return app;
