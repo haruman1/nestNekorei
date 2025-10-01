@@ -15,18 +15,10 @@ const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 class CreateUserDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { userId: { required: true, type: () => String }, email: { required: true, type: () => String, format: "email" }, name: { required: true, type: () => String }, password: { required: true, type: () => String, minLength: 6 }, role: { required: true, type: () => String } };
+        return { email: { required: true, type: () => String, format: "email" }, name: { required: true, type: () => String }, password: { required: true, type: () => String, minLength: 6 }, role: { required: true, type: () => String } };
     }
 }
 exports.CreateUserDto = CreateUserDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({
-        description: 'User ID',
-        example: 'A512',
-    }),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], CreateUserDto.prototype, "userId", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'User email address',

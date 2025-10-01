@@ -52,6 +52,7 @@ const bcrypt = __importStar(require("bcryptjs"));
 const signed_uploads_1 = require("@uploadcare/signed-uploads");
 const imagekit_1 = __importDefault(require("imagekit"));
 const mysql_provider_1 = require("../database/mysql.provider");
+const uuid_1 = require("uuid");
 let UsersService = class UsersService {
     constructor() {
         this.imagekit = new imagekit_1.default({
@@ -66,19 +67,19 @@ let UsersService = class UsersService {
     }
     async create(createUserDto) {
         try {
-            const result = (await (0, mysql_provider_1.queryDefault)('INSERT INTO user (userId, email, password, name, role) VALUES (?, ?, ?, ?, ?)', [
-                this.generateRandomCode(),
+            const userId = (0, uuid_1.v4)();
+            await (0, mysql_provider_1.queryDefault)('INSERT INTO user (userId, email, password, name, role) VALUES (?, ?, ?, ?, ?)', [
+                userId,
                 createUserDto.email,
                 createUserDto.password,
                 createUserDto.name,
                 createUserDto.role,
-            ]));
-            const insertHistory = await (0, mysql_provider_1.queryBackup)('INSERT INTO user_history (pesan, userId, createdAt) VALUES (?, ?, ?)', [
-                `User created with ID: ${createUserDto.userId} and Name: ${createUserDto.name}`,
-                createUserDto.userId,
+            ]);
+            await (0, mysql_provider_1.queryBackup)('INSERT INTO user_history (pesan, userId, createdAt) VALUES (?, ?, ?)', [
+                `User created with ID: ${userId} and Name: ${createUserDto.name}`,
+                userId,
                 new Date(),
             ]);
-            const userId = result.insertId;
             return await this.findOneByIdUser(userId);
         }
         catch (error) {

@@ -19,6 +19,7 @@ import {
   backupDB,
 } from 'src/database/mysql.provider';
 import { EditEntity } from 'src/Entity/edit.entity';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UsersService {
@@ -49,25 +50,30 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     try {
-      const result = (await queryDefault(
+      // generate UUID sekali, simpan
+      const userId = uuidv4();
+
+      await queryDefault(
         'INSERT INTO user (userId, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
         [
-          this.generateRandomCode(),
+          userId,
           createUserDto.email,
           createUserDto.password,
           createUserDto.name,
           createUserDto.role,
         ],
-      )) as { insertId: string };
-      const insertHistory = await queryBackup(
+      );
+
+      await queryBackup(
         'INSERT INTO user_history (pesan, userId, createdAt) VALUES (?, ?, ?)',
         [
-          `User created with ID: ${createUserDto.userId} and Name: ${createUserDto.name}`,
-          createUserDto.userId,
+          `User created with ID: ${userId} and Name: ${createUserDto.name}`,
+          userId,
           new Date(),
         ],
       );
-      const userId = result.insertId;
+
+      // langsung ambil user yang baru dibuat
       return await this.findOneByIdUser(userId);
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
@@ -76,6 +82,7 @@ export class UsersService {
       throw error;
     }
   }
+
   async update(
     userId: string,
     updateUserDto: UpdateUserDto,
