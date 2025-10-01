@@ -54,7 +54,6 @@ async function bootstrap() {
     swagger_1.SwaggerModule.setup('docs', app, document, {
         swaggerOptions: { url: '/swagger-static/swagger.json' },
     });
-    app.enableCors();
     const swaggerDocument = JSON.parse(fs.readFileSync(path.join(__dirname, '../src/swagger/swagger.json'), 'utf8'));
     app.getHttpAdapter().get('/swagger-json', async (req, reply) => {
         return reply.send(swaggerDocument);

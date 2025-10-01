@@ -31,8 +31,6 @@ async function bootstrap(): Promise<NestFastifyApplication> {
     swaggerOptions: { url: '/swagger-static/swagger.json' },
   });
 
-  app.enableCors();
-
   // Serve swagger.json secara manual
   const swaggerDocument = JSON.parse(
     fs.readFileSync(
