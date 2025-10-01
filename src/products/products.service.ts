@@ -256,6 +256,8 @@ export class ProductsService {
         );
       } else {
         // insert baru
+        const { v4: uuidv4 } = await import('uuid');
+
         const newImgId = uuidv4() || this.generateRandomCode('IMG');
         await this.defaultDb.query(
           'INSERT INTO product_image (ImageId, productId, imageUrl, createdAt) VALUES (?, ?, ?, NOW())',

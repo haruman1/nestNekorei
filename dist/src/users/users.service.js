@@ -52,7 +52,6 @@ const bcrypt = __importStar(require("bcryptjs"));
 const signed_uploads_1 = require("@uploadcare/signed-uploads");
 const imagekit_1 = __importDefault(require("imagekit"));
 const mysql_provider_1 = require("../database/mysql.provider");
-const uuid_1 = require("uuid");
 let UsersService = class UsersService {
     constructor() {
         this.imagekit = new imagekit_1.default({
@@ -67,7 +66,8 @@ let UsersService = class UsersService {
     }
     async create(createUserDto) {
         try {
-            const userId = (0, uuid_1.v4)();
+            const { v4: uuidv4 } = await Promise.resolve().then(() => __importStar(require('uuid')));
+            const userId = uuidv4();
             await (0, mysql_provider_1.queryDefault)('INSERT INTO user (userId, email, password, name, role) VALUES (?, ?, ?, ?, ?)', [
                 userId,
                 createUserDto.email,

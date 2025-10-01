@@ -48,7 +48,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductsService = void 0;
 const common_1 = require("@nestjs/common");
 const CryptoJS = __importStar(require("crypto-js"));
-const uuid_1 = require("uuid");
 let ProductsService = class ProductsService {
     constructor(defaultDb, backupDb) {
         this.defaultDb = defaultDb;
@@ -195,7 +194,8 @@ let ProductsService = class ProductsService {
                 await this.defaultDb.query('UPDATE product_image SET imageUrl = ?, updatedAt = NOW() WHERE productId = ?', [updateProductDto.image, id]);
             }
             else {
-                const newImgId = (0, uuid_1.v4)() || this.generateRandomCode('IMG');
+                const { v4: uuidv4 } = await Promise.resolve().then(() => __importStar(require('uuid')));
+                const newImgId = uuidv4() || this.generateRandomCode('IMG');
                 await this.defaultDb.query('INSERT INTO product_image (ImageId, productId, imageUrl, createdAt) VALUES (?, ?, ?, NOW())', [newImgId, id, updateProductDto.image]);
             }
         }

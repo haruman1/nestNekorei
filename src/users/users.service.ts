@@ -51,6 +51,7 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     try {
       // generate UUID sekali, simpan
+      const { v4: uuidv4 } = await import('uuid');
       const userId = uuidv4();
 
       await queryDefault(
