@@ -19,7 +19,6 @@ import {
   backupDB,
 } from 'src/database/mysql.provider';
 import { EditEntity } from 'src/Entity/edit.entity';
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UsersService {
@@ -43,16 +42,15 @@ export class UsersService {
     });
   }
 
-  generateRandomCode(): string {
-    const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
-    return `NK${randomNumber}`;
+  async generateUUID() {
+    const { v4: uuidv4 } = await import('uuid');
+    return uuidv4();
   }
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     try {
       // generate UUID sekali, simpan
-      const { v4: uuidv4 } = await import('uuid');
-      const userId = uuidv4();
+      const userId = await this.generateUUID();
 
       await queryDefault(
         'INSERT INTO user (userId, email, password, name, role) VALUES (?, ?, ?, ?, ?)',

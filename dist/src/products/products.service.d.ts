@@ -7,6 +7,7 @@ export declare class ProductsService {
     private readonly backupDb;
     constructor(defaultDb: ServerlessMysql, backupDb: ServerlessMysql);
     private generateRandomCode;
+    generateUUID(): Promise<string>;
     createProduct(createProductDto: ProductsDto.CreateProductDto, CategoryId: string, userId: string): Promise<Product>;
     findAllProducts(): Promise<ProductResponse>;
     findProductByProductId(id: string): Promise<Product>;

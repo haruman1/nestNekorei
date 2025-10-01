@@ -47,7 +47,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
-const CryptoJS = __importStar(require("crypto-js"));
 const bcrypt = __importStar(require("bcryptjs"));
 const signed_uploads_1 = require("@uploadcare/signed-uploads");
 const imagekit_1 = __importDefault(require("imagekit"));
@@ -60,14 +59,13 @@ let UsersService = class UsersService {
             urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
         });
     }
-    generateRandomCode() {
-        const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
-        return `NK${randomNumber}`;
+    async generateUUID() {
+        const { v4: uuidv4 } = await Promise.resolve().then(() => __importStar(require('uuid')));
+        return uuidv4();
     }
     async create(createUserDto) {
         try {
-            const { v4: uuidv4 } = await Promise.resolve().then(() => __importStar(require('uuid')));
-            const userId = uuidv4();
+            const userId = await this.generateUUID();
             await (0, mysql_provider_1.queryDefault)('INSERT INTO user (userId, email, password, name, role) VALUES (?, ?, ?, ?, ?)', [
                 userId,
                 createUserDto.email,

@@ -14,7 +14,6 @@ import {
   CategoriesData,
   CategoriesResponse,
 } from './entity';
-import { v4 as uuidv4 } from 'uuid';
 
 import { EditEntity } from 'src/Entity/edit.entity';
 @Injectable()
@@ -28,7 +27,10 @@ export class ProductsService {
     const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
     return `${prefix}-${randomNumber}`;
   }
-
+  async generateUUID() {
+    const { v4: uuidv4 } = await import('uuid');
+    return uuidv4();
+  }
   // -----------------------------
   // CREATE PRODUCT
   // -----------------------------
@@ -76,7 +78,7 @@ export class ProductsService {
     );
 
     // 4) insert product image
-    const imgId = imageId || this.generateRandomCode('IMG');
+    const imgId = imageId || this.generateUUID();
     await this.defaultDb.query(
       `INSERT INTO product_image (ImageId, productId, imageUrl, createdAt)
        VALUES (?, ?, ?, NOW())`,

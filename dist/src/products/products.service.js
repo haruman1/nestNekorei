@@ -57,6 +57,10 @@ let ProductsService = class ProductsService {
         const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
         return `${prefix}-${randomNumber}`;
     }
+    async generateUUID() {
+        const { v4: uuidv4 } = await Promise.resolve().then(() => __importStar(require('uuid')));
+        return uuidv4();
+    }
     async createProduct(createProductDto, CategoryId, userId) {
         const { productId, name, description, price, sku, quantity, image, imageId, } = createProductDto;
         const [category] = await this.defaultDb.query('SELECT * FROM category WHERE categoryId = ? LIMIT 1', [CategoryId]);
@@ -70,7 +74,7 @@ let ProductsService = class ProductsService {
         await this.defaultDb.query(`INSERT INTO product
        (productId, name, description, price, sku, quantity, categoryId, createdAt, updatedAt)
        VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`, [productId, name, description, price, sku, quantity, CategoryId]);
-        const imgId = imageId || this.generateRandomCode('IMG');
+        const imgId = imageId || this.generateUUID();
         await this.defaultDb.query(`INSERT INTO product_image (ImageId, productId, imageUrl, createdAt)
        VALUES (?, ?, ?, NOW())`, [imgId, productId, image]);
         await this.backupDb.query(`INSERT INTO product_history (productId, pesan, userId, createdAt)
