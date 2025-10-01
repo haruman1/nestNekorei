@@ -16,7 +16,7 @@ async function bootstrap() {
   );
 
   const logger = new Logger('Bootstrap');
-  dotenv.config();
+
   // ✅ Global validation
 
   // ✅ Helmet + CSP dari ENV

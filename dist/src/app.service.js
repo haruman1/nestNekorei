@@ -8,13 +8,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppService = void 0;
 const common_1 = require("@nestjs/common");
+const mysql_provider_1 = require("./database/mysql.provider");
 let AppService = class AppService {
-    getHello() {
-        return 'Hello World!';
+    async onModuleDestroy() {
+        await mysql_provider_1.defaultDB.end();
+        await mysql_provider_1.backupDB.end();
     }
 };
 exports.AppService = AppService;
 exports.AppService = AppService = __decorate([
+    (0, common_1.Injectable)(),
     (0, common_1.Injectable)()
 ], AppService);
 //# sourceMappingURL=app.service.js.map

@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { backupDB, defaultDB } from './database/mysql.provider';
 
 @Injectable()
-export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+@Injectable()
+export class AppService implements OnModuleDestroy {
+  async onModuleDestroy() {
+    await defaultDB.end();
+    await backupDB.end();
   }
 }

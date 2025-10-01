@@ -1,28 +1,36 @@
 // src/database/mysql.provider.ts
 import serverlessMysql from 'serverless-mysql';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
+// flag untuk cek environment
+const isVercel =
+  process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
 
 // koneksi ke database utama
 export const defaultDB = serverlessMysql({
   config: {
-    host: '8pwsg0.h.filess.io',
-    user: 'Utama_promisedat',
-    password: '0c5b6938573de6c660ff96edd1433f071704023b',
-    database: 'Utama_promisedat',
-    port: parseInt('61002'),
+    host: process.env.DATABASE_HOST,
+    user: process.env.DATABASE_USERNAME,
+    password: process.env.DATABASE_PASSWORD,
+    database: process.env.DATABASE_NAME,
+    port: parseInt(process.env.DATABASE_PORT),
+    connectionLimit: isVercel ? 1 : 5, // pool kecil kalau bukan vercel
   },
 });
 
 // koneksi ke database backup
 export const backupDB = serverlessMysql({
   config: {
-    host: '38bv0z.h.filess.io',
-    user: 'backup_lookfound',
-    password: 'b657728869218a17e63b2bbf8641cf6068fc4b13',
-    database: 'backup_lookfound',
-    port: parseInt('61002'),
+    host: process.env.BACKUP_DATABASE_HOST,
+    user: process.env.BACKUP_DATABASE_USERNAME,
+    password: process.env.BACKUP_DATABASE_PASSWORD,
+    database: process.env.BACKUP_DATABASE_NAME,
+    port: parseInt(process.env.BACKUP_DATABASE_PORT),
+    connectionLimit: isVercel ? 1 : 5,
   },
 });
-// export database nya
 
 // helper untuk query db utama
 export async function queryDefault<T = any>(sql: string, values: any[] = []) {
@@ -30,7 +38,9 @@ export async function queryDefault<T = any>(sql: string, values: any[] = []) {
     const results = await defaultDB.query<T>(sql, values);
     return results;
   } finally {
-    defaultDB.quit();
+    if (isVercel) {
+      await defaultDB.end(); // close tiap query kalau di Vercel
+    }
   }
 }
 
@@ -40,6 +50,8 @@ export async function queryBackup<T = any>(sql: string, values: any[] = []) {
     const results = await backupDB.query<T>(sql, values);
     return results;
   } finally {
-    backupDB.quit();
+    if (isVercel) {
+      await backupDB.end(); // close tiap query kalau di Vercel
+    }
   }
 }
