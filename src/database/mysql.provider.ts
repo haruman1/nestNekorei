@@ -1,8 +1,5 @@
 // src/database/mysql.provider.ts
 import serverlessMysql from 'serverless-mysql';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
 
 // flag untuk cek environment
 const isVercel =
