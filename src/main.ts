@@ -17,22 +17,25 @@ async function bootstrap() {
 
   const logger = new Logger('Bootstrap');
 
-  // ✅ Global validation
-
-  // ✅ Helmet + CSP dari ENV
-  // await app.register(fastifyHelmet, {
-  //   contentSecurityPolicy: {
-  //     directives: {
-  //       defaultSrc: (process.env.CSP_DEFAULT_SRC || 'self').split(' '),
-  //       scriptSrc: (process.env.CSP_SCRIPT_SRC || 'self').split(' '),
-  //       styleSrc: (process.env.CSP_STYLE_SRC || 'self').split(' '),
-  //       imgSrc: (process.env.CSP_IMG_SRC || '*').split(' '),
-  //       fontSrc: (process.env.CSP_FONT_SRC || 'self').split(' '),
-  //     },
-  //   },
-  // });
-
   // ✅ CORS whitelist pakai ENV
+  // Ambil ALLOWED_ORIGINS dari .env (misal: http://localhost:3000,https://demo.haruman.me)
+  const allowed = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+    : ['*']; // default allow all
+
+  // Aktifkan CORS di NestJS (tanpa @fastify/cors register manual)
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (!origin || allowed.includes(origin) || allowed.includes('*')) {
+        callback(null, true); // allow
+      } else {
+        callback(new Error(`❌ Origin ${origin} not allowed by CORS`), false);
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  });
 
   // ✅ Swagger
   const config = new DocumentBuilder()

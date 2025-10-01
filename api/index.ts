@@ -43,17 +43,18 @@ async function bootstrap(): Promise<NestFastifyApplication> {
   app.getHttpAdapter().get('/swagger-json', async (req, reply) => {
     return reply.send(swaggerDocument);
   });
-  await app.register(fastifyCors, {
-    origin: (origin, cb) => {
-      const allowed = process.env.ALLOWED_ORIGINS
-        ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
-        : [];
+  // Ambil ALLOWED_ORIGINS dari .env (misal: http://localhost:3000,https://demo.haruman.me)
+  const allowed = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+    : ['*']; // default allow all
 
-      if (!origin || allowed.includes(origin)) {
-        cb(null, true); // allow
+  // Aktifkan CORS di NestJS (tanpa @fastify/cors register manual)
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (!origin || allowed.includes(origin) || allowed.includes('*')) {
+        callback(null, true); // allow
       } else {
-        logger.warn(`🚨 Blocked request from unauthorized origin: ${origin}`);
-        cb(null, false); // ⬅️ jangan lempar Error, cukup false
+        callback(new Error(`❌ Origin ${origin} not allowed by CORS`), false);
       }
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

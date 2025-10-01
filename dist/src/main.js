@@ -1,28 +1,23 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@nestjs/core");
 const platform_fastify_1 = require("@nestjs/platform-fastify");
 const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
 const common_1 = require("@nestjs/common");
-const cors_1 = __importDefault(require("@fastify/cors"));
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule, new platform_fastify_1.FastifyAdapter());
     const logger = new common_1.Logger('Bootstrap');
-    await app.register(cors_1.default, {
-        origin: (origin, cb) => {
-            const allowed = process.env.ALLOWED_ORIGINS
-                ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
-                : [];
-            if (!origin || allowed.includes(origin)) {
-                cb(null, true);
+    const allowed = process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+        : ['*'];
+    app.enableCors({
+        origin: (origin, callback) => {
+            if (!origin || allowed.includes(origin) || allowed.includes('*')) {
+                callback(null, true);
             }
             else {
-                logger.warn(`🚨 Blocked request from unauthorized origin: ${origin}`);
-                cb(new Error('Not allowed by CORS'), false);
+                callback(new Error(`❌ Origin ${origin} not allowed by CORS`), false);
             }
         },
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
