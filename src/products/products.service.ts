@@ -27,7 +27,7 @@ export class ProductsService {
     const randomNumber = CryptoJS.lib.WordArray.random(4).toString();
     return `${prefix}-${randomNumber}`;
   }
-  async generateUUID() {
+  private async generateUUID(): Promise<string> {
     const { v4: uuidv4 } = await import('uuid');
     return uuidv4();
   }

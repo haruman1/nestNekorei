@@ -42,7 +42,7 @@ export class UsersService {
     });
   }
 
-  async generateUUID() {
+  private async generateUUID(): Promise<string> {
     const { v4: uuidv4 } = await import('uuid');
     return uuidv4();
   }
@@ -51,7 +51,6 @@ export class UsersService {
     try {
       // generate UUID sekali, simpan
       const userId = await this.generateUUID();
-
       await queryDefault(
         'INSERT INTO user (userId, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
         [
