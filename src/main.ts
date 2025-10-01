@@ -8,7 +8,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyCors from '@fastify/cors';
-
+import * as dotenv from 'dotenv';
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
@@ -33,23 +33,6 @@ async function bootstrap() {
   // });
 
   // ✅ CORS whitelist pakai ENV
-  await app.register(fastifyCors, {
-    origin: (origin, cb) => {
-      const allowed = process.env.ALLOWED_ORIGINS
-        ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
-        : [];
-
-      if (!origin || allowed.includes(origin)) {
-        cb(null, true);
-      } else {
-        logger.warn(`🚨 Blocked request from unauthorized origin: ${origin}`);
-        cb(new Error('Not allowed by CORS'), false);
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  });
 
   // ✅ Swagger
   const config = new DocumentBuilder()
