@@ -50,16 +50,17 @@ async function bootstrap(): Promise<NestFastifyApplication> {
         : [];
 
       if (!origin || allowed.includes(origin)) {
-        cb(null, true);
+        cb(null, true); // allow
       } else {
         logger.warn(`🚨 Blocked request from unauthorized origin: ${origin}`);
-        cb(new Error('Not allowed by CORS'), false);
+        cb(null, false); // ⬅️ jangan lempar Error, cukup false
       }
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   });
+
   await app.init();
   await app.getHttpAdapter().getInstance().ready();
   return app;
