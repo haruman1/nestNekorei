@@ -6,9 +6,7 @@ import {
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
-import fastifyHelmet from '@fastify/helmet';
-import fastifyCors from '@fastify/cors';
-import * as dotenv from 'dotenv';
+
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
@@ -17,8 +15,6 @@ async function bootstrap() {
 
   const logger = new Logger('Bootstrap');
 
-  // ✅ CORS whitelist pakai ENV
-  // Ambil ALLOWED_ORIGINS dari .env (misal: http://localhost:3000,https://demo.haruman.me)
   const allowed = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
     : ['*']; // default allow all

@@ -5,7 +5,7 @@ import {
 } from '@nestjs/platform-fastify';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from '../src/app.module';
-import fastifyCors from '@fastify/cors';
+
 import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '@nestjs/common';
