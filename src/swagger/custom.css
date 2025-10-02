@@ -1,0 +1,37 @@
+body {
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
+}
+
+/* Animasi slide masuk dari kiri */
+#swagger-ui {
+  transform: translateX(-100%);
+  opacity: 0;
+  transition:
+    transform 0.6s ease,
+    opacity 0.6s ease;
+}
+#swagger-ui.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* Tombol toggle di kanan bawah */
+#theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 14px;
+  background: #222;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  z-index: 9999;
+}
+#theme-toggle.light {
+  background: #f1f1f1;
+  color: #000;
+}

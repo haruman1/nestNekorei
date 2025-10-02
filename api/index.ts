@@ -3,13 +3,18 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import {
+  SwaggerModule,
+  DocumentBuilder,
+  SwaggerDocumentOptions,
+} from '@nestjs/swagger';
 import { AppModule } from '../src/app.module';
 
 import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '@nestjs/common';
-
+import { resolve } from 'path';
+import { writeFileSync } from 'fs';
 let server: any;
 
 async function bootstrap(): Promise<NestFastifyApplication> {
@@ -22,31 +27,46 @@ async function bootstrap(): Promise<NestFastifyApplication> {
     .setTitle('Nekorei API')
     .setDescription('The cats API description')
     .setVersion('1.0')
+    .addServer(
+      process.env.CHECK_DASAR === 'production'
+        ? 'https://demo-1.haruman.me'
+        : 'http://localhost:3001',
+    )
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const options: SwaggerDocumentOptions = {
+    operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
+  };
+  const document = SwaggerModule.createDocument(app, config, options);
+  if (process.env.CHECK_DASAR === 'development') {
+    const pathToSwaggerStaticFolder = resolve(process.cwd(), 'swagger');
 
-  // Swagger UI pointing ke swagger.json statis
-  SwaggerModule.setup('docs', app, document, {
-    swaggerOptions: { url: '/swagger-static/swagger.json' },
-  });
+    // write swagger json file
+    const pathToSwaggerJson = resolve(
+      pathToSwaggerStaticFolder,
+      'swagger.json',
+    );
+    const swaggerJson = JSON.stringify(document, null, 2);
+    writeFileSync(pathToSwaggerJson, swaggerJson);
+    console.log(`Swagger JSON file written to: '/swagger/swagger.json'`);
+  } else {
+    SwaggerModule.setup('docs', app, document, {
+      jsonDocumentUrl: 'swagger/json',
+      customfavIcon: 'https://placecats.com/300/200',
+      customCssUrl: 'https://unpkg.com/swagger-ui@5.29.1/dist/swagger-ui.css',
+      customCss: '../src/swagger/custom.css',
+      customJs: 'https://unpkg.com/swagger-ui@5.29.1/dist/swagger-ui-bundle.js',
+      swaggerOptions: {
+        persistAuthorization: true,
+        docExpansion: 'none',
+      },
+    });
+  }
 
-  // Serve swagger.json secara manual
-  const swaggerDocument = JSON.parse(
-    fs.readFileSync(
-      path.join(__dirname, '../src/swagger/swagger.json'),
-      'utf8',
-    ),
-  );
-  app.getHttpAdapter().get('/swagger-json', async (req, reply) => {
-    return reply.send(swaggerDocument);
-  });
-  // Ambil ALLOWED_ORIGINS dari .env (misal: http://localhost:3000,https://demo.haruman.me)
   const allowed = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
-    : ['*']; // default allow all
+    : ['*'];
 
-  // Aktifkan CORS di NestJS (tanpa @fastify/cors register manual)
   app.enableCors({
     origin: (origin, callback) => {
       if (!origin || allowed.includes(origin) || allowed.includes('*')) {
