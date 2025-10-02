@@ -24,44 +24,13 @@ async function bootstrap(): Promise<NestFastifyApplication> {
   );
   const logger = new Logger('Bootstrap');
   const config = new DocumentBuilder()
-    .setTitle('Nekorei API')
-    .setDescription('The cats API description')
+    .setTitle('API Docs')
+    .setDescription('API description')
     .setVersion('1.0')
-    .addServer(
-      process.env.CHECK_DASAR === 'production'
-        ? 'https://demo-1.haruman.me'
-        : 'http://localhost:3001',
-    )
     .build();
 
-  const options: SwaggerDocumentOptions = {
-    operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
-  };
-  const document = SwaggerModule.createDocument(app, config, options);
-  if (process.env.CHECK_DASAR === 'development') {
-    const pathToSwaggerStaticFolder = resolve(process.cwd(), 'swagger');
-
-    // write swagger json file
-    const pathToSwaggerJson = resolve(
-      pathToSwaggerStaticFolder,
-      'swagger.json',
-    );
-    const swaggerJson = JSON.stringify(document, null, 2);
-    writeFileSync(pathToSwaggerJson, swaggerJson);
-    console.log(`Swagger JSON file written to: '/swagger/swagger.json'`);
-  } else {
-    SwaggerModule.setup('docs', app, document, {
-      jsonDocumentUrl: 'swagger/json',
-      customfavIcon: 'https://placecats.com/300/200',
-      customCssUrl: 'https://unpkg.com/swagger-ui@5.29.1/dist/swagger-ui.css',
-      customCss: '../src/swagger/custom.css',
-      customJs: 'https://unpkg.com/swagger-ui@5.29.1/dist/swagger-ui-bundle.js',
-      swaggerOptions: {
-        persistAuthorization: true,
-        docExpansion: 'none',
-      },
-    });
-  }
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
 
   const allowed = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())

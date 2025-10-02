@@ -4,7 +4,7 @@ import { EditEntity } from 'src/Entity/edit.entity';
 export declare class UsersService {
     private imagekit;
     constructor();
-    generateUUID(): Promise<string>;
+    private generateUUID;
     create(createUserDto: CreateUserDto): Promise<UserEntity>;
     update(userId: string, updateUserDto: UpdateUserDto): Promise<EditEntity>;
     remove(id_user: string): Promise<EditEntity>;
