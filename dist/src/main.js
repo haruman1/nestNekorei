@@ -28,6 +28,7 @@ async function bootstrap() {
         .setTitle('Nekorei API')
         .setDescription('The cats API description')
         .setVersion('1.0')
+        .addBearerAuth()
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup('docs', app, document);

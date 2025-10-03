@@ -13,9 +13,10 @@ exports.CreateUserDto = void 0;
 const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
+const class_transformer_1 = require("class-transformer");
 class CreateUserDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { email: { required: true, type: () => String, format: "email" }, name: { required: true, type: () => String }, password: { required: true, type: () => String, minLength: 6 }, role: { required: true, type: () => String } };
+        return { email: { required: true, type: () => String, format: "email" }, name: { required: true, type: () => String }, password: { required: true, type: () => String, minLength: 6, pattern: "/^(?=.*[A-Za-z])(?=.*\\d).{6,}$/" }, role: { required: true, type: () => String } };
     }
 }
 exports.CreateUserDto = CreateUserDto;
@@ -27,6 +28,7 @@ __decorate([
     }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsEmail)(),
+    (0, class_transformer_1.Transform)(({ value }) => value.toLowerCase()),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "email", void 0);
 __decorate([
@@ -42,10 +44,13 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Password for the user account',
-        example: 'securepassword123',
+        example: 'SecurepassWord123!#',
     }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.MinLength)(6),
+    (0, class_validator_1.Matches)(/^(?=.*[A-Za-z])(?=.*\d).{6,}$/, {
+        message: 'Password must be at least 6 characters long and contain both letters and numbers',
+    }),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "password", void 0);
 __decorate([
@@ -54,6 +59,7 @@ __decorate([
         example: 'customer or admin',
     }),
     (0, class_validator_1.IsNotEmpty)(),
+    (0, class_transformer_1.Transform)(({ value }) => value.toLowerCase()),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "role", void 0);
 //# sourceMappingURL=create-user.dto.js.map

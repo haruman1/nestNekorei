@@ -103,6 +103,7 @@ export class UsersController {
     },
   })
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Get('profile')
   async getProfile(@Req() req: Request & { user: JwtPayload }) {
     return this.usersService.findOneByIdUser(req.user.userId);

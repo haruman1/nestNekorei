@@ -60,6 +60,9 @@ let AuthService = class AuthService {
         if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
+        if (!user.password) {
+            throw new common_1.BadRequestException('User has no password set');
+        }
         const isPasswordValid = await bcrypt.compare(pass, user.password);
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Invalid credentials');

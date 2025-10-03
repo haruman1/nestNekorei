@@ -7,6 +7,8 @@ exports.backupDB = exports.defaultDB = void 0;
 exports.queryDefault = queryDefault;
 exports.queryBackup = queryBackup;
 const serverless_mysql_1 = __importDefault(require("serverless-mysql"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
 exports.defaultDB = (0, serverless_mysql_1.default)({
     config: {
@@ -30,6 +32,7 @@ exports.backupDB = (0, serverless_mysql_1.default)({
 });
 async function queryDefault(sql, values = []) {
     try {
+        await exports.defaultDB.connect();
         const results = await exports.defaultDB.query(sql, values);
         return results;
     }
@@ -41,6 +44,7 @@ async function queryDefault(sql, values = []) {
 }
 async function queryBackup(sql, values = []) {
     try {
+        await exports.backupDB.connect();
         const results = await exports.backupDB.query(sql, values);
         return results;
     }

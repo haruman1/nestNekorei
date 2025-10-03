@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EditEntity = void 0;
+exports.ReponseBiasa = exports.EditEntity = void 0;
 const openapi = require("@nestjs/swagger");
 const swagger_1 = require("@nestjs/swagger");
 class EditEntity {
@@ -26,4 +26,22 @@ __decorate([
     (0, swagger_1.ApiProperty)({ example: 'This is a message' }),
     __metadata("design:type", String)
 ], EditEntity.prototype, "message", void 0);
+class ReponseBiasa {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { status: { required: true, type: () => Number }, message: { required: true, type: () => String }, data: { required: true, type: () => Object } };
+    }
+}
+exports.ReponseBiasa = ReponseBiasa;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 200 }),
+    __metadata("design:type", Number)
+], ReponseBiasa.prototype, "status", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'This is a message' }),
+    __metadata("design:type", String)
+], ReponseBiasa.prototype, "message", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: { key: 'value' } }),
+    __metadata("design:type", Object)
+], ReponseBiasa.prototype, "data", void 0);
 //# sourceMappingURL=edit.entity.js.map

@@ -1,6 +1,8 @@
 // src/database/mysql.provider.ts
 import serverlessMysql from 'serverless-mysql';
+import dotenv from 'dotenv';
 
+dotenv.config();
 // flag untuk cek environment
 const isVercel =
   process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
@@ -32,6 +34,7 @@ export const backupDB = serverlessMysql({
 // helper untuk query db utama
 export async function queryDefault<T = any>(sql: string, values: any[] = []) {
   try {
+    await defaultDB.connect();
     const results = await defaultDB.query<T>(sql, values);
     return results;
   } finally {
@@ -44,6 +47,7 @@ export async function queryDefault<T = any>(sql: string, values: any[] = []) {
 // helper untuk query db backup
 export async function queryBackup<T = any>(sql: string, values: any[] = []) {
   try {
+    await backupDB.connect();
     const results = await backupDB.query<T>(sql, values);
     return results;
   } finally {

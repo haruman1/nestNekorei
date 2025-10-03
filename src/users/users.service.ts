@@ -48,15 +48,33 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+    const { email, name, password, role } = createUserDto;
+    if (!email || !password || !role || !name) {
+      throw new BadRequestException(
+        'Maaf, data ada yang kosong. Silahkan lengkapi kembali.',
+      );
+    }
+    const existedEmail = await queryDefault<any>(
+      'SELECT * FROM user WHERE email = ? LIMIT 1',
+      [email],
+    );
+    if (existedEmail.length > 0) {
+      throw new ConflictException('Email already exists');
+    }
+    const saltRounds = 16;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
     try {
       // generate UUID sekali, simpan
       const userId = await this.generateUUID();
+      // Validasi: pastikan semua field diisi
+
+      // simpan ke dua database
       await queryDefault(
         'INSERT INTO user (userId, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
         [
           userId,
           createUserDto.email,
-          createUserDto.password,
+          hashedPassword,
           createUserDto.name,
           createUserDto.role,
         ],
@@ -140,28 +158,15 @@ export class UsersService {
     }
     return { status: 200, message: user.profile };
   }
-  async findOneByEmail(email: string): Promise<any> {
-    if (!email) {
-      throw new BadRequestException('Email must be provided');
-    }
-
-    const [user] = await queryDefault<any>(
-      'SELECT * FROM user WHERE email = ?',
+  async findOneByEmail(email: string) {
+    const results = await queryDefault<any>(
+      'SELECT * FROM user WHERE email = ? LIMIT 1',
       [email],
     );
-    if (!user) {
+    if (!results || results.length === 0) {
       throw new NotFoundException('User not found');
     }
-    return {
-      status: 200,
-      data: 'User found',
-      dataUser: {
-        id: user.userId,
-        email: user.email,
-        name: user.name,
-        password: user.password,
-      },
-    };
+    return results[0];
   }
 
   async findOneById(id: number) {
@@ -174,7 +179,7 @@ export class UsersService {
 
   async findOneByIdUser(id: string) {
     const [user] = await queryDefault<any>(
-      'SELECT * FROM user WHERE userId = ?',
+      'SELECT * FROM user WHERE userId = ? ',
       [id],
     );
     if (!user) throw new NotFoundException('User not found');

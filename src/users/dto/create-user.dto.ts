@@ -1,8 +1,7 @@
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, Matches, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 export class CreateUserDto {
- 
-
   @ApiProperty({
     description: 'User email address',
     example: 'john.doe@example.com',
@@ -10,6 +9,7 @@ export class CreateUserDto {
   })
   @IsNotEmpty()
   @IsEmail()
+  @Transform(({ value }) => value.toLowerCase())
   email: string;
 
   @ApiProperty({
@@ -23,10 +23,14 @@ export class CreateUserDto {
 
   @ApiProperty({
     description: 'Password for the user account',
-    example: 'securepassword123',
+    example: 'SecurepassWord123!#',
   })
   @IsNotEmpty()
   @MinLength(6)
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d).{6,}$/, {
+    message:
+      'Password must be at least 6 characters long and contain both letters and numbers',
+  })
   password: string;
 
   @ApiProperty({
@@ -34,5 +38,6 @@ export class CreateUserDto {
     example: 'customer or admin',
   })
   @IsNotEmpty()
+  @Transform(({ value }) => value.toLowerCase())
   role: string; // 'admin' or 'customer'
 }

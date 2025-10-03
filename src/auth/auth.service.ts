@@ -18,20 +18,21 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
-    // Ambil user dari DB
     const user = await this.usersService.findOneByEmail(email);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Cek password
+    if (!user.password) {
+      throw new BadRequestException('User has no password set');
+    }
+
     const isPasswordValid = await bcrypt.compare(pass, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Return user tanpa password
     const { password, ...result } = user;
     return result;
   }

@@ -64,12 +64,22 @@ let UsersService = class UsersService {
         return uuidv4();
     }
     async create(createUserDto) {
+        const { email, name, password, role } = createUserDto;
+        if (!email || !password || !role || !name) {
+            throw new common_1.BadRequestException('Maaf, data ada yang kosong. Silahkan lengkapi kembali.');
+        }
+        const existedEmail = await (0, mysql_provider_1.queryDefault)('SELECT * FROM user WHERE email = ? LIMIT 1', [email]);
+        if (existedEmail.length > 0) {
+            throw new common_1.ConflictException('Email already exists');
+        }
+        const saltRounds = 16;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
         try {
             const userId = await this.generateUUID();
             await (0, mysql_provider_1.queryDefault)('INSERT INTO user (userId, email, password, name, role) VALUES (?, ?, ?, ?, ?)', [
                 userId,
                 createUserDto.email,
-                createUserDto.password,
+                hashedPassword,
                 createUserDto.name,
                 createUserDto.role,
             ]);
@@ -126,23 +136,11 @@ let UsersService = class UsersService {
         return { status: 200, message: user.profile };
     }
     async findOneByEmail(email) {
-        if (!email) {
-            throw new common_1.BadRequestException('Email must be provided');
-        }
-        const [user] = await (0, mysql_provider_1.queryDefault)('SELECT * FROM user WHERE email = ?', [email]);
-        if (!user) {
+        const results = await (0, mysql_provider_1.queryDefault)('SELECT * FROM user WHERE email = ? LIMIT 1', [email]);
+        if (!results || results.length === 0) {
             throw new common_1.NotFoundException('User not found');
         }
-        return {
-            status: 200,
-            data: 'User found',
-            dataUser: {
-                id: user.userId,
-                email: user.email,
-                name: user.name,
-                password: user.password,
-            },
-        };
+        return results[0];
     }
     async findOneById(id) {
         const [user] = await (0, mysql_provider_1.queryDefault)('SELECT * FROM user WHERE id = ?', [
@@ -153,7 +151,7 @@ let UsersService = class UsersService {
         return user;
     }
     async findOneByIdUser(id) {
-        const [user] = await (0, mysql_provider_1.queryDefault)('SELECT * FROM user WHERE userId = ?', [id]);
+        const [user] = await (0, mysql_provider_1.queryDefault)('SELECT * FROM user WHERE userId = ? ', [id]);
         if (!user)
             throw new common_1.NotFoundException('User not found');
         return user;
