@@ -134,7 +134,7 @@ export class UsersService {
   async remove(id_user: string): Promise<EditEntity> {
     await this.findOneByIdUser(id_user);
     await queryDefault('DELETE FROM user WHERE userId = ?', [id_user]);
-    await queryDefault('DELETE FROM user_history WHERE userId = ?', [id_user]);
+    await queryBackup('DELETE FROM user_history WHERE userId = ?', [id_user]);
     return { status: 200, message: `User Deleted ${id_user} Successfully` };
   }
   async ImageKitAuth() {
